@@ -636,6 +636,34 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition: none !important; }
     }
+  
+    /* LIGHTBOX */
+    #heroLightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #heroLightbox img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    #heroLightbox .close-lb {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-weight: 300;
+      line-height: 1;
+    }
+
   </style>
 </head>
 <body>
@@ -672,7 +700,8 @@
       </div>
     </div>
     <div class="hero-image">
-      <div class="hero-image-inner" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5628_v8ugg3');background-size:cover;background-position:center 35%;background-color:transparent;">
+      <div class="hero-image-inner" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC9697');background-size:cover;background-position:center 30%;background-color:transparent;cursor:pointer;" onclick="document.getElementById('heroLightbox').style.display='flex'">
+        <div style="position:absolute;bottom:20px;right:20px;background:rgba(255,255,255,0.15);backdrop-filter:blur(4px);color:white;font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:8px 14px;border:1px solid rgba(255,255,255,0.3);pointer-events:none;">Tap to view</div>
         <div class="hero-placeholder-text" style="display:none;">
           Your hero image here<br>
           <span style="font-size:11px;opacity:0.6">Replace with your strongest portrait</span>
@@ -966,6 +995,12 @@
       observer.observe(el);
     });
   </script>
+
+<div id="heroLightbox" onclick="this.style.display='none'">
+  <span class="close-lb">&times;</span>
+  <img src="https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC9697" alt="Portrait" />
+</div>
+
 </body>
 </html>
 <style>
