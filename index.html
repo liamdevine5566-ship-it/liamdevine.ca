@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liam Devine Photography — London, Ontario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #F8F8F6;
+      --ink: #111111;
+      --mid: #888888;
+      --surface: #E8E4DE;
+      --accent: #C5A882;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 48px;
+      background: rgba(248,248,246,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    nav.scrolled { border-bottom-color: var(--surface); }
+
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 15px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+
+    .nav-cta {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--ink);
+      padding: 10px 22px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 80px;
+    }
+
+    .hero-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 48px 80px 48px;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .hero-headline {
+      font-family: var(--serif);
+      font-size: clamp(52px, 5.5vw, 80px);
+      font-weight: 300;
+      line-height: 1.05;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+    .hero-headline em {
+      font-style: italic;
+      color: var(--mid);
+    }
+
+    .hero-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.7;
+      max-width: 380px;
+      margin-bottom: 48px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--ink);
+      padding: 14px 28px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: var(--accent); }
+
+    .btn-ghost {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--accent); border-color: var(--accent); }
+
+    .hero-image {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .hero-image-inner {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #d8d0c4 0%, #b8a898 40%, #9a8878 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-placeholder-text {
+      font-family: var(--serif);
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 0.08em;
+      text-align: center;
+      padding: 20px;
+      line-height: 1.8;
+    }
+
+    /* ── SECTION WRAPPER ── */
+    .section { padding: 120px 48px; }
+    .section-narrow { max-width: 1200px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .section-heading {
+      font-family: var(--serif);
+      font-size: clamp(36px, 4vw, 56px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 56px;
+    }
+    .section-heading em { font-style: italic; color: var(--mid); }
+
+    /* ── SERVICES ── */
+    #services { background: var(--bg); }
+
+    .services-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 56px;
+    }
+    .services-header .section-heading { margin-bottom: 0; }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+    }
+
+    .service-card {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--surface);
+    }
+
+    .service-bg {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .service-card:hover .service-bg { transform: scale(1.04); }
+
+    /* Service gradient placeholders — each has a distinct tone */
+    .service-pets .service-bg { background-image:url("https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6405");background-size:cover;background-position:center top; }
+    .service-headshots .service-bg { background-image: url("https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6737"); background-size: cover; background-position: center top; }
+    .service-family .service-bg { background-image:url("https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC3336");background-size:cover;background-position:center top; }
+    .service-motorsports .service-bg { background: linear-gradient(160deg, #a8a8b8 0%, #585868 100%); }
+    .service-personal .service-bg { background-image:url("https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC5721");background-size:cover;background-position:center; }
+
+    .service-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 55%);
+    }
+
+    .service-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 32px;
+      transform: translateY(8px);
+      transition: transform 0.4s ease;
+    }
+    .service-card:hover .service-info { transform: translateY(0); }
+
+    .service-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.35s ease 0.05s, transform 0.35s ease 0.05s;
+    }
+    .service-card:hover .service-tag { opacity: 1; transform: translateY(0); }
+
+    .service-title {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 300;
+      color: white;
+      line-height: 1.1;
+    }
+
+    .service-desc {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.75);
+      margin-top: 8px;
+      line-height: 1.6;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.35s ease 0.1s, max-height 0.4s ease;
+    }
+    .service-card:hover .service-desc { opacity: 1; max-height: 80px; }
+
+    .service-placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: var(--serif);
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.08em;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    /* ── PORTFOLIO ── */
+    #portfolio { background: var(--ink); padding: 120px 48px; }
+
+    #portfolio .section-label { color: var(--accent); }
+    #portfolio .section-heading { color: white; }
+    #portfolio .section-heading em { color: var(--mid); }
+
+    .portfolio-intro {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 48px;
+    }
+    .portfolio-intro p {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      max-width: 440px;
+      line-height: 1.7;
+    }
+
+    .portfolio-filter {
+      display: flex;
+      gap: 4px;
+    }
+    .filter-btn {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: transparent;
+      color: var(--mid);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: white;
+      color: var(--ink);
+      border-color: white;
+    }
+
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+    .portfolio-grid.col-4 { grid-template-columns: repeat(4, 1fr); }
+
+    .portfolio-item {
+      aspect-ratio: 3/4;
+      background: #1e1e1c;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .portfolio-item:nth-child(4n+1) { aspect-ratio: 2/3; }
+    .portfolio-item:nth-child(7n+3) { aspect-ratio: 1/1; }
+
+    .portfolio-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .portfolio-placeholder svg { opacity: 0.08; }
+
+    .portfolio-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .portfolio-item:hover .portfolio-item-overlay { background: rgba(0,0,0,0.4); }
+
+    .portfolio-item-label {
+      font-family: var(--serif);
+      font-size: 15px;
+      color: white;
+      opacity: 0;
+      letter-spacing: 0.04em;
+      transition: opacity 0.3s;
+    }
+    .portfolio-item:hover .portfolio-item-label { opacity: 1; }
+
+    /* placeholder colour variety */
+    .portfolio-item:nth-child(1) .portfolio-placeholder { background: linear-gradient(135deg,#2a2520,#1a1510); }
+    .portfolio-item:nth-child(2) .portfolio-placeholder { background: linear-gradient(135deg,#1e2228,#141820); }
+    .portfolio-item:nth-child(3) .portfolio-placeholder { background: linear-gradient(135deg,#252018,#151008); }
+    .portfolio-item:nth-child(4) .portfolio-placeholder { background: linear-gradient(135deg,#20201e,#141412); }
+    .portfolio-item:nth-child(5) .portfolio-placeholder { background: linear-gradient(135deg,#1a2025,#101518); }
+    .portfolio-item:nth-child(6) .portfolio-placeholder { background: linear-gradient(135deg,#221e18,#181410); }
+    .portfolio-item:nth-child(7) .portfolio-placeholder { background: linear-gradient(135deg,#1e1e25,#141418); }
+    .portfolio-item:nth-child(8) .portfolio-placeholder { background: linear-gradient(135deg,#28221c,#18120c); }
+    .portfolio-item:nth-child(9) .portfolio-placeholder { background: linear-gradient(135deg,#1c2020,#101414); }
+
+    /* ── ABOUT ── */
+    #about { background: var(--bg); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .about-image {
+      aspect-ratio: 3/4;
+      background: linear-gradient(145deg, #d0c8bc 0%, #a09080 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .about-content {}
+
+    .about-content p {
+      font-size: 15px;
+      font-weight: 300;
+      color: #444;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .about-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 40px 0;
+      padding: 32px 0;
+      border-top: 1px solid var(--surface);
+      border-bottom: 1px solid var(--surface);
+    }
+
+    .stat-num {
+      font-family: var(--serif);
+      font-size: 40px;
+      font-weight: 300;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--ink); padding: 120px 48px; }
+    #contact .section-label { color: var(--accent); }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .contact-headline {
+      font-family: var(--serif);
+      font-size: clamp(40px, 4.5vw, 64px);
+      font-weight: 300;
+      line-height: 1.05;
+      color: white;
+      margin-bottom: 24px;
+    }
+    .contact-headline em { font-style: italic; color: var(--accent); }
+
+    .contact-sub {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--mid);
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    .contact-detail {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .contact-detail-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      min-width: 80px;
+    }
+    .contact-detail-value {
+      font-size: 15px;
+      font-weight: 300;
+      color: white;
+    }
+    .contact-detail-value a { color: var(--accent); text-decoration: none; }
+
+    .enquiry-form { display: flex; flex-direction: column; gap: 16px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+
+    .form-group label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: white;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 300;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      -webkit-appearance: none;
+      border-radius: 0;
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+    .form-group select option { background: #111; }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+
+    .form-submit {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: white;
+      border: none;
+      padding: 16px 36px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      align-self: flex-start;
+      font-family: var(--sans);
+    }
+    .form-submit:hover { background: var(--accent); color: white; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 32px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.4);
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy {
+      font-size: 12px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.04em;
+    }
+    .footer-socials { display: flex; gap: 20px; }
+    .footer-socials a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-socials a:hover { color: var(--accent); }
+
+    /* ── DIVIDER ── */
+    .divider { height: 1px; background: var(--surface); margin: 0 48px; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--surface); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      #hero { grid-template-columns: 1fr; }
+      .hero-image { min-height: 70vh; }
+      .hero-text { padding: 60px 24px; }
+      .section { padding: 80px 24px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-card { aspect-ratio: 16/9; }
+      .portfolio-grid { grid-template-columns: repeat(2,1fr); }
+      .portfolio-item { aspect-ratio: 1/1 !important; }
+      .about-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      #contact { padding: 80px 24px; }
+      footer { flex-direction: column; gap: 20px; text-align: center; }
+      .divider { margin: 0 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#hero" class="nav-logo">liamdevine<span>.ca</span></a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#portfolio">Portfolio</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Book a session</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-text">
+      <p class="hero-eyebrow">London · Portrait & Commercial Photography</p>
+      <h1 class="hero-headline">
+        Photographs<br>
+        that hold<br>
+        <em>still.</em>
+      </h1>
+      <p class="hero-sub">
+        Based in London, Ontario, I work with families, professionals, pet owners,
+        and sporting clubs to make images worth keeping. Clean light,
+        honest moments, and an eye for what makes your subject unmistakably themselves.
+      </p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Book a session</a>
+        <a href="#portfolio" class="btn-ghost">View work</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <div class="hero-image-inner" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5628_v8ugg3');background-size:cover;background-position:center 20%;background-color:transparent;">
+        <div class="hero-placeholder-text" style="display:none;">
+          Your hero image here<br>
+          <span style="font-size:11px;opacity:0.6">Replace with your strongest portrait</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="section">
+    <div class="section-narrow">
+      <div class="services-header">
+        <div>
+          <span class="section-label">What I shoot</span>
+          <h2 class="section-heading">Three disciplines.<br><em>One standard.</em></h2>
+        </div>
+        <a href="#contact" class="btn-ghost" style="white-space:nowrap">Enquire about a session →</a>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card service-pets">
+          <div class="service-bg"></div>
+          <div class="service-overlay"></div>
+          <div class="service-placeholder">Your pet photo here</div>
+          <div class="service-info">
+            <span class="service-tag">On location · Studio</span>
+            <h3 class="service-title">Pet Photography</h3>
+            <p class="service-desc">Natural portraits that capture your animal's personality — at home, in the park, or in studio.</p>
+          </div>
+        </div>
+
+        <div class="service-card service-headshots">
+          <div class="service-bg"></div>
+          <div class="service-overlay"></div>
+          <div class="service-placeholder">Your headshot here</div>
+          <div class="service-info">
+            <span class="service-tag">Studio · On location</span>
+            <h3 class="service-title">Professional Headshots</h3>
+            <p class="service-desc">Corporate and creative headshots for individuals, teams, and agencies. Fast turnaround, clean delivery.</p>
+          </div>
+        </div>
+
+        <div class="service-card service-family">
+          <div class="service-bg"></div>
+          <div class="service-overlay"></div>
+          <div class="service-placeholder">Your family photo here</div>
+          <div class="service-info">
+            <span class="service-tag">On location</span>
+            <h3 class="service-title">Family Portraits</h3>
+            <p class="service-desc">Relaxed sessions at a location that means something to you. Genuine moments over posed ones.</p>
+          </div>
+        </div>
+
+        <div class="service-card service-motorsports">
+          <div class="service-bg"></div>
+          <div class="service-overlay"></div>
+          <div class="service-placeholder">Your sports photo here</div>
+          <div class="service-info">
+            <span class="service-tag">Events · Action</span>
+            <h3 class="service-title">Motorsports Photography</h3>
+            <p class="service-desc">Pit lane to podium — race days, track events, and karting. Speed captured at the decisive fraction of a second.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PORTFOLIO -->
+  <section id="portfolio">
+    <div class="section-narrow">
+      <div class="portfolio-intro">
+        <div>
+          <span class="section-label">Selected work</span>
+          <h2 class="section-heading">Recent <em>images</em></h2>
+        </div>
+        <div>
+          <p>A selection across disciplines — hover to see details. Click to view full size.</p>
+          <div class="portfolio-filter" style="margin-top:20px;">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pets">Pets</button>
+            <button class="filter-btn" data-filter="headshots">Headshots</button>
+            <button class="filter-btn" data-filter="family">Family</button>
+            <button class="filter-btn" data-filter="personal">Personal</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="portfolio-grid" id="portfolioGrid">
+        <div class="portfolio-item" data-cat="pets">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Pet Photography</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="headshots">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Headshot</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="family">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Family Portrait</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Personal Work</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="pets">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Pet Photography</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="headshots">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Headshot</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="family">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Family Portrait</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Personal Work</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="pets">
+          <div class="portfolio-placeholder"></div>
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Pet Photography</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section">
+    <div class="section-narrow">
+      <div class="about-grid">
+        <div class="about-image" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5529');background-size:cover;background-position:center top;"></div>
+
+        <div class="about-content">
+          <span class="section-label">About</span>
+          <h2 class="section-heading" style="margin-bottom:24px;">Behind the<br><em>camera</em></h2>
+
+          <p>
+            I'm a London-based photographer with a background in landscape, wildlife, and sports photography —
+            disciplines — including motorsports — that trained me to read light fast and be ready for the unplanned moment.
+          </p>
+          <p>
+            That instinct now runs through everything I shoot: headshots, family sessions, pets, and sporting events.
+            Every subject gets the same attention I'd give a bird in flight — preparation, patience, and a quick shutter
+            when it counts.
+          </p>
+          <p>
+            I shoot primarily on Nikon Z8 and Fujifilm, with a home studio available for controlled sessions
+            and the whole of London for everything else.
+          </p>
+
+          <div class="about-stats">
+            <div>
+              <div class="stat-num">150+</div>
+              <div class="stat-label">Sessions shot</div>
+            </div>
+            <div>
+              <div class="stat-num">48h</div>
+              <div class="stat-label">Delivery time</div>
+            </div>
+            <div>
+              <div class="stat-num">3</div>
+              <div class="stat-label">Services</div>
+            </div>
+          </div>
+
+          <a href="#contact" class="btn-primary">Work with me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="section-narrow">
+      <span class="section-label">Get in touch</span>
+      <div class="contact-grid">
+        <div>
+          <h2 class="contact-headline">
+            Let's make<br>something<br><em>lasting.</em>
+          </h2>
+          <p class="contact-sub">
+            Tell me what you're after and I'll come back to you within 24 hours
+            with availability and a quote.
+          </p>
+
+          <div class="contact-detail">
+            <span class="contact-detail-label">Phone</span>
+            <span class="contact-detail-value"><a href="tel:6475299924">647-529-9924</a></span>
+          </div>
+          <div class="contact-detail">
+            <span class="contact-detail-label">Email</span>
+            <span class="contact-detail-value"><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></span>
+          </div>
+          <div class="contact-detail">
+            <span class="contact-detail-label">Location</span>
+            <span class="contact-detail-value">London, Ontario — travel available across Southwestern Ontario</span>
+          </div>
+          <div class="contact-detail">
+            <span class="contact-detail-label">Instagram</span>
+            <span class="contact-detail-value"><a href="https://www.instagram.com/liamdevinephotography?igsh=MXNoN2hmZm90cmp5MA%3D%3D&utm_source=qr" target="_blank">@liamdevinephotography</a></span>
+          </div>
+        </div>
+
+        <div class="enquiry-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First name</label>
+              <input type="text" placeholder="Jane" />
+            </div>
+            <div class="form-group">
+              <label>Last name</label>
+              <input type="text" placeholder="Smith" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="jane@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Session type</label>
+            <select>
+              <option value="" disabled selected>Select a service</option>
+              <option>Pet Photography</option>
+              <option>Professional Headshots</option>
+              <option>Family Portraits</option>
+              <option>Something else / Personal work enquiry</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tell me about your session</label>
+            <textarea placeholder="Where, when, how many people, any specific ideas…"></textarea>
+          </div>
+          <button class="form-submit">Send enquiry</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">liamdevine<span>.ca</span></div>
+    <div class="footer-copy">© 2026 Liam Devine Photography · London, Ontario</div>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scrolled nav border
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Portfolio filter
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const portfolioItems = document.querySelectorAll('.portfolio-item');
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        portfolioItems.forEach(item => {
+          const show = filter === 'all' || item.dataset.cat === filter;
+          item.style.display = show ? 'block' : 'none';
+        });
+      });
+    });
+
+    // Animate sections in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.service-card, .portfolio-item, .about-content, .about-image').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
+<style>
+/* ── MOBILE NAV ── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+}
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 1.5px;
+  background: var(--ink);
+  transition: all 0.3s ease;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 68px; left: 0; right: 0;
+  background: var(--bg);
+  border-bottom: 1px solid var(--surface);
+  padding: 24px;
+  z-index: 99;
+  flex-direction: column;
+  gap: 0;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--surface);
+}
+.mobile-menu a:last-child { border-bottom: none; }
+.mobile-menu-cta {
+  margin-top: 20px;
+  background: var(--ink) !important;
+  color: var(--bg) !important;
+  text-align: center;
+  padding: 16px !important;
+  border-bottom: none !important;
+}
+
+@media (max-width: 900px) {
+  .hamburger { display: flex; }
+  .nav-cta { display: none; }
+
+  /* Touch-friendly service cards */
+  .service-tag { opacity: 1 !important; transform: none !important; }
+  .service-desc { opacity: 1 !important; max-height: 80px !important; }
+  .service-info { transform: none !important; }
+
+  /* Better mobile hero */
+  #hero { min-height: auto; }
+  .hero-text { padding: 48px 24px 40px; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+  /* Mobile portfolio — 2 col, uniform */
+  .portfolio-grid { grid-template-columns: repeat(2,1fr); gap: 2px; }
+  .portfolio-item { aspect-ratio: 1/1 !important; }
+
+  /* Mobile about */
+  .about-grid { gap: 40px; }
+  .about-stats { grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .stat-num { font-size: 32px; }
+
+  /* Mobile contact */
+  .contact-grid { gap: 48px; }
+
+  /* Services single col with better aspect */
+  .services-grid { grid-template-columns: 1fr; gap: 2px; }
+  .service-card { aspect-ratio: 4/3; }
+  .services-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+
+  /* Tap targets */
+  .btn-primary, .btn-ghost, .form-submit { min-height: 48px; display: inline-flex; align-items: center; }
+
+  /* Filter scroll */
+  .portfolio-filter { overflow-x: auto; padding-bottom: 4px; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+  .filter-btn { white-space: nowrap; min-height: 44px; }
+}
+
+@media (max-width: 480px) {
+  nav { padding: 18px 20px; }
+  .section { padding: 64px 20px; }
+  #contact { padding: 64px 20px; }
+  footer { padding: 24px 20px; }
+  .divider { margin: 0 20px; }
+  .about-stats { grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .stat-num { font-size: 28px; }
+  .stat-label { font-size: 10px; }
+}
+</style>
+<script>
+// Hamburger menu
+(function() {
+  const nav = document.getElementById('nav');
+  const burger = document.createElement('button');
+  burger.className = 'hamburger';
+  burger.setAttribute('aria-label', 'Menu');
+  burger.innerHTML = '<span></span><span></span><span></span>';
+
+  const mobileMenu = document.createElement('div');
+  mobileMenu.className = 'mobile-menu';
+  mobileMenu.innerHTML = `
+    <a href="#services" class="mobile-menu-link">Services</a>
+    <a href="#portfolio" class="mobile-menu-link">Portfolio</a>
+    <a href="#about" class="mobile-menu-link">About</a>
+    <a href="#contact" class="mobile-menu-link">Contact</a>
+    <a href="#contact" class="mobile-menu-cta">Book a session</a>
+  `;
+
+  nav.appendChild(burger);
+  document.body.appendChild(mobileMenu);
+
+  burger.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    burger.classList.toggle('open', open);
+  });
+
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      burger.classList.remove('open');
+    });
+  });
+})();
+</script>
