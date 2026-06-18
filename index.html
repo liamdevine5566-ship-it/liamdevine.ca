@@ -41,8 +41,8 @@
       margin-left: 8px;
     }
     .nav-bottom {
-      display: flex; justify-content: center; gap: 48px;
-      padding: 12px 40px; border-top: 1px solid var(--surface);
+      display: flex; justify-content: center; gap: 36px;
+      padding: 0; border: none;
     }
     .nav-bottom a {
       font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
@@ -61,18 +61,7 @@
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
-    .mobile-menu {
-      display: none; position: fixed; top: 65px; left: 0; right: 0;
-      background: var(--bg); border-bottom: 1px solid var(--surface);
-      padding: 0 24px; z-index: 99; flex-direction: column;
-    }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a {
-      font-size: 13px; font-weight: 500; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--ink); text-decoration: none;
-      padding: 18px 0; border-bottom: 1px solid var(--surface);
-    }
-    .mobile-menu a:last-child { border-bottom: none; }
+
 
     /* HERO */
     #hero {
@@ -345,8 +334,18 @@
     /* RESPONSIVE */
     @media (max-width: 900px) {
       .nav-top { padding: 16px 24px; }
-      .nav-bottom { display: none; }
+      .nav-bottom { display: none !important; }
       .hamburger { display: flex; }
+      .nav-bottom.mobile-open { 
+        display: flex !important; flex-direction: column;
+        position: fixed; top: 65px; left: 0; right: 0;
+        background: var(--bg); border-bottom: 1px solid var(--surface);
+        padding: 0 24px; z-index: 99; gap: 0;
+      }
+      .nav-bottom.mobile-open a {
+        font-size: 13px; padding: 18px 0; border-bottom: 1px solid var(--surface);
+        color: var(--ink);
+      }
       #hero { height: 100svh; }
       .hero-content { padding: 0 24px 48px; }
       #portrait-feature { grid-template-columns: 1fr; }
@@ -381,7 +380,7 @@
   <nav id="nav">
     <div class="nav-top">
       <a href="#hero" class="nav-logo">Liam Devine <span>Photography</span></a>
-      <div class="nav-bottom" style="display:flex;border:none;padding:0;gap:36px;" id="desktopLinks">
+      <div class="nav-bottom" id="desktopLinks">
         <a href="#services">Portraits</a>
         <a href="#services">Family</a>
         <a href="#services">Pets</a>
@@ -394,13 +393,7 @@
     </div>
   </nav>
 
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#services" class="mm-link">Portraits</a>
-    <a href="#services" class="mm-link">Family</a>
-    <a href="#services" class="mm-link">Pets</a>
-    <a href="#portfolio" class="mm-link">Fine Art</a>
-    <a href="#contact" class="mm-link">Contact</a>
-  </div>
+
 
   <!-- HERO -->
   <section id="hero">
@@ -500,7 +493,13 @@
         <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC9813-Enhanced-NR');">
           <div class="portfolio-item-overlay"><span class="portfolio-item-label">Fine Art</span></div>
         </div>
+        <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC4807');">
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Fine Art</span></div>
+        </div>
         <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC4036');">
+          <div class="portfolio-item-overlay"><span class="portfolio-item-label">Fine Art</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5576');">
           <div class="portfolio-item-overlay"><span class="portfolio-item-label">Fine Art</span></div>
         </div>
       </div>
@@ -589,14 +588,14 @@
   <script>
     // Hamburger
     const burger = document.getElementById('burger');
-    const mobileMenu = document.getElementById('mobileMenu');
+    const desktopLinks = document.getElementById('desktopLinks');
     burger.addEventListener('click', () => {
-      const open = mobileMenu.classList.toggle('open');
+      const open = desktopLinks.classList.toggle('mobile-open');
       burger.classList.toggle('open', open);
     });
-    document.querySelectorAll('.mm-link').forEach(a => {
+    desktopLinks.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', () => {
-        mobileMenu.classList.remove('open');
+        desktopLinks.classList.remove('mobile-open');
         burger.classList.remove('open');
       });
     });
