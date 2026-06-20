@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liam Devine Photography</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:#f7f7f5;color:#222;line-height:1.6}
+nav{position:fixed;top:0;width:100%;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:20px 8%;display:flex;justify-content:space-between;z-index:100}
+nav a{text-decoration:none;color:#333;margin-left:24px}
+.logo{font-weight:600}
+.hero{height:100vh;background:url('images/numberoneportrait.jpg') center center/cover;display:flex;align-items:center}
+.hero-card{background:rgba(255,255,255,.90);padding:40px;max-width:520px;margin-left:8%}
+h1,h2{font-family:"Cormorant Garamond",serif}
+h1{font-size:4rem;line-height:.95}
+h2{font-size:3rem;margin-bottom:20px}
+.btn{display:inline-block;background:#222;color:#fff;text-decoration:none;padding:14px 24px;margin-top:20px}
+section{padding:90px 8%}
+.alt{background:#efefeb}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+img{width:100%;display:block}
+.contact{background:#222;color:#fff}
+.footer{text-align:center;padding:30px}
+@media(max-width:900px){
+.grid{grid-template-columns:1fr}
+h1{font-size:3rem}
+.hero-card{margin:20px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="logo">Liam Devine Photography</div>
+<div>
+<a href="#portraits">PORTRAITS</a>
+<a href="#family">FAMILY</a>
+<a href="#fineart">FINE ART</a>
+<a href="#about">ABOUT</a>
+<a href="#contact">CONTACT</a>
+</div>
+</nav>
+
+<section class="hero">
+<div class="hero-card">
+<h1>Photography<br>That Feels Real.</h1>
+<p>Portraits, families and fine art photography in London, Ontario.</p>
+<a href="#contact" class="btn">Book a Session</a>
+</div>
+</section>
+
+<section id="portraits">
+<div class="grid">
+<img src="images/mirrorportrait.jpg" alt="Portrait">
+<div>
+<h2>Portraits</h2>
+<p>No awkward poses. No over-editing. Just strong photographs that feel authentic and personal.</p>
+</div>
+</div>
+</section>
+
+<section id="family" class="alt">
+<div class="grid">
+<div>
+<h2>Family</h2>
+<p>Relaxed family photography focused on connection, personality and genuine moments.</p>
+</div>
+<img src="images/family1.jpg" alt="Family">
+</div>
+</section>
+
+<section id="fineart">
+<h2>Fine Art</h2>
+<img src="images/TREE-2.jpg" alt="Tree">
+<p style="margin-top:20px">Selected personal and fine art work from Ontario and beyond.</p>
+</section>
+
+<section id="about" class="alt">
+<div class="grid">
+<img src="images/LiamDevine.jpg" alt="Liam Devine">
+<div>
+<h2>About Liam</h2>
+<p>I'm Liam Devine, a photographer based in London, Ontario. My work spans portraits, families, pets and fine art. Whether I'm photographing a person, a family or a landscape, the goal is always the same: create photographs that feel honest, timeless and real.</p>
+</div>
+</div>
+</section>
+
+<section id="contact" class="contact">
+<h2>Contact Liam Devine</h2>
+<p>Whether you're looking for portraits, family photography, or fine art prints, I'd be happy to hear from you.</p>
+<br>
+<p>London, Ontario</p>
+<p>647-529-9924</p>
+<p>liamdevinephotography@gmail.com</p>
+<p>@liamdevinephotography</p>
+</section>
+
+<div class="footer">
+© Liam Devine Photography
+</div>
+
+</body>
+</html>
