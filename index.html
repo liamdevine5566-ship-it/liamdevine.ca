@@ -28,7 +28,7 @@ h2{text-align:center}
 input,textarea{width:100%;padding:12px;margin:8px 0}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
-.close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer}
+.close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer}.nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:white;font-size:60px;cursor:pointer;padding:20px;user-select:none}.prev{left:20px}.next{right:20px}
 
 .menu-toggle{display:none;font-size:2rem;cursor:pointer;font-weight:bold}
 @media(max-width:800px){
@@ -124,7 +124,7 @@ pointer-events:none;
 
 <section id="contact" class="alt"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p>647-529-9924</p><p>liamdevinephotography@gmail.com</p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input type="hidden" name="access_key" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"><input name="name" placeholder="Your Name"><input name="email" placeholder="Email"><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
 
-<div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="close">&times;</span><img id="lightbox-img"></div>
+<div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">&times;</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
 <script>
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
 function closeLightbox(){document.getElementById('lightbox').style.display='none';}
@@ -134,6 +134,49 @@ function toggleMenu(){
 }
 document.querySelectorAll('#navLinks a').forEach(a=>{
  a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open'));
+});
+
+let galleries={},currentGallery=[],currentIndex=0,startX=0;
+
+document.querySelectorAll('section').forEach(section=>{
+ const imgs=[...section.querySelectorAll('img[onclick]')];
+ galleries[section.id||'default']=imgs.map(i=>i.src);
+ imgs.forEach(img=>{
+   img.onclick=()=>openGallery(section.id||'default',img.src);
+ });
+});
+
+function openGallery(gallery,src){
+ currentGallery=galleries[gallery]||[src];
+ currentIndex=currentGallery.indexOf(src);
+ document.getElementById('lightbox').style.display='flex';
+ document.getElementById('lightbox-img').src=src;
+}
+
+function nextImage(){
+ currentIndex=(currentIndex+1)%currentGallery.length;
+ document.getElementById('lightbox-img').src=currentGallery[currentIndex];
+}
+
+function prevImage(){
+ currentIndex=(currentIndex-1+currentGallery.length)%currentGallery.length;
+ document.getElementById('lightbox-img').src=currentGallery[currentIndex];
+}
+
+document.addEventListener('keydown',e=>{
+ if(document.getElementById('lightbox').style.display==='flex'){
+   if(e.key==='ArrowRight') nextImage();
+   if(e.key==='ArrowLeft') prevImage();
+   if(e.key==='Escape') closeLightbox();
+ }
+});
+
+const lb=document.getElementById('lightbox');
+lb.addEventListener('touchstart',e=>startX=e.changedTouches[0].clientX);
+lb.addEventListener('touchend',e=>{
+ const endX=e.changedTouches[0].clientX;
+ if(startX-endX>50) nextImage();
+ if(endX-startX>50) prevImage();
 });
 </script>
 </body></html>
