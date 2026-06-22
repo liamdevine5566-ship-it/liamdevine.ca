@@ -11,7 +11,7 @@ html,body{margin:0;padding:0;overflow-x:hidden;background:var(--ivory);color:var
 nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,255,.18);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.25);z-index:1000;display:flex;align-items:center;justify-content:space-between}
 .nav-logo img{height:58px;opacity:.88;display:block}
 .nav-links{text-align:center;flex:1}
-nav a{margin:0 12px;text-decoration:none;color:var(--char);font-weight:bold}
+nav a{margin:0 12px;text-decoration:none;color:#fff;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,.35)}
 .hero{height:100vh;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url('images/hijab.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff}
 .hero h1{font-size:clamp(1.7rem,5vw,4rem);max-width:70%;margin:0;text-align:left;}.hero-content{max-width:1200px;width:100%;display:flex;justify-content:flex-start;align-items:flex-end;padding-left:6%;padding-top:35vh;}
 section{padding:90px 8%}
@@ -29,6 +29,20 @@ input,textarea{width:100%;padding:12px;margin:8px 0}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
 .close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer}
+
+#navbar{transition:all .3s ease}
+nav.light{background:rgba(20,20,20,.35)}
+nav.light a,.menu-toggle{color:#fff}
+nav.dark{background:rgba(255,255,255,.75);border-bottom:1px solid rgba(0,0,0,.1)}
+nav.dark a,nav.dark .menu-toggle{color:#222;text-shadow:none}
+.menu-toggle{display:none;font-size:1.8rem;cursor:pointer;font-weight:bold}
+@media(max-width:800px){
+.menu-toggle{display:block}
+.nav-links{display:none;position:absolute;top:100%;right:10px;background:rgba(20,20,20,.92);padding:15px;border-radius:10px;text-align:left}
+.nav-links.open{display:block}
+.nav-links a{display:block;margin:10px 0}
+}
+
 @media(max-width:800px){
 .about,.contact{grid-template-columns:1fr}
 .grid{grid-template-columns:repeat(2,140px)}
@@ -40,9 +54,9 @@ nav a{margin:0 6px;font-size:.8rem}
 </style>
 </head>
 <body>
-<nav>
-<div class="nav-logo"><img src="logo1.jpg" alt="Liam Devine Photography Logo"></div>
-<div class="nav-links">
+<nav id="navbar" class="light">
+<div class="menu-toggle" onclick="toggleMenu()">☰</div>
+<div class="nav-links" id="navLinks">
 <a href="#portraits">PORTRAITS</a>
 <a href="#family">FAMILY</a>
 <a href="#pets">PETS</a>
@@ -103,5 +117,24 @@ nav a{margin:0 6px;font-size:.8rem}
 <script>
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
 function closeLightbox(){document.getElementById('lightbox').style.display='none';}
+
+function toggleMenu(){
+document.getElementById('navLinks').classList.toggle('open');
+}
+
+function updateNavbar(){
+const nav=document.getElementById('navbar');
+const y=window.scrollY;
+if(y < window.innerHeight*0.75){
+nav.classList.add('light');
+nav.classList.remove('dark');
+}else{
+nav.classList.add('dark');
+nav.classList.remove('light');
+}
+}
+window.addEventListener('scroll',updateNavbar);
+window.addEventListener('load',updateNavbar);
+
 </script>
 </body></html>
