@@ -5,24 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Liam Devine Photography</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#F6F2EB;color:#2f2f2f;line-height:1.6}
-nav{position:fixed;top:0;width:100%;background:rgba(246,242,235,.95);padding:15px;text-align:center;z-index:1000}
-nav a{margin:0 12px;color:#2f2f2f;text-decoration:none;font-weight:bold}
-.hero{height:100vh;background:url('images/hijab.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;color:white}
-.hero h1{font-size:4rem;text-shadow:0 2px 10px rgba(0,0,0,.5)}
-section{padding:80px 10%}
-.alt{background:#ECE6DC}
-.feature-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
-.side-grid{display:grid;gap:20px}
-img{width:100%;display:block;border-radius:8px;cursor:pointer}
+:root{--ivory:#f6f2eb;--stone:#ebe4d8;--sand:#d8c9b3;--char:#2f2f2f;}
+*{box-sizing:border-box}
+body{margin:0;font-family:Georgia,serif;background:var(--ivory);color:var(--char)}
+nav{position:fixed;top:0;width:100%;background:rgba(246,242,235,.95);backdrop-filter:blur(8px);padding:18px;text-align:center;z-index:1000}
+nav a{text-decoration:none;color:var(--char);margin:0 14px;font-weight:700}
+.hero{height:100vh;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url('images/hijab.jpg') center/cover;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff}
+.hero h1{font-size:clamp(3rem,7vw,6rem);margin:0}
+.hero p{font-size:1.2rem}
+section{padding:90px 8%}
+.alt{background:var(--stone)}
+.wrap{max-width:1200px;margin:auto}
+h2{text-align:center;font-size:2.3rem;margin-bottom:10px}
+.lead{text-align:center;margin-bottom:35px}
+.featured{max-width:900px;margin:0 auto 25px}
+.featured img{width:100%;border-radius:10px;display:block;cursor:pointer}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;max-width:1000px;margin:auto}
+.thumbs img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;cursor:pointer}
+.personal img{width:100%;max-width:1100px;margin:auto;display:block;border-radius:10px;cursor:pointer}
 .about{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.about img{width:100%;border-radius:10px}
 .contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}
-input,textarea{width:100%;padding:12px;margin:8px 0}
-button{padding:12px 20px}
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center}
-.lightbox img{max-width:90%;max-height:90%}
-.close{position:absolute;top:20px;right:30px;color:white;font-size:40px;cursor:pointer}
-@media(max-width:768px){.feature-grid,.about,.contact{grid-template-columns:1fr}.hero h1{font-size:2.5rem}}
+input,textarea{width:100%;padding:14px;margin:8px 0}
+button{padding:14px 24px}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
+.lightbox img{max-width:92vw;max-height:92vh;width:auto;height:auto;object-fit:contain}
+.close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer}
+@media(max-width:800px){.about,.contact{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -44,10 +53,12 @@ button{padding:12px 20px}
 </section>
 
 <section id="portraits">
+<div class="wrap">
 <h2>Portraits</h2>
-<div class="feature-grid">
+<p class="lead">Natural, authentic portrait photography.</p>
+<div class="featured"><img src="images/hijab.jpg" onclick="openLightbox(this.src)"></div>
+<div class="thumbs">
 <img src="images/mirrorportrait.jpg" onclick="openLightbox(this.src)">
-<div class="side-grid">
 <img src="images/ingrid1.jpg" onclick="openLightbox(this.src)">
 <img src="images/ingrid2.jpg" onclick="openLightbox(this.src)">
 <img src="images/blair1.jpg" onclick="openLightbox(this.src)">
@@ -56,33 +67,34 @@ button{padding:12px 20px}
 </section>
 
 <section id="family" class="alt">
+<div class="wrap">
 <h2>Family</h2>
-<div class="feature-grid">
-<img src="images/blairkids1.jpg" onclick="openLightbox(this.src)">
-<div class="side-grid">
-<img src="images/tilk1.jpg" onclick="openLightbox(this.src)">
-</div>
+<div class="featured"><img src="images/blairkids1.jpg" onclick="openLightbox(this.src)"></div>
+<div class="thumbs"><img src="images/tilk1.jpg" onclick="openLightbox(this.src)"></div>
 </div>
 </section>
 
 <section id="pets">
+<div class="wrap">
 <h2>Pets</h2>
-<div class="feature-grid">
-<img src="images/winston1.jpg" onclick="openLightbox(this.src)">
-<div class="side-grid">
+<div class="featured"><img src="images/winston1.jpg" onclick="openLightbox(this.src)"></div>
+<div class="thumbs">
 <img src="images/cat1.jpg" onclick="openLightbox(this.src)">
 <img src="images/horse1.jpeg" onclick="openLightbox(this.src)">
 </div>
 </div>
 </section>
 
-<section id="personal" class="alt">
+<section id="personal" class="alt personal">
+<div class="wrap">
 <h2>Personal Work</h2>
+<p class="lead">Landscapes, wildlife, motorsports and photographs captured along the way.</p>
 <img src="images/tree1.jpg" onclick="openLightbox(this.src)">
+</div>
 </section>
 
 <section id="about">
-<div class="about">
+<div class="wrap about">
 <img src="images/liamdevine.jpg" onclick="openLightbox(this.src)">
 <div>
 <h2>About Liam</h2>
@@ -92,18 +104,18 @@ button{padding:12px 20px}
 </section>
 
 <section id="contact" class="alt">
-<div class="contact">
+<div class="wrap contact">
 <div>
-<h2>CONTACT LIAM DEVINE.</h2>
+<h2>Contact Liam Devine</h2>
 <p>647-529-9924</p>
 <p>liamdevinephotography@gmail.com</p>
 <p>@liamdevinephotography</p>
 </div>
 <form action="https://api.web3forms.com/submit" method="POST">
 <input type="hidden" name="access_key" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47">
-<input type="text" name="name" placeholder="Your Name" required>
-<input type="tel" name="phone" placeholder="Phone Number">
-<input type="email" name="email" placeholder="Email Address" required>
+<input name="name" placeholder="Your Name" required>
+<input name="phone" placeholder="Phone Number">
+<input name="email" type="email" placeholder="Email Address" required>
 <textarea name="message" placeholder="Tell me about your project"></textarea>
 <button type="submit">Send Message</button>
 </form>
@@ -116,13 +128,8 @@ button{padding:12px 20px}
 </div>
 
 <script>
-function openLightbox(src){
-document.getElementById('lightbox').style.display='flex';
-document.getElementById('lightbox-img').src=src;
-}
-function closeLightbox(){
-document.getElementById('lightbox').style.display='none';
-}
+function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
+function closeLightbox(){document.getElementById('lightbox').style.display='none';}
 </script>
 </body>
 </html>
