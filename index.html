@@ -11,7 +11,7 @@ html,body{margin:0;padding:0;overflow-x:hidden;background:var(--ivory);color:var
 nav{position:fixed;top:0;width:100%;padding:16px;background:rgba(246,242,235,.95);text-align:center;z-index:1000}
 nav a{margin:0 12px;text-decoration:none;color:var(--char);font-weight:bold}
 .hero{height:100vh;background:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url('images/hijab.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff}
-.hero h1{font-size:clamp(2rem,6vw,5rem);max-width:90%;margin:auto}.hero-content{transform:translate(-8%,12%);}
+.hero h1{font-size:clamp(1.7rem,5vw,4rem);max-width:70%;margin:0;text-align:left;}.hero-content{max-width:1200px;width:100%;display:flex;justify-content:flex-start;align-items:flex-end;padding-left:6%;padding-top:35vh;}
 section{padding:90px 8%}
 .alt{background:var(--stone)}
 .wrap{max-width:1200px;margin:auto}
@@ -87,9 +87,9 @@ input,textarea{width:100%;padding:12px;margin:8px 0}
 
 <section id="personal" class="alt personal"><div class="wrap"><h2>Personal Work</h2><img src="images/tree1.jpg" onclick="openLightbox(this.src)"></div></section>
 
-<section id="about"><div class="wrap about"><img src="images/liamdevine.jpg"><div><h2>About Liam</h2><p>Based in London, Ontario, I photograph people, pets, landscapes and moments captured along the way.</p></div></div></section>
+<section id="about"><div class="wrap about"><img src="images/liamdevine.jpg"><div><h2>About Liam</h2><p>I’m Liam Devine, a photographer based in London, Ontario. I photograph people, families, pets and the landscapes that catch my eye along the way. My approach is simple: create honest images that feel natural, timeless and authentic.</p></div></div></section>
 
-<section id="contact" class="alt"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p>647-529-9924</p><p>liamdevinephotography@gmail.com</p></div><form action="https://api.web3forms.com/submit" method="POST"><input type="hidden" name="access_key" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"><input name="name" placeholder="Your Name"><input name="email" placeholder="Email"><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
+<section id="contact" class="alt"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p>647-529-9924</p><p>liamdevinephotography@gmail.com</p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input type="hidden" name="access_key" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"><input name="name" placeholder="Your Name"><input name="email" placeholder="Email"><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
 
 <div class="lightbox" id="lightbox" onclick="closeLightbox()"><span class="close">&times;</span><img id="lightbox-img"></div>
 <script>
