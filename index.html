@@ -1,105 +1,650 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liam Devine Photography</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Inter,sans-serif;background:#f7f7f5;color:#222;line-height:1.6}
-nav{position:fixed;top:0;width:100%;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);padding:20px 8%;display:flex;justify-content:space-between;z-index:100}
-nav a{text-decoration:none;color:#333;margin-left:24px}
-.logo{font-weight:600}
-.hero{height:100vh;background:url('images/numberoneportrait.jpg') center center/cover;display:flex;align-items:center}
-.hero-card{background:rgba(255,255,255,.90);padding:40px;max-width:520px;margin-left:8%}
-h1,h2{font-family:"Cormorant Garamond",serif}
-h1{font-size:4rem;line-height:.95}
-h2{font-size:3rem;margin-bottom:20px}
-.btn{display:inline-block;background:#222;color:#fff;text-decoration:none;padding:14px 24px;margin-top:20px}
-section{padding:90px 8%}
-.alt{background:#efefeb}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
-img{width:100%;display:block}
-.contact{background:#222;color:#fff}
-.footer{text-align:center;padding:30px}
-@media(max-width:900px){
-.grid{grid-template-columns:1fr}
-h1{font-size:3rem}
-.hero-card{margin:20px}
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liam Devine Photography — London, Ontario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F5F3F0;
+      --bone: #EAE6E0;
+      --ink: #1A1A1A;
+      --mid: #888888;
+      --dark: #1A1A1A;
+      --accent: #C5A882;
+      --block: 'Bebas Neue', 'Arial Narrow', sans-serif;
+      --sans: 'Rajdhani', 'Arial Narrow', sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(245,243,240,0.96); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--bone);
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 48px; height: 64px;
+    }
+    .nav-logo {
+      font-family: var(--block); font-size: 22px; letter-spacing: 0.08em;
+      color: var(--ink); text-decoration: none;
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-family: var(--sans); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mid); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: white; background: var(--ink); padding: 12px 24px;
+      text-decoration: none; transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent); }
+
+    /* HAMBURGER */
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 22px; height: 1.5px; background: var(--ink); transition: all 0.3s; }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+    .mobile-menu {
+      display: none; position: fixed; top: 64px; left: 0; right: 0;
+      background: var(--bg); border-bottom: 1px solid var(--bone);
+      z-index: 99; flex-direction: column;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--sans); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink); text-decoration: none;
+      padding: 18px 24px; border-bottom: 1px solid var(--bone);
+    }
+
+    /* HERO */
+    #hero {
+      height: 100vh; position: relative; overflow: hidden;
+      display: flex; align-items: flex-end; padding-top: 64px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC4807');
+      background-size: cover; background-position: center;
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(26,26,26,0.7) 0%, rgba(26,26,26,0.2) 50%, rgba(26,26,26,0.05) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: 0 64px 72px; max-width: 900px;
+    }
+    .hero-headline {
+      font-family: var(--block); font-size: clamp(56px, 8vw, 110px);
+      letter-spacing: 0.04em; color: white; line-height: 0.95;
+      margin-bottom: 20px;
+    }
+    .hero-sub {
+      font-size: 17px; font-weight: 300; color: rgba(255,255,255,0.8);
+      line-height: 1.7; max-width: 500px; margin-bottom: 40px;
+    }
+    .hero-actions { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .btn-light {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink); background: white; padding: 14px 32px;
+      text-decoration: none; transition: background 0.2s, color 0.2s;
+      min-height: 48px; display: inline-flex; align-items: center;
+    }
+    .btn-light:hover { background: var(--accent); color: white; }
+    .btn-outline {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: white; text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.6); padding-bottom: 2px;
+    }
+
+    /* PORTRAIT FEATURE */
+    #portrait-feature {
+      display: grid; grid-template-columns: 1fr 1fr; min-height: 85vh;
+      background: var(--bg);
+    }
+    .portrait-image {
+      background-image: url('https://res.cloudinary.com/dywzapiql/image/upload/g_face,c_fill,ar_3:4,f_auto,q_auto/IMG_5628_v8ugg3');
+      background-size: cover; background-position: center;
+      cursor: pointer; position: relative; min-height: 500px;
+    }
+    .portrait-tap {
+      position: absolute; bottom: 20px; right: 20px;
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: white; background: rgba(0,0,0,0.45);
+      padding: 8px 14px; backdrop-filter: blur(4px);
+    }
+    .portrait-text {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 64px; background: var(--bone);
+    }
+    .section-label {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px; display: block;
+    }
+    .portrait-text h2 {
+      font-family: var(--block); font-size: clamp(40px, 4vw, 60px);
+      letter-spacing: 0.04em; color: var(--ink);
+      line-height: 1.0; margin-bottom: 24px;
+    }
+    .portrait-text p {
+      font-size: 16px; font-weight: 300; color: #555;
+      line-height: 1.8; margin-bottom: 36px;
+    }
+    .btn-dark {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: white; background: var(--ink); padding: 14px 32px;
+      text-decoration: none; transition: background 0.2s;
+      min-height: 48px; display: inline-flex; align-items: center; align-self: flex-start;
+    }
+    .btn-dark:hover { background: var(--accent); }
+
+    /* SERVICES */
+    #services { padding: 100px 64px; background: var(--bg); }
+    .section-intro { margin-bottom: 56px; }
+    .section-intro h2 {
+      font-family: var(--block); font-size: clamp(40px, 5vw, 68px);
+      letter-spacing: 0.04em; color: var(--ink); line-height: 1.0;
+    }
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    .service-card {
+      position: relative; aspect-ratio: 3/4; overflow: hidden;
+      cursor: pointer; background: var(--bone);
+    }
+    .service-bg {
+      width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .service-card:hover .service-bg { transform: scale(1.04); }
+    .service-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 55%);
+    }
+    .service-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px; }
+    .service-tag {
+      display: block; font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .service-title {
+      font-family: var(--block); font-size: 32px;
+      letter-spacing: 0.04em; color: white;
+    }
+    .service-desc {
+      font-size: 13px; font-weight: 300; color: rgba(255,255,255,0.8);
+      margin-top: 8px; line-height: 1.6; max-height: 0;
+      overflow: hidden; opacity: 0; transition: opacity 0.35s, max-height 0.4s;
+    }
+    .service-card:hover .service-desc { opacity: 1; max-height: 80px; }
+    /* Always show on mobile */
+    @media (max-width: 900px) {
+      .service-desc { opacity: 1; max-height: 80px; }
+    }
+
+    /* PORTFOLIO */
+    #portfolio { background: var(--bone); padding: 100px 64px; }
+    #portfolio h2 {
+      font-family: var(--block); font-size: clamp(40px, 5vw, 68px);
+      letter-spacing: 0.04em; color: var(--ink); line-height: 1.0; margin-bottom: 48px;
+    }
+    .portfolio-filter {
+      display: flex; gap: 4px; margin-bottom: 32px;
+      overflow-x: auto; padding-bottom: 4px;
+    }
+    .filter-btn {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 10px 20px; border: 1px solid #ccc;
+      background: transparent; color: var(--mid);
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+      min-height: 44px;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--ink); color: white; border-color: var(--ink);
+    }
+    .portfolio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+    .portfolio-item {
+      aspect-ratio: 3/4; overflow: hidden; position: relative;
+      cursor: pointer; background-size: cover; background-position: center;
+      background-color: var(--bone);
+    }
+    .portfolio-item:nth-child(3n+2) { aspect-ratio: 1/1; }
+    .portfolio-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0);
+      transition: background 0.3s; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .portfolio-item:hover .portfolio-overlay { background: rgba(0,0,0,0.35); }
+    .portfolio-label-text {
+      font-family: var(--block); font-size: 18px; letter-spacing: 0.08em;
+      color: white; opacity: 0; transition: opacity 0.3s;
+    }
+    .portfolio-item:hover .portfolio-label-text { opacity: 1; }
+
+    /* ABOUT */
+    #about { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); }
+    .about-photo {
+      background-image: url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5529');
+      background-size: cover; background-position: center top;
+      min-height: 600px;
+    }
+    .about-text {
+      padding: 80px 64px; display: flex;
+      flex-direction: column; justify-content: center;
+    }
+    .about-text h2 {
+      font-family: var(--block); font-size: clamp(40px, 4vw, 60px);
+      letter-spacing: 0.04em; color: var(--ink);
+      line-height: 1.0; margin-bottom: 24px;
+    }
+    .about-text p {
+      font-size: 16px; font-weight: 300; color: #555;
+      line-height: 1.8; margin-bottom: 18px;
+    }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 24px;
+      margin: 36px 0; padding: 32px 0;
+      border-top: 1px solid var(--bone); border-bottom: 1px solid var(--bone);
+    }
+    .stat-num {
+      font-family: var(--block); font-size: 48px; letter-spacing: 0.04em;
+      color: var(--ink); line-height: 1; margin-bottom: 4px;
+    }
+    .stat-label {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid);
+    }
+
+    /* CONTACT */
+    #contact { background: var(--dark); padding: 100px 64px; }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1100px; margin: 0 auto; }
+    #contact h2 {
+      font-family: var(--block); font-size: clamp(40px, 5vw, 68px);
+      letter-spacing: 0.04em; color: white; line-height: 1.0; margin-bottom: 20px;
+    }
+    .contact-sub { font-size: 16px; font-weight: 300; color: var(--mid); line-height: 1.7; margin-bottom: 40px; }
+    .contact-detail { display: flex; gap: 16px; margin-bottom: 14px; align-items: baseline; }
+    .contact-detail-label {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--mid); min-width: 80px;
+    }
+    .contact-detail-value { font-size: 15px; font-weight: 300; color: white; }
+    .contact-detail-value a { color: var(--accent); text-decoration: none; }
+    .enquiry-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    .form-group label {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      color: white; font-family: var(--sans); font-size: 15px; font-weight: 300;
+      padding: 14px 16px; outline: none; transition: border-color 0.2s;
+      border-radius: 0; -webkit-appearance: none;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: rgba(255,255,255,0.25); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+    .form-group select option { background: #1a1a1a; }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-submit {
+      font-family: var(--sans); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink); background: white; border: none;
+      padding: 16px 36px; cursor: pointer;
+      transition: background 0.2s, color 0.2s; align-self: flex-start; min-height: 48px;
+    }
+    .form-submit:hover { background: var(--accent); color: white; }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark); border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 28px 64px; display: flex;
+      justify-content: space-between; align-items: center;
+    }
+    .footer-logo { font-family: var(--block); font-size: 18px; letter-spacing: 0.06em; color: rgba(255,255,255,0.35); }
+    .footer-logo span { color: var(--accent); }
+    .footer-copy { font-size: 12px; font-weight: 300; color: rgba(255,255,255,0.2); letter-spacing: 0.04em; }
+    .footer-socials a {
+      font-family: var(--sans); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); text-decoration: none; transition: color 0.2s;
+    }
+    .footer-socials a:hover { color: var(--accent); }
+
+    /* LIGHTBOX */
+    #lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.96); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    #lightbox img { max-width: 92vw; max-height: 92vh; object-fit: contain; }
+    .close-lb {
+      position: absolute; top: 20px; right: 28px;
+      color: white; font-size: 36px; cursor: pointer; line-height: 1;
+      font-family: var(--sans); font-weight: 300;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      #hero { height: 100svh; }
+      .hero-content { padding: 0 24px 48px; }
+      #portrait-feature { grid-template-columns: 1fr; }
+      .portrait-image { min-height: 60vw; aspect-ratio: 4/5; }
+      .portrait-text { padding: 48px 24px; }
+      #services { padding: 72px 24px; }
+      .services-grid { grid-template-columns: 1fr 1fr; gap: 2px; }
+      .service-card { aspect-ratio: 4/3; }
+      #portfolio { padding: 72px 24px; }
+      .portfolio-grid { grid-template-columns: repeat(2,1fr); }
+      .portfolio-item { aspect-ratio: 1/1 !important; }
+      #about { grid-template-columns: 1fr; }
+      .about-photo { min-height: 70vw; }
+      .about-text { padding: 48px 24px; }
+      #contact { padding: 72px 24px; }
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+    }
+    @media (max-width: 480px) {
+      .services-grid { grid-template-columns: 1fr; }
+      .about-stats { gap: 12px; }
+      .stat-num { font-size: 36px; }
+    }
+  </style>
 </head>
 <body>
 
-<nav>
-<div class="logo">Liam Devine Photography</div>
-<div>
-<a href="#portraits">PORTRAITS</a>
-<a href="#family">FAMILY</a>
-<a href="#fineart">FINE ART</a>
-<a href="#about">ABOUT</a>
-<a href="#contact">CONTACT</a>
-</div>
-</nav>
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#hero" class="nav-logo">LIAM DEVINE <span>.</span></a>
+    <ul class="nav-links">
+      <li><a href="#services">Portraits</a></li>
+      <li><a href="#services">Family</a></li>
+      <li><a href="#services">Pets</a></li>
+      <li><a href="#portfolio">Fine Art</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Book a session</a>
+    <button class="hamburger" id="burger"><span></span><span></span><span></span></button>
+  </nav>
 
-<section class="hero">
-<div class="hero-card">
-<h1>Photography<br>That Feels Real.</h1>
-<p>Portraits, families and fine art photography in London, Ontario.</p>
-<a href="#contact" class="btn">Book a Session</a>
-</div>
-</section>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services">Portraits</a>
+    <a href="#services">Family</a>
+    <a href="#services">Pets</a>
+    <a href="#portfolio">Fine Art</a>
+    <a href="#about">About</a>
+    <a href="#contact">Book a session</a>
+  </div>
 
-<section id="portraits">
-<div class="grid">
-<img src="images/mirrorportrait.jpg" alt="Portrait">
-<div>
-<h2>Portraits</h2>
-<p>No awkward poses. No over-editing. Just strong photographs that feel authentic and personal.</p>
-</div>
-</div>
-</section>
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <h1 class="hero-headline">QUIET MOMENTS,<br>HONESTLY MADE.</h1>
+      <p class="hero-sub">Portraits, families, pets, and the long landscapes in between. Based in London, Ontario.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-light">Book a session</a>
+        <a href="#portfolio" class="btn-outline">View work</a>
+      </div>
+    </div>
+  </section>
 
-<section id="family" class="alt">
-<div class="grid">
-<div>
-<h2>Family</h2>
-<p>Relaxed family photography focused on connection, personality and genuine moments.</p>
-</div>
-<img src="images/family1.jpg" alt="Family">
-</div>
-</section>
+  <!-- PORTRAIT FEATURE -->
+  <section id="portrait-feature">
+    <div class="portrait-image" onclick="openLightbox('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5628_v8ugg3')">
+      <div class="portrait-tap">TAP TO VIEW</div>
+    </div>
+    <div class="portrait-text">
+      <span class="section-label">Portrait Work</span>
+      <h2>LIGHT THAT FINDS WHAT'S ALREADY THERE.</h2>
+      <p>Every session starts with patience and ends with something true. Studio or location — the goal is always the same: a photograph your subject actually recognises themselves in.</p>
+      <a href="#contact" class="btn-dark">Book a portrait session</a>
+    </div>
+  </section>
 
-<section id="fineart">
-<h2>Fine Art</h2>
-<img src="images/TREE-2.jpg" alt="Tree">
-<p style="margin-top:20px">Selected personal and fine art work from Ontario and beyond.</p>
-</section>
+  <!-- SERVICES -->
+  <section id="services">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-intro">
+        <span class="section-label">What I shoot</span>
+        <h2>THREE DISCIPLINES.<br>ONE STANDARD.</h2>
+      </div>
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-bg" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6737');"></div>
+          <div class="service-overlay"></div>
+          <div class="service-info">
+            <span class="service-tag">Studio · On location</span>
+            <h3 class="service-title">HEADSHOTS</h3>
+            <p class="service-desc">Corporate and creative headshots for individuals, teams, and agencies. Fast turnaround, clean delivery.</p>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-bg" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC3336');"></div>
+          <div class="service-overlay"></div>
+          <div class="service-info">
+            <span class="service-tag">On location</span>
+            <h3 class="service-title">FAMILY</h3>
+            <p class="service-desc">Relaxed sessions at a location that means something to you. Genuine moments over posed ones.</p>
+          </div>
+        </div>
+        <div class="service-card">
+          <div class="service-bg" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6405');"></div>
+          <div class="service-overlay"></div>
+          <div class="service-info">
+            <span class="service-tag">Studio · On location</span>
+            <h3 class="service-title">PETS</h3>
+            <p class="service-desc">Natural portraits that capture your animal's personality — at home, in the park, or in studio.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section id="about" class="alt">
-<div class="grid">
-<img src="images/LiamDevine.jpg" alt="Liam Devine">
-<div>
-<h2>About Liam</h2>
-<p>I'm Liam Devine, a photographer based in London, Ontario. My work spans portraits, families, pets and fine art. Whether I'm photographing a person, a family or a landscape, the goal is always the same: create photographs that feel honest, timeless and real.</p>
-</div>
-</div>
-</section>
+  <!-- PORTFOLIO -->
+  <section id="portfolio">
+    <div style="max-width:1200px;margin:0 auto;">
+      <span class="section-label">Selected work</span>
+      <h2>RECENT IMAGES</h2>
+      <div class="portfolio-filter">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="headshots">Portraits</button>
+        <button class="filter-btn" data-filter="family">Family</button>
+        <button class="filter-btn" data-filter="pets">Pets</button>
+        <button class="filter-btn" data-filter="personal">Fine Art</button>
+      </div>
+      <div class="portfolio-grid">
+        <div class="portfolio-item" data-cat="family" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6102');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FAMILY</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="family" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6234');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FAMILY</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="family" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6886');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FAMILY</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="pets" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/7141DAAB-3113-411B-A963-02A78CEA556E2021-02-20_18-07-32_230');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">PETS</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="pets" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC6439');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">PETS</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="headshots" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC9699');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">PORTRAIT</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="headshots" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC3452');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">PORTRAIT</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC4807');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FINE ART</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/IMG_5576');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FINE ART</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC9813-Enhanced-NR');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FINE ART</span></div>
+        </div>
+        <div class="portfolio-item" data-cat="personal" style="background-image:url('https://res.cloudinary.com/dywzapiql/image/upload/f_auto,q_auto/_DSC4036');">
+          <div class="portfolio-overlay"><span class="portfolio-label-text">FINE ART</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<section id="contact" class="contact">
-<h2>Contact Liam Devine</h2>
-<p>Whether you're looking for portraits, family photography, or fine art prints, I'd be happy to hear from you.</p>
-<br>
-<p>London, Ontario</p>
-<p>647-529-9924</p>
-<p>liamdevinephotography@gmail.com</p>
-<p>@liamdevinephotography</p>
-</section>
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-photo"></div>
+    <div class="about-text">
+      <span class="section-label">About</span>
+      <h2>BEHIND THE CAMERA</h2>
+      <p>I'm a London, Ontario photographer with a background in landscape, wildlife, and motorsports — disciplines that trained me to read light fast and stay ready for the decisive moment.</p>
+      <p>That instinct runs through everything I shoot commercially: headshots, family sessions, and pets. I shoot primarily on Nikon Z8 and Fujifilm, with a home studio available for controlled sessions.</p>
+      <div class="about-stats">
+        <div><div class="stat-num">150+</div><div class="stat-label">Sessions</div></div>
+        <div><div class="stat-num">48H</div><div class="stat-label">Delivery</div></div>
+        <div><div class="stat-num">3</div><div class="stat-label">Services</div></div>
+      </div>
+      <a href="#contact" class="btn-dark">Work with me</a>
+    </div>
+  </section>
 
-<div class="footer">
-© Liam Devine Photography
-</div>
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-grid">
+      <div>
+        <span class="section-label">Get in touch</span>
+        <h2>LET'S MAKE SOMETHING LASTING.</h2>
+        <p class="contact-sub">Tell me what you're after and I'll come back to you within 24 hours with availability and a quote.</p>
+        <div class="contact-detail">
+          <span class="contact-detail-label">Phone</span>
+          <span class="contact-detail-value"><a href="tel:6475299924">647-529-9924</a></span>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-detail-label">Email</span>
+          <span class="contact-detail-value"><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></span>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-detail-label">Location</span>
+          <span class="contact-detail-value">London, Ontario — available across Southwestern Ontario</span>
+        </div>
+        <div class="contact-detail">
+          <span class="contact-detail-label">Instagram</span>
+          <span class="contact-detail-value"><a href="https://www.instagram.com/liamdevinephotography?igsh=MXNoN2hmZm90cmp5MA%3D%3D&utm_source=qr" target="_blank">@liamdevinephotography</a></span>
+        </div>
+      </div>
+      <div class="enquiry-form">
+        <div class="form-row">
+          <div class="form-group"><label>First name</label><input type="text" placeholder="Jane" /></div>
+          <div class="form-group"><label>Last name</label><input type="text" placeholder="Smith" /></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" placeholder="jane@example.com" /></div>
+        <div class="form-group">
+          <label>Session type</label>
+          <select>
+            <option value="" disabled selected>Select a service</option>
+            <option>Professional Headshots</option>
+            <option>Family Portraits</option>
+            <option>Pet Photography</option>
+            <option>Fine Art Print enquiry</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Tell me about your session</label><textarea placeholder="Where, when, how many people, any specific ideas…"></textarea></div>
+        <button class="form-submit">Send enquiry</button>
+      </div>
+    </div>
+  </section>
 
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">LIAM DEVINE<span>.</span></div>
+    <div class="footer-copy">© 2026 Liam Devine Photography · London, Ontario</div>
+    <div class="footer-socials">
+      <a href="https://www.instagram.com/liamdevinephotography?igsh=MXNoN2hmZm90cmp5MA%3D%3D&utm_source=qr" target="_blank">Instagram</a>
+    </div>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" onclick="closeLightbox()">
+    <span class="close-lb">&times;</span>
+    <img id="lightboxImg" src="" alt="Full size" />
+  </div>
+
+  <script>
+    // Hamburger
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    burger.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('open');
+      burger.classList.toggle('open', open);
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        burger.classList.remove('open');
+      });
+    });
+
+    // Portfolio filter
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+        document.querySelectorAll('.portfolio-item').forEach(item => {
+          item.style.display = filter === 'all' || item.dataset.cat === filter ? 'block' : 'none';
+        });
+      });
+    });
+
+    // Lightbox
+    function openLightbox(src) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').style.display = 'flex';
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+    }
+
+    // Scroll animations
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.06 });
+    document.querySelectorAll('.service-card, .portfolio-item, .about-text').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
+  </script>
 </body>
 </html>
