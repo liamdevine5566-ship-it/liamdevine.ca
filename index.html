@@ -20,7 +20,7 @@ img{width:100%;display:block;border-radius:8px;cursor:pointer}
 input,textarea{width:100%;padding:12px;margin:8px 0}
 button{padding:12px 20px}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center}
-.lightbox img{max-width:90%;max-height:90%}
+.lightbox img{display:block;max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain;aspect-ratio:auto}
 .close{position:absolute;top:20px;right:30px;color:white;font-size:40px;cursor:pointer}
 @media(max-width:768px){.feature-grid,.about,.contact{grid-template-columns:1fr}.hero h1{font-size:2.5rem}}
 </style>
@@ -51,10 +51,6 @@ button{padding:12px 20px}
 <img src="images/ingrid1.jpg" onclick="openLightbox(this.src)">
 <img src="images/ingrid2.jpg" onclick="openLightbox(this.src)">
 <img src="images/blair1.jpg" onclick="openLightbox(this.src)">
-
-<img src="images/marnie3.jpg" onclick="openLightbox(this.src)">
-<img src="images/marnie4.jpg" onclick="openLightbox(this.src)">
-
 </div>
 </div>
 </section>
@@ -65,11 +61,6 @@ button{padding:12px 20px}
 <img src="images/blairkids1.jpg" onclick="openLightbox(this.src)">
 <div class="side-grid">
 <img src="images/tilk1.jpg" onclick="openLightbox(this.src)">
-
-<img src="images/willben1.jpg" onclick="openLightbox(this.src)">
-<img src="images/willben3.jpg" onclick="openLightbox(this.src)">
-<img src="images/willbenkiss.jpg" onclick="openLightbox(this.src)">
-
 </div>
 </div>
 </section>
