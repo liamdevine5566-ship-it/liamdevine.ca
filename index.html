@@ -85,6 +85,8 @@ footer{background:#2f2f2f;color:#f6f2eb;text-align:center;padding:40px 20px}
 footer a{color:#f6f2eb;text-decoration:none}
 
 
+.pets-featured{max-width:650px;margin:0 auto 25px}
+@media(max-width:800px){.pets-featured{max-width:100%}}
 #backToTop{position:fixed;right:24px;bottom:24px;display:none;padding:10px 14px;border:none;border-radius:999px;cursor:pointer;background:#2f2f2f;color:#fff}
 </style>
 
@@ -155,7 +157,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <section class="fade-section" id="pets">
 <div class="wrap">
 <h2>Pets</h2>
-<div class="featured"><img src="images/gsp-crazy-run.jpg" onclick="openLightbox(this.src)"></div>
+<div class="featured pets-featured"><img src="images/gsp-crazy-run.jpg" onclick="openLightbox(this.src)"></div>
 <div class="grid">
 <img src="images/gsp-atv-run.jpg" onclick="openLightbox(this.src)" alt="German Shorthaired Pointer running with ATV">
 <img src="images/gsp-water-jump.jpg" onclick="openLightbox(this.src)" alt="German Shorthaired Pointer jumping into water">
@@ -242,10 +244,16 @@ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.targe
 document.querySelectorAll('.fade-section').forEach(s=>io.observe(s));
 
 
+const backBtn=document.getElementById('backToTop');
 window.addEventListener('scroll',()=>{
- const b=document.getElementById('backToTop');
- b.style.display=window.scrollY>500?'block':'none';
+  if(backBtn){backBtn.style.display=window.scrollY>500?'block':'none';}
 });
+if(backBtn){
+  backBtn.addEventListener('click',function(e){
+    e.preventDefault();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+}
 document.getElementById('lightbox').addEventListener('click',e=>{
  if(e.target.id==='lightbox') closeLightbox();
 });
