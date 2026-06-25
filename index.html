@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liam Devine Photography</title>
+<title>Liam Devine Photography | Portrait, Fine Art & Pet Photography | London, Ontario</title>
 <style>
 :root{--ivory:#f6f2eb;--stone:#ebe4d8;--char:#2f2f2f;}
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 html,body{margin:0;padding:0;overflow-x:hidden;background:var(--ivory);color:var(--char);font-family:Georgia,serif}
 nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,255,.18);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.25);z-index:1000;display:flex;align-items:center;justify-content:flex-end}
 .nav-logo img{height:58px;opacity:.88;display:block}
@@ -83,9 +84,11 @@ button[type=submit]:hover{background:#444}
 footer{background:#2f2f2f;color:#f6f2eb;text-align:center;padding:40px 20px}
 footer a{color:#f6f2eb;text-decoration:none}
 
+
+#backToTop{position:fixed;right:24px;bottom:24px;display:none;padding:10px 14px;border:none;border-radius:999px;cursor:pointer;background:#2f2f2f;color:#fff}
 </style>
 
-<meta name="description" content="Professional portrait, family, pet and fine art photographer in London, Ontario.">
+<meta name="description" content="Portrait, fine art and pet photography by Liam Devine. Based in London, Ontario and available throughout Southwestern Ontario.">
 <meta name="keywords" content="London Ontario photographer, portrait photographer, family photographer, pet photographer, fine art photography">
 <meta name="author" content="Liam Devine">
 <link rel="canonical" href="https://liamdevine.ca/">
@@ -96,6 +99,15 @@ footer a{color:#f6f2eb;text-decoration:none}
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://liamdevine.ca/images/hijab.jpg">
+
+<meta property="og:site_name" content="Liam Devine Photography">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:title" content="Liam Devine Photography">
+<meta name="twitter:description" content="Making the Ordinary Extraordinary">
+<link rel="icon" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+
 
 </head>
 <body>
@@ -122,6 +134,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <img src="images/blair1.jpg" onclick="openLightbox(this.src)">
 <img src="images/marnie3.jpg" onclick="openLightbox(this.src)">
 <img src="images/marnie4.jpg" onclick="openLightbox(this.src)">
+<img src="images/hijab.jpg" onclick="openLightbox(this.src)" alt="Portrait by Liam Devine">
 </div>
 </div>
 </section>
@@ -157,7 +170,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 
 <section id="about" class="fade-section"><div class="wrap about"><img src="images/liamdevine.jpg"><div><h2>About Liam</h2><p>I’m Liam Devine, a photographer based in London, Ontario. I photograph people, families, pets and the landscapes that catch my eye along the way. My approach is simple: create honest images that feel natural, timeless and authentic.</p></div></div></section>
 
-<section class="fade-section" id="contact" class="alt"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p>647-529-9924</p><p>liamdevinephotography@gmail.com</p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input type="hidden" name="access_key" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"><input name="name" placeholder="Your Name"><input name="email" placeholder="Email"><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
+<section class="fade-section" id="contact" class="alt"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p><a href="tel:+16475299924">647-529-9924</a></p><p><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input type="hidden" name="access_key" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"><input name="name" placeholder="Your Name"><input name="email" placeholder="Email"><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
 
 
 <footer>
@@ -165,9 +178,10 @@ footer a{color:#f6f2eb;text-decoration:none}
 <p>Portrait • Family • Pets • Fine Art</p>
 <p>London, Ontario</p>
 <p><a href="https://instagram.com/liamdevinephotography" target="_blank">Instagram</a></p>
-<p>© 2026 Liam Devine Photography. All Rights Reserved.</p>
+<p>© 2026 Liam Devine. All rights reserved.</p>
 </footer>
 
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑</button>
 <div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">&times;</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
 <script>
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
@@ -226,6 +240,15 @@ lb.addEventListener('touchend',e=>{
 window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>75)n.classList.add('shrink');else n.classList.remove('shrink');});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.15});
 document.querySelectorAll('.fade-section').forEach(s=>io.observe(s));
+
+
+window.addEventListener('scroll',()=>{
+ const b=document.getElementById('backToTop');
+ b.style.display=window.scrollY>500?'block':'none';
+});
+document.getElementById('lightbox').addEventListener('click',e=>{
+ if(e.target.id==='lightbox') closeLightbox();
+});
 
 </script>
 </body></html>
