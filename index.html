@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -31,8 +30,8 @@ input,textarea{width:100%;padding:12px;margin:8px 0}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
 .close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer}.nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:white;font-size:60px;cursor:pointer;padding:20px;user-select:none}.prev{left:20px}.next{right:20px}
-
 .menu-toggle{display:none;font-size:2rem;cursor:pointer;font-weight:bold}
+.gallery-msg{text-align:center;opacity:.6;font-style:italic;padding:20px 0;grid-column:1/-1}
 @media(max-width:800px){
 .menu-toggle{display:block;color:#fff;position:relative;z-index:10001}
 nav{justify-content:flex-end;padding:12px 18px}
@@ -40,7 +39,6 @@ nav{justify-content:flex-end;padding:12px 18px}
 .nav-links.open{display:block}
 .nav-links a{display:block;color:#fff !important;text-shadow:none;margin:14px 0;font-size:1.15rem}
 }
-
 @media(max-width:800px){
 .about,.contact{grid-template-columns:1fr}
 .grid{grid-template-columns:repeat(2,140px)}
@@ -49,7 +47,6 @@ nav{justify-content:flex-end;padding:12px 18px}
 nav{padding:10px 14px}
 nav a{margin:0 6px;font-size:.8rem}
 }
-
 .mobile-brand{display:none}
 @media(max-width:800px){
 .mobile-brand{
@@ -65,15 +62,11 @@ white-space:nowrap;
 pointer-events:none;
 }
 }
-
-
 @media(max-width:800px){
 .nav-arrow{
 display:none !important;
 }
 }
-
-
 nav{transition:padding .3s ease,background .3s ease}
 nav.shrink{padding:8px 24px;background:rgba(255,255,255,.28);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%)}
 .fade-section{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
@@ -84,8 +77,6 @@ button[type=submit]{background:#2f2f2f;color:#fff;border:none;border-radius:30px
 button[type=submit]:hover{background:#444}
 footer{background:#2f2f2f;color:#f6f2eb;text-align:center;padding:40px 20px}
 footer a{color:#f6f2eb;text-decoration:none}
-
-
 .pets-featured{max-width:650px;margin:0 auto 25px}
 @media(max-width:800px){.pets-featured{max-width:100%}}
 #backToTop{position:fixed;right:24px;bottom:24px;display:none;padding:10px 14px;border:none;border-radius:999px;cursor:pointer;background:#2f2f2f;color:#fff}
@@ -120,49 +111,37 @@ footer a{color:#f6f2eb;text-decoration:none}
 </div>
 </nav>
 <section class="hero"><div class="hero-content"><h1>MAKING THE ORDINARY<br/>EXTRAORDINARY</h1></div></section>
+
 <section class="fade-section" id="portraits">
 <div class="wrap">
 <h2>Portraits</h2>
-<div class="featured"><img alt="Portrait by Liam Devine" onclick="openLightbox(this.src)" src="images/portraits/mirrorportrait.jpg"/></div>
-<div class="grid">
-<img onclick="openLightbox(this.src)" src="images/portraits/mirrorportrait.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/portraits/ingrid1.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/portraits/ingrid2.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/portraits/blair1.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/portraits/marnie3.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/portraits/marnie4.jpg"/>
-<img alt="Portrait by Liam Devine" onclick="openLightbox(this.src)" src="images/portraits/hijab.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/portraits/aria.JPEG"/><img onclick="openLightbox(this.src)" src="images/portraits/jeffportrait.jpg"/><img onclick="openLightbox(this.src)" src="images/portraits/jkwedding1.jpg"/><img onclick="openLightbox(this.src)" src="images/portraits/jkwedding2.jpg"/></div>
+<div class="featured" id="portraits-featured"></div>
+<div class="grid" id="portraits-grid"><div class="gallery-msg">Loading photos…</div></div>
 </div>
 </section>
+
 <section class="alt" id="family">
 <div class="wrap">
 <h2>Family</h2>
-<div class="featured"><img onclick="openLightbox(this.src)" src="images/family/blairkids1.jpg"/></div>
-<div class="grid">
-<img onclick="openLightbox(this.src)" src="images/family/tilk1.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/family/willben1.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/family/willben3.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/family/willbenkiss.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/family/blairkids1.jpg"/><img onclick="openLightbox(this.src)" src="images/family/jeb-ii.jpg"/></div>
+<div class="featured" id="family-featured"></div>
+<div class="grid" id="family-grid"><div class="gallery-msg">Loading photos…</div></div>
 </div>
 </section>
+
 <section class="fade-section" id="pets">
 <div class="wrap">
 <h2>Pets</h2>
-<div class="featured pets-featured"><img onclick="openLightbox(this.src)" src="images/pets/gsp-crazy-run.jpg"/></div>
-<div class="grid">
-<img alt="German Shorthaired Pointer running with ATV" onclick="openLightbox(this.src)" src="images/pets/gsp-atv-run.jpg"/>
-<img alt="German Shorthaired Pointer jumping into water" onclick="openLightbox(this.src)" src="images/pets/gsp-water-jump.jpg"/>
-<img alt="Cat portrait" onclick="openLightbox(this.src)" src="images/pets/cat1.jpg"/>
-<img alt="Horse portrait" onclick="openLightbox(this.src)" src="images/pets/horse1.jpeg"/>
-<img alt="Dog portrait" onclick="openLightbox(this.src)" src="images/pets/winston1.jpg"/>
-<img onclick="openLightbox(this.src)" src="images/pets/gsp-atv-run2.JPG"/></div>
+<div class="featured pets-featured" id="pets-featured"></div>
+<div class="grid" id="pets-grid"><div class="gallery-msg">Loading photos…</div></div>
 </div>
 </section>
-<section class="alt personal fade-section" id="personal"><div class="wrap"><h2>Fine Art</h2><div class="featured"><img onclick="openLightbox(this.src)" src="images/fine-art/tree1.jpg"/></div><div class="grid"><img onclick="openLightbox(this.src)" src="images/fine-art/tree1.jpg"/><img onclick="openLightbox(this.src)" src="images/fine-art/scotland-highlands.JPG"/><img onclick="openLightbox(this.src)" src="images/fine-art/sunset1.JPG"/><img onclick="openLightbox(this.src)" src="images/fine-art/owl1.jpg"/><img onclick="openLightbox(this.src)" src="images/fine-art/owl2.jpg"/></div></div></section>
+
+<section class="alt personal fade-section" id="personal"><div class="wrap"><h2>Fine Art</h2><div class="featured" id="fine-art-featured"></div><div class="grid" id="fine-art-grid"><div class="gallery-msg">Loading photos…</div></div></div></section>
+
 <section class="fade-section" id="about"><div class="wrap about"><img src="images/site/liamdevine.jpg"/><div><h2>About Liam</h2><p>I’m Liam Devine, a photographer based in London, Ontario. I photograph people, families, pets and the landscapes that catch my eye along the way. My approach is simple: create honest images that feel natural, timeless and authentic.</p></div></div></section>
+
 <section class="alt" id="contact"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p><a href="tel:+16475299924">647-529-9924</a></p><p><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input name="access_key" type="hidden" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"/><input name="name" placeholder="Your Name"/><input name="email" placeholder="Email"/><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
+
 <footer>
 <h3>Liam Devine Photography</h3>
 <p>Portrait • Family • Pets • Fine Art</p>
@@ -170,67 +149,121 @@ footer a{color:#f6f2eb;text-decoration:none}
 <p><a href="https://instagram.com/liamdevinephotography" target="_blank">Instagram</a></p>
 <p>© 2026 Liam Devine. All rights reserved.</p>
 </footer>
-<button id="backToTop" onclick="window.scrollTo({top:0,behavior:\'smooth\'})">↑</button>
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
 <div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">×</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"/><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
+
 <script>
+// ===== AUTO-LOADING PHOTO GALLERIES =====
+// This pulls the current contents of each images/ folder directly from
+// GitHub every time the page loads. To add a photo: drag it into the
+// matching folder in Finder, commit, push. Nothing else to edit, ever.
+const REPO_OWNER = 'liamdevine5566-ship-it';
+const REPO_NAME = 'liamdevine.ca';
+const BRANCH = 'main';
+const CATEGORIES = [
+  {folder:'portraits', gridId:'portraits-grid', featuredId:'portraits-featured'},
+  {folder:'family',    gridId:'family-grid',    featuredId:'family-featured'},
+  {folder:'pets',      gridId:'pets-grid',       featuredId:'pets-featured'},
+  {folder:'fine-art',  gridId:'fine-art-grid',   featuredId:'fine-art-featured'}
+];
+const IMAGE_EXT = /\.(jpe?g|png|gif|webp)$/i;
+
+async function loadCategory(cat){
+  const grid = document.getElementById(cat.gridId);
+  const featuredBox = document.getElementById(cat.featuredId);
+  try{
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${cat.folder}?ref=${BRANCH}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('GitHub API error '+res.status);
+    const files = await res.json();
+    const images = files
+      .filter(f => f.type === 'file' && IMAGE_EXT.test(f.name))
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .map(f => f.download_url);
+
+    grid.innerHTML = '';
+    if(images.length === 0){
+      grid.innerHTML = '<div class="gallery-msg">No photos here yet.</div>';
+      return;
+    }
+
+    // Featured = first photo in the folder
+    if(featuredBox){
+      const fimg = document.createElement('img');
+      fimg.src = images[0];
+      fimg.alt = 'Photo by Liam Devine';
+      featuredBox.appendChild(fimg);
+    }
+
+    // Grid = every photo, including the featured one (matches original site pattern)
+    images.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      grid.appendChild(img);
+    });
+  }catch(err){
+    console.error('Could not load '+cat.folder, err);
+    grid.innerHTML = '<div class="gallery-msg">Photos could not be loaded right now.</div>';
+  }
+}
+
+function toggleMenu(){
+  document.getElementById('navLinks').classList.toggle('open');
+}
+document.querySelectorAll('#navLinks a').forEach(a=>{
+  a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open'));
+});
+
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
 function closeLightbox(){document.getElementById('lightbox').style.display='none';}
 
-function toggleMenu(){
- document.getElementById('navLinks').classList.toggle('open');
-}
-document.querySelectorAll('#navLinks a').forEach(a=>{
- a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open'));
-});
-
 let galleries={},currentGallery=[],currentIndex=0,startX=0;
 
-document.querySelectorAll('section').forEach(section=>{
- const imgs=[...section.querySelectorAll('img[onclick]')];
- galleries[section.id||'default']=imgs.map(i=>i.src);
- imgs.forEach(img=>{
-   img.onclick=()=>openGallery(section.id||'default',img.src);
- });
-});
+function wireUpGalleries(){
+  galleries = {};
+  document.querySelectorAll('section').forEach(section=>{
+    const imgs=[...section.querySelectorAll('.featured img, .grid img')];
+    if(imgs.length === 0) return;
+    galleries[section.id||'default']=imgs.map(i=>i.src);
+    imgs.forEach(img=>{
+      img.style.cursor='pointer';
+      img.onclick=()=>openGallery(section.id||'default',img.src);
+    });
+  });
+}
 
 function openGallery(gallery,src){
- currentGallery=galleries[gallery]||[src];
- currentIndex=currentGallery.indexOf(src);
- document.getElementById('lightbox').style.display='flex';
- document.getElementById('lightbox-img').src=src;
+  currentGallery=galleries[gallery]||[src];
+  currentIndex=currentGallery.indexOf(src);
+  document.getElementById('lightbox').style.display='flex';
+  document.getElementById('lightbox-img').src=src;
 }
-
 function nextImage(){
- currentIndex=(currentIndex+1)%currentGallery.length;
- document.getElementById('lightbox-img').src=currentGallery[currentIndex];
+  currentIndex=(currentIndex+1)%currentGallery.length;
+  document.getElementById('lightbox-img').src=currentGallery[currentIndex];
 }
-
 function prevImage(){
- currentIndex=(currentIndex-1+currentGallery.length)%currentGallery.length;
- document.getElementById('lightbox-img').src=currentGallery[currentIndex];
+  currentIndex=(currentIndex-1+currentGallery.length)%currentGallery.length;
+  document.getElementById('lightbox-img').src=currentGallery[currentIndex];
 }
-
 document.addEventListener('keydown',e=>{
- if(document.getElementById('lightbox').style.display==='flex'){
-   if(e.key==='ArrowRight') nextImage();
-   if(e.key==='ArrowLeft') prevImage();
-   if(e.key==='Escape') closeLightbox();
- }
+  if(document.getElementById('lightbox').style.display==='flex'){
+    if(e.key==='ArrowRight') nextImage();
+    if(e.key==='ArrowLeft') prevImage();
+    if(e.key==='Escape') closeLightbox();
+  }
 });
-
 const lb=document.getElementById('lightbox');
 lb.addEventListener('touchstart',e=>startX=e.changedTouches[0].clientX);
 lb.addEventListener('touchend',e=>{
- const endX=e.changedTouches[0].clientX;
- if(startX-endX>50) nextImage();
- if(endX-startX>50) prevImage();
+  const endX=e.changedTouches[0].clientX;
+  if(startX-endX>50) nextImage();
+  if(endX-startX>50) prevImage();
 });
-
 window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>75)n.classList.add('shrink');else n.classList.remove('shrink');});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.15});
 document.querySelectorAll('.fade-section').forEach(s=>io.observe(s));
-
-
 const backBtn=document.getElementById('backToTop');
 window.addEventListener('scroll',()=>{
   if(backBtn){backBtn.style.display=window.scrollY>500?'block':'none';}
@@ -242,8 +275,10 @@ if(backBtn){
   });
 }
 document.getElementById('lightbox').addEventListener('click',e=>{
- if(e.target.id==='lightbox') closeLightbox();
+  if(e.target.id==='lightbox') closeLightbox();
 });
 
+// Load every category, then wire up the lightbox once all photos are in place
+Promise.all(CATEGORIES.map(loadCategory)).then(wireUpGalleries);
 </script>
 </body></html>
