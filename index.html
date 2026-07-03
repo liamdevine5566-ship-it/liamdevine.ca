@@ -41,10 +41,7 @@ h2{text-align:center;margin-bottom:60px}
 input,textarea{width:100%;padding:12px;margin:8px 0}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
-.close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer;z-index:2}
-.nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.55);font-size:38px;cursor:pointer;user-select:none;padding:20px;text-shadow:0 2px 8px rgba(0,0,0,.5);transition:color .2s ease}
-.nav-arrow:active{color:rgba(255,255,255,.9)}
-.prev{left:6px}.next{right:6px}
+.close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer}.nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:white;font-size:60px;cursor:pointer;padding:20px;user-select:none}.prev{left:20px}.next{right:20px}
 .menu-toggle{display:none;font-size:2rem;cursor:pointer;font-weight:bold}
 .gallery-msg{text-align:center;opacity:.6;font-style:italic;padding:20px 0;grid-column:1/-1}
 @media(max-width:800px){
@@ -76,8 +73,9 @@ pointer-events:none;
 }
 }
 @media(max-width:800px){
-.nav-arrow{font-size:30px;padding:16px}
-.prev{left:2px}.next{right:2px}
+.nav-arrow{
+display:none !important;
+}
 }
 nav{transition:padding .3s ease,background .3s ease}
 nav.shrink{padding:8px 24px;background:rgba(255,255,255,.28);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%)}
@@ -250,15 +248,9 @@ document.querySelectorAll('#navLinks a').forEach(a=>{
 });
 
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
-function closeLightbox(){
-  document.getElementById('lightbox').style.display='none';
-  document.body.style.position='';
-  document.body.style.top='';
-  document.body.style.width='';
-  window.scrollTo(0, savedScrollY);
-}
+function closeLightbox(){document.getElementById('lightbox').style.display='none';}
 
-let galleries={},currentGallery=[],currentIndex=0,startX=0,savedScrollY=0;
+let galleries={},currentGallery=[],currentIndex=0,startX=0;
 
 function wireUpGalleries(){
   galleries = {};
@@ -274,10 +266,6 @@ function wireUpGalleries(){
 }
 
 function openGallery(gallery,src){
-  savedScrollY = window.scrollY;
-  document.body.style.position='fixed';
-  document.body.style.top = -savedScrollY+'px';
-  document.body.style.width='100%';
   currentGallery=galleries[gallery]||[src];
   currentIndex=currentGallery.indexOf(src);
   document.getElementById('lightbox').style.display='flex';
