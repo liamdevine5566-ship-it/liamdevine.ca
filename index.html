@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Liam Devine Photography | Portrait, Fine Art &amp; Pet Photography | London, Ontario</title>
+<link rel="preload" as="image" href="images/portraits/hijab.jpg" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
@@ -14,12 +15,13 @@ html{scroll-behavior:smooth}
 html,body{margin:0;padding:0;overflow-x:hidden;background:var(--ivory);color:var(--char);font-family:'Jost',Georgia,serif;font-weight:300;letter-spacing:.01em}
 h2{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(1.8rem,3.2vw,2.6rem);letter-spacing:.02em}
 nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,255,.18);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.25);z-index:1000;display:flex;align-items:center;justify-content:flex-end}
-.nav-logo img{height:58px;opacity:.88;display:block}
+.nav-logo{margin-right:auto;display:flex;align-items:center}
+.nav-logo img{height:30px;opacity:.9;display:block;border-radius:3px}
 .nav-links{text-align:center;flex:1}
 nav a{margin:0 12px;text-decoration:none;color:#fff;font-weight:400;letter-spacing:.08em;font-size:.85rem;text-shadow:0 1px 3px rgba(0,0,0,.35)}
-.hero{height:100vh;background:linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.42)),url('images/portraits/hijab.jpg') center/cover no-repeat;display:flex;align-items:flex-end;justify-content:flex-start;text-align:left;color:#fff}
+.hero{height:100vh;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%),url('images/portraits/hijab.jpg') center/cover no-repeat;display:flex;align-items:flex-start;justify-content:flex-start;text-align:left;color:#fff}
 .hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(2.2rem,6vw,5rem);max-width:80%;margin:0;text-align:left;line-height:1.15;letter-spacing:.01em}
-.hero-content{max-width:1200px;width:100%;display:flex;justify-content:flex-start;align-items:flex-end;padding-left:6%;padding-bottom:14vh;}
+.hero-content{max-width:1200px;width:100%;display:flex;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:22vh;}
 section{padding:130px 8%}
 .alt{background:var(--stone)}
 .wrap{max-width:1200px;margin:auto}
@@ -47,7 +49,7 @@ nav{justify-content:flex-end;padding:12px 18px}
 }
 @media(max-width:800px){
 .about,.contact{grid-template-columns:1fr}
-.nav-logo img{height:42px}
+.nav-logo img{height:24px}
 nav{padding:10px 14px}
 nav a{margin:0 6px;font-size:.8rem}
 }
@@ -105,7 +107,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <link href="images/apple-touch-icon.png" rel="apple-touch-icon"/>
 </head>
 <body>
-<nav id="navbar"><div class="mobile-brand">LIAM DEVINE</div><div class="menu-toggle" onclick="toggleMenu()">☰</div><div class="nav-links" id="navLinks">
+<nav id="navbar"><div class="nav-logo"><img src="images/logo1.jpg"/></div><div class="mobile-brand">LIAM DEVINE</div><div class="menu-toggle" onclick="toggleMenu()">☰</div><div class="nav-links" id="navLinks">
 <a href="#portraits">PORTRAITS</a>
 <a href="#family">FAMILY</a>
 <a href="#pets">PETS</a>
@@ -207,6 +209,8 @@ async function loadCategory(cat){
       const fimg = document.createElement('img');
       fimg.src = images[0];
       fimg.alt = 'Photo by Liam Devine';
+      fimg.loading = 'eager';
+      fimg.decoding = 'async';
       featuredBox.appendChild(fimg);
     }
 
@@ -214,6 +218,8 @@ async function loadCategory(cat){
     images.forEach(src => {
       const img = document.createElement('img');
       img.src = src;
+      img.loading = 'lazy';
+      img.decoding = 'async';
       grid.appendChild(img);
     });
   }catch(err){
