@@ -341,6 +341,14 @@ document.querySelectorAll('#navLinks a').forEach(a=>{
 
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
 function closeLightbox(){
+  if(history.state && history.state.ldLightbox){
+    history.back();
+  } else {
+    actuallyCloseLightbox();
+  }
+}
+
+function actuallyCloseLightbox(){
   document.body.style.position='';
   document.body.style.top='';
   document.body.style.width='';
@@ -349,6 +357,12 @@ function closeLightbox(){
     document.getElementById('lightbox').style.display='none';
   });
 }
+
+window.addEventListener('popstate', ()=>{
+  if(document.getElementById('lightbox').style.display === 'flex'){
+    actuallyCloseLightbox();
+  }
+});
 
 let galleries={},currentGallery=[],currentIndex=0,startX=0,savedScrollY=0;
 
@@ -374,6 +388,7 @@ function openGallery(gallery,src){
   currentIndex=currentGallery.indexOf(src);
   document.getElementById('lightbox').style.display='flex';
   document.getElementById('lightbox-img').src=src;
+  history.pushState({ldLightbox:true}, '');
 }
 function nextImage(){
   currentIndex=(currentIndex+1)%currentGallery.length;
