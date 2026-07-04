@@ -251,11 +251,13 @@ document.querySelectorAll('#navLinks a').forEach(a=>{
 
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
 function closeLightbox(){
-  document.getElementById('lightbox').style.display='none';
   document.body.style.position='';
   document.body.style.top='';
   document.body.style.width='';
   window.scrollTo(0, savedScrollY);
+  requestAnimationFrame(()=>{
+    document.getElementById('lightbox').style.display='none';
+  });
 }
 
 let galleries={},currentGallery=[],currentIndex=0,startX=0,savedScrollY=0;
@@ -299,9 +301,53 @@ document.addEventListener('keydown',e=>{
   }
 });
 const lb=document.getElementById('lightbox');
-lb.addEventListener('touchstart',e=>startX=e.changedTouches[0].clientX);
+let startY=0,dragging=false;
+lb.addEventListener('touchstart',e=>{
+  startX=e.changedTouches[0].clientX;
+  startY=e.changedTouches[0].clientY;
+  dragging=false;
+});
+lb.addEventListener('touchmove',e=>{
+  const curX=e.changedTouches[0].clientX;
+  const curY=e.changedTouches[0].clientY;
+  const dX=curX-startX;
+  const dY=curY-startY;
+  if(Math.abs(dY) > Math.abs(dX) && dY > 10){
+    dragging=true;
+    const progress=Math.min(dY/300,1);
+    lbImg.style.transition='none';
+    lbImg.style.transform=`translateY(${dY}px) scale(${1-progress*0.3})`;
+    lbImg.style.opacity=`${1-progress*0.6}`;
+    document.getElementById('lightbox').style.background=`rgba(0,0,0,${0.92-progress*0.6})`;
+  }
+});
 lb.addEventListener('touchend',e=>{
   const endX=e.changedTouches[0].clientX;
+  const endY=e.changedTouches[0].clientY;
+  const deltaX=endX-startX;
+  const deltaY=endY-startY;
+  if(dragging){
+    lbImg.style.transition='transform .25s ease, opacity .25s ease';
+    document.getElementById('lightbox').style.transition='background .25s ease';
+    if(deltaY > 100){
+      lbImg.style.transform='translateY(300px) scale(0.7)';
+      lbImg.style.opacity='0';
+      setTimeout(()=>{
+        closeLightbox();
+        lbImg.style.transition='';
+        lbImg.style.transform='';
+        lbImg.style.opacity='';
+        document.getElementById('lightbox').style.background='';
+        document.getElementById('lightbox').style.transition='';
+      },220);
+    }else{
+      lbImg.style.transform='';
+      lbImg.style.opacity='';
+      document.getElementById('lightbox').style.background='';
+    }
+    dragging=false;
+    return;
+  }
   if(startX-endX>50) nextImage();
   if(endX-startX>50) prevImage();
 });
