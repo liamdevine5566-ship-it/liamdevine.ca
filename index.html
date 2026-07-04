@@ -198,13 +198,46 @@ const CATEGORIES = [
 ];
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp)$/i;
 
+async function loadCategoryFallback(cat){
+  const grid = document.getElementById(cat.gridId);
+  const featuredBox = document.getElementById(cat.featuredId);
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${cat.folder}?ref=${BRANCH}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('GitHub API error '+res.status);
+  const files = await res.json();
+  const images = files
+    .filter(f => f.type === 'file' && IMAGE_EXT.test(f.name))
+    .sort((a,b) => a.name.localeCompare(b.name))
+    .map(f => f.download_url);
+
+  grid.innerHTML = '';
+  if(images.length === 0){
+    grid.innerHTML = '<div class="gallery-msg">No photos here yet.</div>';
+    return;
+  }
+  if(featuredBox){
+    const fimg = document.createElement('img');
+    fimg.src = images[0];
+    fimg.alt = 'Photo by Liam Devine';
+    fimg.loading = 'eager';
+    fimg.decoding = 'async';
+    featuredBox.appendChild(fimg);
+  }
+  images.forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    grid.appendChild(img);
+  });
+}
+
 async function loadAllCategories(){
   const treeUrl = `https://data.jsdelivr.net/v1/packages/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}`;
   try{
     const res = await fetch(treeUrl);
     if(!res.ok) throw new Error('jsDelivr error '+res.status);
     const data = await res.json();
-    // Flatten the file tree into full paths
     const allFiles = [];
     function walk(entries, prefix){
       entries.forEach(e=>{
@@ -249,10 +282,15 @@ async function loadAllCategories(){
       });
     });
   }catch(err){
-    console.error('Could not load photo tree', err);
-    CATEGORIES.forEach(cat=>{
-      document.getElementById(cat.gridId).innerHTML = '<div class="gallery-msg">Photos could not be loaded right now.</div>';
-    });
+    console.error('jsDelivr failed, falling back to GitHub API', err);
+    try{
+      await Promise.all(CATEGORIES.map(loadCategoryFallback));
+    }catch(err2){
+      console.error('Fallback also failed', err2);
+      CATEGORIES.forEach(cat=>{
+        document.getElementById(cat.gridId).innerHTML = '<div class="gallery-msg">Photos could not be loaded right now.</div>';
+      });
+    }
   }
 }
 
