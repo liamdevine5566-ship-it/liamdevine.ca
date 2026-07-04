@@ -19,6 +19,10 @@ nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,25
 @media(max-width:800px){
 .hero-content{padding-top:42vh;}
 }
+.hero-cta{margin-top:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hero-cta p{font-family:'Jost',Georgia,serif;font-weight:300;font-size:1rem;letter-spacing:.04em;margin:0;opacity:.9}
+.hero-cta a{font-family:'Jost',Georgia,serif;font-weight:400;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.6);padding:11px 22px;border-radius:2px;transition:background .25s ease,color .25s ease}
+.hero-cta a:hover{background:#fff;color:#2f2f2f}
 .nav-logo{margin-right:auto;display:flex;align-items:center;overflow:visible}
 .nav-logo img{height:30px;opacity:.85;display:block;border-radius:3px;transition:transform .35s ease,opacity .35s ease;transform-origin:left center;cursor:pointer}
 .nav-logo img:hover,.nav-logo img.expanded{transform:scale(1.9);opacity:1}
@@ -26,7 +30,7 @@ nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,25
 nav a{margin:0 12px;text-decoration:none;color:#fff;font-weight:400;letter-spacing:.08em;font-size:.85rem;text-shadow:0 1px 3px rgba(0,0,0,.35)}
 .hero{height:100vh;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%),url('images/portraits/hijab.jpg') center/cover no-repeat;display:flex;align-items:flex-start;justify-content:flex-start;text-align:left;color:#fff}
 .hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(2.2rem,6vw,5rem);max-width:80%;margin:0;text-align:left;line-height:1.15;letter-spacing:.01em}
-.hero-content{max-width:1200px;width:100%;display:flex;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;}
+.hero-content{max-width:1200px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;}
 section{padding:130px 8%}
 .alt{background:var(--stone)}
 .wrap{max-width:1200px;margin:auto}
@@ -126,7 +130,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <a href="#contact">CONTACT</a>
 </div>
 </nav>
-<section class="hero"><div class="hero-content"><h1>Making the Ordinary<br/>Extraordinary</h1></div></section>
+<section class="hero"><div class="hero-content"><h1>Making the Ordinary<br/>Extraordinary</h1><div class="hero-cta"><p>Now booking fall portrait sessions</p><a href="#contact">Get in Touch</a></div></div></section>
 
 <section class="fade-section" id="portraits">
 <div class="wrap">
