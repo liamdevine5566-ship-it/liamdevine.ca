@@ -1,3 +1,4 @@
+<!-- site build: stable -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +19,10 @@ nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,25
 @media(max-width:800px){
 .hero-content{padding-top:42vh;}
 }
+.hero-cta{margin-top:24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hero-cta p{font-family:'Jost',Georgia,serif;font-weight:300;font-size:1rem;letter-spacing:.04em;margin:0;opacity:.9}
+.hero-cta a{font-family:'Jost',Georgia,serif;font-weight:400;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.6);padding:11px 22px;border-radius:2px;transition:background .25s ease,color .25s ease}
+.hero-cta a:hover{background:#fff;color:#2f2f2f}
 .nav-logo{margin-right:auto;display:flex;align-items:center;overflow:visible}
 .nav-logo img{height:30px;opacity:.85;display:block;border-radius:3px;transition:transform .35s ease,opacity .35s ease;transform-origin:left center;cursor:pointer}
 .nav-logo img:hover,.nav-logo img.expanded{transform:scale(1.9);opacity:1}
@@ -25,7 +30,7 @@ nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,25
 nav a{margin:0 12px;text-decoration:none;color:#fff;font-weight:400;letter-spacing:.08em;font-size:.85rem;text-shadow:0 1px 3px rgba(0,0,0,.35)}
 .hero{height:100vh;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%),url('images/portraits/hijab.jpg') center/cover no-repeat;display:flex;align-items:flex-start;justify-content:flex-start;text-align:left;color:#fff}
 .hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(2.2rem,6vw,5rem);max-width:80%;margin:0;text-align:left;line-height:1.15;letter-spacing:.01em}
-.hero-content{max-width:1200px;width:100%;display:flex;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;}
+.hero-content{max-width:1200px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;}
 section{padding:130px 8%}
 .alt{background:var(--stone)}
 .wrap{max-width:1200px;margin:auto}
@@ -42,9 +47,9 @@ input,textarea{width:100%;padding:12px;margin:8px 0}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
 .close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer;z-index:2}
-.nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:24px;cursor:pointer;user-select:none;width:52px;height:52px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.12);backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);border:1px solid rgba(255,255,255,.25);box-shadow:0 4px 18px rgba(0,0,0,.3);transition:background .2s ease,transform .2s ease}
-.nav-arrow:active{background:rgba(255,255,255,.25);transform:translateY(-50%) scale(0.92)}
-.prev{left:16px}.next{right:16px}
+.nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.55);font-size:38px;cursor:pointer;user-select:none;padding:20px;text-shadow:0 2px 8px rgba(0,0,0,.5);transition:color .2s ease}
+.nav-arrow:active{color:rgba(255,255,255,.9)}
+.prev{left:6px}.next{right:6px}
 .menu-toggle{display:none;font-size:2rem;cursor:pointer;font-weight:bold}
 .gallery-msg{text-align:center;opacity:.6;font-style:italic;padding:20px 0;grid-column:1/-1}
 @media(max-width:800px){
@@ -76,15 +81,17 @@ pointer-events:none;
 }
 }
 @media(max-width:800px){
-.nav-arrow{width:44px;height:44px;font-size:20px}
-.prev{left:10px}.next{right:10px}
+.nav-arrow{font-size:30px;padding:16px}
+.prev{left:2px}.next{right:2px}
 }
 nav{transition:padding .3s ease,background .3s ease}
 nav.shrink{padding:8px 24px;background:rgba(255,255,255,.28);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%)}
 .fade-section{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
 .fade-section.visible{opacity:1;transform:none}
 .grid img,.featured img{transition:transform .35s ease,box-shadow .35s ease}
+@media (hover:hover){
 .grid img:hover,.featured img:hover{transform:translateY(-6px) scale(1.025);box-shadow:0 16px 32px rgba(0,0,0,.22)}
+}
 button[type=submit]{background:#2f2f2f;color:#fff;border:none;border-radius:30px;padding:14px 26px;font-weight:bold;cursor:pointer}
 button[type=submit]:hover{background:#444}
 footer{background:#2f2f2f;color:#f6f2eb;text-align:center;padding:40px 20px}
@@ -123,7 +130,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <a href="#contact">CONTACT</a>
 </div>
 </nav>
-<section class="hero"><div class="hero-content"><h1>Making the Ordinary<br/>Extraordinary</h1></div></section>
+<section class="hero"><div class="hero-content"><h1>Making the Ordinary<br/>Extraordinary</h1><div class="hero-cta"><p>Now booking fall portrait sessions</p><a href="#contact">Get in Touch</a></div></div></section>
 
 <section class="fade-section" id="portraits">
 <div class="wrap">
@@ -191,46 +198,61 @@ const CATEGORIES = [
 ];
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp)$/i;
 
-async function loadCategory(cat){
-  const grid = document.getElementById(cat.gridId);
-  const featuredBox = document.getElementById(cat.featuredId);
+async function loadAllCategories(){
+  const treeUrl = `https://data.jsdelivr.net/v1/packages/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}`;
   try{
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${cat.folder}?ref=${BRANCH}`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('GitHub API error '+res.status);
-    const files = await res.json();
-    const images = files
-      .filter(f => f.type === 'file' && IMAGE_EXT.test(f.name))
-      .sort((a,b) => a.name.localeCompare(b.name))
-      .map(f => f.download_url);
-
-    grid.innerHTML = '';
-    if(images.length === 0){
-      grid.innerHTML = '<div class="gallery-msg">No photos here yet.</div>';
-      return;
+    const res = await fetch(treeUrl);
+    if(!res.ok) throw new Error('jsDelivr error '+res.status);
+    const data = await res.json();
+    // Flatten the file tree into full paths
+    const allFiles = [];
+    function walk(entries, prefix){
+      entries.forEach(e=>{
+        const path = prefix + '/' + e.name;
+        if(e.type === 'directory' && e.files){
+          walk(e.files, path);
+        } else if(e.type === 'file'){
+          allFiles.push(path);
+        }
+      });
     }
+    walk(data.files, '');
 
-    // Featured = first photo in the folder
-    if(featuredBox){
-      const fimg = document.createElement('img');
-      fimg.src = images[0];
-      fimg.alt = 'Photo by Liam Devine';
-      fimg.loading = 'eager';
-      fimg.decoding = 'async';
-      featuredBox.appendChild(fimg);
-    }
+    CATEGORIES.forEach(cat=>{
+      const grid = document.getElementById(cat.gridId);
+      const featuredBox = document.getElementById(cat.featuredId);
+      const prefix = `/images/${cat.folder}/`;
+      const images = allFiles
+        .filter(p => p.startsWith(prefix) && IMAGE_EXT.test(p))
+        .sort((a,b)=>a.localeCompare(b))
+        .map(p => `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}${p}`);
 
-    // Grid = every photo, including the featured one (matches original site pattern)
-    images.forEach(src => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.loading = 'lazy';
-      img.decoding = 'async';
-      grid.appendChild(img);
+      grid.innerHTML = '';
+      if(images.length === 0){
+        grid.innerHTML = '<div class="gallery-msg">No photos here yet.</div>';
+        return;
+      }
+      if(featuredBox){
+        const fimg = document.createElement('img');
+        fimg.src = images[0];
+        fimg.alt = 'Photo by Liam Devine';
+        fimg.loading = 'eager';
+        fimg.decoding = 'async';
+        featuredBox.appendChild(fimg);
+      }
+      images.forEach(src=>{
+        const img = document.createElement('img');
+        img.src = src;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        grid.appendChild(img);
+      });
     });
   }catch(err){
-    console.error('Could not load '+cat.folder, err);
-    grid.innerHTML = '<div class="gallery-msg">Photos could not be loaded right now.</div>';
+    console.error('Could not load photo tree', err);
+    CATEGORIES.forEach(cat=>{
+      document.getElementById(cat.gridId).innerHTML = '<div class="gallery-msg">Photos could not be loaded right now.</div>';
+    });
   }
 }
 
@@ -251,8 +273,13 @@ document.querySelectorAll('#navLinks a').forEach(a=>{
 
 function openLightbox(src){document.getElementById('lightbox').style.display='flex';document.getElementById('lightbox-img').src=src;}
 function closeLightbox(){
-  document.getElementById('lightbox').style.display='none';
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.width='';
   window.scrollTo(0, savedScrollY);
+  requestAnimationFrame(()=>{
+    document.getElementById('lightbox').style.display='none';
+  });
 }
 
 let galleries={},currentGallery=[],currentIndex=0,startX=0,savedScrollY=0;
@@ -272,6 +299,9 @@ function wireUpGalleries(){
 
 function openGallery(gallery,src){
   savedScrollY = window.scrollY;
+  document.body.style.position='fixed';
+  document.body.style.top = -savedScrollY+'px';
+  document.body.style.width='100%';
   currentGallery=galleries[gallery]||[src];
   currentIndex=currentGallery.indexOf(src);
   document.getElementById('lightbox').style.display='flex';
@@ -293,9 +323,53 @@ document.addEventListener('keydown',e=>{
   }
 });
 const lb=document.getElementById('lightbox');
-lb.addEventListener('touchstart',e=>startX=e.changedTouches[0].clientX);
+let startY=0,dragging=false;
+lb.addEventListener('touchstart',e=>{
+  startX=e.changedTouches[0].clientX;
+  startY=e.changedTouches[0].clientY;
+  dragging=false;
+});
+lb.addEventListener('touchmove',e=>{
+  const curX=e.changedTouches[0].clientX;
+  const curY=e.changedTouches[0].clientY;
+  const dX=curX-startX;
+  const dY=curY-startY;
+  if(Math.abs(dY) > Math.abs(dX) && dY > 10){
+    dragging=true;
+    const progress=Math.min(dY/300,1);
+    lbImg.style.transition='none';
+    lbImg.style.transform=`translateY(${dY}px) scale(${1-progress*0.3})`;
+    lbImg.style.opacity=`${1-progress*0.6}`;
+    document.getElementById('lightbox').style.background=`rgba(0,0,0,${0.92-progress*0.6})`;
+  }
+});
 lb.addEventListener('touchend',e=>{
   const endX=e.changedTouches[0].clientX;
+  const endY=e.changedTouches[0].clientY;
+  const deltaX=endX-startX;
+  const deltaY=endY-startY;
+  if(dragging){
+    lbImg.style.transition='transform .25s ease, opacity .25s ease';
+    document.getElementById('lightbox').style.transition='background .25s ease';
+    if(deltaY > 100){
+      lbImg.style.transform='translateY(300px) scale(0.7)';
+      lbImg.style.opacity='0';
+      setTimeout(()=>{
+        closeLightbox();
+        lbImg.style.transition='';
+        lbImg.style.transform='';
+        lbImg.style.opacity='';
+        document.getElementById('lightbox').style.background='';
+        document.getElementById('lightbox').style.transition='';
+      },220);
+    }else{
+      lbImg.style.transform='';
+      lbImg.style.opacity='';
+      document.getElementById('lightbox').style.background='';
+    }
+    dragging=false;
+    return;
+  }
   if(startX-endX>50) nextImage();
   if(endX-startX>50) prevImage();
 });
@@ -329,6 +403,6 @@ lbImg.addEventListener('click',()=>{
 });
 
 // Load every category, then wire up the lightbox once all photos are in place
-Promise.all(CATEGORIES.map(loadCategory)).then(wireUpGalleries);
+loadAllCategories().then(wireUpGalleries);
 </script>
 </body></html>
