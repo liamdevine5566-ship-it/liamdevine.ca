@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Liam Devine Photography — App</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LD App"/>
+<link rel="apple-touch-icon" href="images/logo1.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#f2ead9;--stone:#e8ddc7;--char:#2f2f2f;--good:#3f6b4f;--bad:#a4453a;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--ivory);color:var(--char);font-family:'Jost',Georgia,serif;font-weight:300;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:24px 20px 60px;padding-top:calc(24px + env(safe-area-inset-top));min-height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:1.7rem;margin:0}
+.gear{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--char);padding:8px;opacity:.7}
+
+/* Tabs */
+.tabs{display:flex;gap:8px;margin-bottom:26px;border-bottom:1px solid rgba(47,47,47,.15)}
+.tab-btn{flex:1;padding:12px 4px;background:none;border:none;font-family:'Jost';font-size:.95rem;color:var(--char);opacity:.5;cursor:pointer;border-bottom:2px solid transparent;transition:opacity .15s ease,border-color .15s ease}
+.tab-btn.active{opacity:1;border-bottom-color:var(--char)}
+.panel{display:none}
+.panel.active{display:block}
+
+label.field-label{display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.65;margin-bottom:10px}
+.categories{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
+.cat-btn{padding:14px 10px;border:1px solid rgba(47,47,47,.25);border-radius:4px;background:transparent;font-family:'Jost';font-size:.95rem;color:var(--char);cursor:pointer;transition:background .15s ease,color .15s ease}
+.cat-btn.selected{background:var(--char);color:var(--ivory);border-color:var(--char)}
+.dropzone{border:1.5px dashed rgba(47,47,47,.35);border-radius:6px;padding:36px 20px;text-align:center;margin-bottom:24px;cursor:pointer;transition:border-color .15s ease}
+.dropzone.has-image{padding:0;border-style:solid;overflow:hidden}
+.dropzone p{margin:0;opacity:.6;font-size:.95rem}
+.dropzone img{width:100%;display:block;max-height:340px;object-fit:cover}
+input[type=file]{display:none}
+input[type=text],textarea.plain{width:100%;padding:14px;border:1px solid rgba(47,47,47,.25);border-radius:4px;font-family:'Jost';font-size:1rem;background:#fff;margin-bottom:24px;color:var(--char)}
+input[type=text]:focus,textarea.plain:focus{outline:none;border-color:var(--char)}
+.hint{font-size:.78rem;opacity:.55;margin-top:-16px;margin-bottom:24px}
+button.primary{width:100%;padding:16px;background:var(--char);color:var(--ivory);border:none;border-radius:4px;font-family:'Jost';font-size:1rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:opacity .15s ease;margin-bottom:12px}
+button.secondary{width:100%;padding:16px;background:transparent;color:var(--char);border:1px solid var(--char);border-radius:4px;font-family:'Jost';font-size:1rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:opacity .15s ease;margin-bottom:12px}
+button.primary:disabled,button.secondary:disabled{opacity:.4;cursor:default}
+button.primary:active:not(:disabled),button.secondary:active:not(:disabled){opacity:.8}
+.status{margin-top:8px;padding:14px;border-radius:4px;font-size:.9rem;text-align:center;display:none}
+.status.show{display:block}
+.status.ok{background:rgba(63,107,79,.12);color:var(--good)}
+.status.err{background:rgba(164,69,58,.12);color:var(--bad)}
+.status.busy{background:rgba(47,47,47,.08);color:var(--char)}
+.overlay{position:fixed;inset:0;background:var(--ivory);z-index:50;display:none;padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top))}
+.overlay.show{display:block}
+.overlay h2{font-family:'Playfair Display';font-style:italic;font-weight:400;font-size:1.4rem;margin-top:0}
+.overlay p{font-size:.9rem;line-height:1.5;opacity:.8}
+.overlay textarea{width:100%;min-height:100px;padding:14px;border:1px solid rgba(47,47,47,.25);border-radius:4px;font-family:monospace;font-size:.85rem;margin-bottom:16px;resize:vertical}
+.overlay-actions{display:flex;gap:10px}
+.overlay-actions button{flex:1;padding:14px;border-radius:4px;font-family:'Jost';font-size:.9rem;cursor:pointer;border:1px solid rgba(47,47,47,.25);background:transparent;color:var(--char)}
+.overlay-actions button.save{background:var(--char);color:var(--ivory);border-color:var(--char)}
+.token-state{font-size:.82rem;opacity:.6;margin-bottom:20px}
+
+/* IG prep specific */
+.ratio-row{display:flex;gap:10px;margin-bottom:16px}
+.ratio-btn{flex:1;padding:10px 0;border-radius:20px;border:1px solid rgba(47,47,47,.3);background:transparent;font-family:'Jost';font-size:.85rem;color:var(--char);cursor:pointer}
+.ratio-btn.selected{background:var(--char);color:var(--ivory);border-color:var(--char)}
+.cropbox{position:relative;overflow:hidden;border-radius:6px;background:#1c1a17;width:100%;margin-bottom:14px;touch-action:none}
+.cropbox img{position:absolute;left:50%;top:50%;max-width:none;height:100%;user-select:none;cursor:grab}
+.zoom-hint{font-size:.78rem;opacity:.55;margin-bottom:10px}
+.tag-preview{font-size:.8rem;opacity:.65;line-height:1.6;margin-top:-14px;margin-bottom:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1 id="pageTitle">Upload a Photo</h1>
+<button class="gear" onclick="openSettings()">&#9881;</button>
+</header>
+
+<div class="tabs">
+<button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
+<button class="tab-btn" data-tab="igprep" onclick="switchTab('igprep')">Instagram Prep</button>
+</div>
+
+<div class="token-state" id="tokenState"></div>
+
+<!-- UPLOAD PANEL -->
+<div class="panel active" id="panel-upload">
+<label class="field-label">Category</label>
+<div class="categories" id="categories"></div>
+
+<label class="field-label">Photo</label>
+<div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
+  <p id="dropzoneText">Tap to choose a photo</p>
+  <img id="preview" style="display:none"/>
+</div>
+<input type="file" id="fileInput" accept="image/*"/>
+
+<label class="field-label">File name</label>
+<input type="text" id="filename" placeholder="e.g. tree-sunset"/>
+<div class="hint">Letters, numbers, and dashes only. The extension is added automatically.</div>
+
+<button class="primary" id="uploadBtn" disabled onclick="doUpload()">Upload Photo</button>
+<div class="status" id="status"></div>
+</div>
+
+<!-- IG PREP PANEL -->
+<div class="panel" id="panel-igprep">
+<label class="field-label">Photo</label>
+<div class="dropzone" id="igDropzone" onclick="document.getElementById('igFileInput').click()">
+  <p id="igDropzoneText">Tap to choose a photo</p>
+</div>
+<input type="file" id="igFileInput" accept="image/*"/>
+
+<div id="igCropSection" style="display:none">
+  <label class="field-label">Crop ratio</label>
+  <div class="ratio-row" id="ratioRow"></div>
+  <div class="cropbox" id="cropbox"></div>
+  <div class="zoom-hint">Drag the photo to reposition. Use zoom to fill the frame.</div>
+  <input type="range" id="zoomSlider" min="1" max="2.5" step="0.01" value="1" style="width:100%;margin-bottom:24px"/>
+
+  <label class="field-label">Category</label>
+  <div class="categories" id="igCategories"></div>
+
+  <label class="field-label">Caption</label>
+  <textarea class="plain" id="igCaption" rows="3" placeholder="Write your caption..."></textarea>
+
+  <label class="field-label">Extra hashtags</label>
+  <input type="text" id="igExtraTags" placeholder="e.g. goldenhour, ontario"/>
+  <div class="tag-preview" id="tagPreview"></div>
+
+  <button class="primary" onclick="downloadCropped()">Download Cropped Image</button>
+  <button class="secondary" id="copyCaptionBtn" onclick="copyCaption()">Copy Caption</button>
+  <div class="hint" style="text-align:center;margin-top:8px">Download the image, copy the caption, then post both in the Instagram app.</div>
+</div>
+</div>
+
+</div>
+
+<div class="overlay" id="settingsOverlay">
+<h2>Connect to GitHub</h2>
+<p>Paste the personal access token you generated for this app. It's saved only on this phone and used to upload photos directly to your site's repository.</p>
+<textarea id="tokenInput" placeholder="github_pat_..."></textarea>
+<div class="overlay-actions">
+<button onclick="closeSettings()">Cancel</button>
+<button class="save" onclick="saveToken()">Save</button>
+</div>
+</div>
+
+<script>
+const REPO_OWNER = 'liamdevine5566-ship-it';
+const REPO_NAME = 'liamdevine.ca';
+const BRANCH = 'main';
+
+const CATEGORIES = [
+  {label:'Portraits', folder:'portraits', tags:['#portraitphotography','#headshot','#naturallight','#strathroyontario']},
+  {label:'Family', folder:'family', tags:['#familyphotography','#familyportraits','#ontariophotographer']},
+  {label:'Pets', folder:'pets', tags:['#petphotography','#dogsofinstagram','#petportrait']},
+  {label:'Fine Art', folder:'fine-art', tags:['#fineartphotography','#landscapephotography','#wildlifephotography']},
+  {label:'Speed & Motion', folder:'showcase', tags:['#motorsportphotography','#actionphotography','#panning']}
+];
+
+const RATIOS = [
+  {label:'Square', ratio:1},
+  {label:'Portrait', ratio:4/5},
+  {label:'Landscape', ratio:1.91}
+];
+
+/* ---------- TABS ---------- */
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.getElementById('panel-upload').classList.toggle('active', tab==='upload');
+  document.getElementById('panel-igprep').classList.toggle('active', tab==='igprep');
+  document.getElementById('pageTitle').textContent = tab==='upload' ? 'Upload a Photo' : 'Prep for Instagram';
+}
+
+/* ---------- UPLOAD TAB (unchanged logic) ---------- */
+let selectedCategory = null;
+let selectedFile = null;
+
+function renderCategories(){
+  const box = document.getElementById('categories');
+  box.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (selectedCategory === cat.folder ? ' selected' : '');
+    btn.textContent = cat.label;
+    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); updateUploadState(); };
+    box.appendChild(btn);
+  });
+}
+renderCategories();
+
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const preview = document.getElementById('preview');
+    preview.src = ev.target.result;
+    preview.style.display = 'block';
+    document.getElementById('dropzoneText').style.display = 'none';
+    document.getElementById('dropzone').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+
+  const nameField = document.getElementById('filename');
+  if(!nameField.value){
+    const base = file.name.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    nameField.value = base;
+  }
+  updateUploadState();
+});
+
+document.getElementById('filename').addEventListener('input', updateUploadState);
+
+function updateUploadState(){
+  const nameOk = document.getElementById('filename').value.trim().length > 0;
+  document.getElementById('uploadBtn').disabled = !(selectedCategory && selectedFile && nameOk);
+}
+
+function getToken(){
+  return localStorage.getItem('ld_gh_pat') || '';
+}
+
+function refreshTokenState(){
+  const el = document.getElementById('tokenState');
+  el.textContent = getToken() ? 'Connected to GitHub.' : 'Not connected yet — tap the gear icon to set up.';
+}
+refreshTokenState();
+
+function openSettings(){
+  document.getElementById('tokenInput').value = getToken();
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function closeSettings(){
+  document.getElementById('settingsOverlay').classList.remove('show');
+}
+function saveToken(){
+  const val = document.getElementById('tokenInput').value.trim();
+  localStorage.setItem('ld_gh_pat', val);
+  refreshTokenState();
+  closeSettings();
+}
+
+function showStatus(kind, msg){
+  const el = document.getElementById('status');
+  el.className = 'status show ' + kind;
+  el.textContent = msg;
+}
+
+function compressImage(file, maxDimension=2000, quality=0.85){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e)=>{ img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = ()=>{
+      let { width, height } = img;
+      if(width > maxDimension || height > maxDimension){
+        if(width > height){
+          height = Math.round(height * (maxDimension / width));
+          width = maxDimension;
+        }else{
+          width = Math.round(width * (maxDimension / height));
+          height = maxDimension;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob)=>{
+        if(!blob){ reject(new Error('Compression failed')); return; }
+        const compressedReader = new FileReader();
+        compressedReader.onload = ()=> resolve(compressedReader.result.split(',')[1]);
+        compressedReader.onerror = reject;
+        compressedReader.readAsDataURL(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function doUpload(){
+  const token = getToken();
+  if(!token){
+    showStatus('err', 'Connect to GitHub first — tap the gear icon at the top.');
+    return;
+  }
+  const rawName = document.getElementById('filename').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if(!rawName){
+    showStatus('err', 'Please enter a file name.');
+    return;
+  }
+  const ext = '.jpg';
+  const path = `images/${selectedCategory}/${rawName}${ext}`;
+
+  document.getElementById('uploadBtn').disabled = true;
+  showStatus('busy', 'Compressing photo…');
+
+  try{
+    const base64 = await compressImage(selectedFile);
+    showStatus('busy', 'Uploading…');
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github+json'
+      },
+      body: JSON.stringify({
+        message: `Add photo via upload app: ${rawName}${ext}`,
+        content: base64,
+        branch: BRANCH
+      })
+    });
+
+    if(res.status === 201){
+      showStatus('ok', `Uploaded! It'll appear on the site within a couple minutes.`);
+      resetForm();
+    } else if(res.status === 422){
+      showStatus('err', 'A file with that name already exists in this category. Try a different name.');
+      document.getElementById('uploadBtn').disabled = false;
+    } else if(res.status === 401 || res.status === 403){
+      showStatus('err', 'GitHub rejected the connection. Your token may be wrong or expired — tap the gear icon to update it.');
+      document.getElementById('uploadBtn').disabled = false;
+    } else {
+      const body = await res.text();
+      showStatus('err', `Upload failed (${res.status}). ${body.slice(0,120)}`);
+      document.getElementById('uploadBtn').disabled = false;
+    }
+  }catch(err){
+    showStatus('err', 'Could not reach GitHub. Check your connection and try again.');
+    document.getElementById('uploadBtn').disabled = false;
+  }
+}
+
+function resetForm(){
+  selectedFile = null;
+  document.getElementById('fileInput').value = '';
+  document.getElementById('filename').value = '';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('dropzoneText').style.display = 'block';
+  document.getElementById('dropzone').classList.remove('has-image');
+  updateUploadState();
+}
+
+/* ---------- INSTAGRAM PREP TAB ---------- */
+let igImage = null;      // Image object
+let igCategory = CATEGORIES[0].folder;
+let igRatioIdx = 1;
+let igCrop = { x:0, y:0, zoom:1 };
+let igDragging = false;
+let igDragStart = { x:0, y:0 };
+
+function renderRatioRow(){
+  const row = document.getElementById('ratioRow');
+  row.innerHTML = '';
+  RATIOS.forEach((r, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'ratio-btn' + (i===igRatioIdx ? ' selected' : '');
+    btn.textContent = r.label;
+    btn.onclick = ()=>{ igRatioIdx = i; renderRatioRow(); applyCropBoxRatio(); };
+    row.appendChild(btn);
+  });
+}
+
+function renderIgCategories(){
+  const box = document.getElementById('igCategories');
+  box.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (igCategory === cat.folder ? ' selected' : '');
+    btn.textContent = cat.label;
+    btn.onclick = ()=>{ igCategory = cat.folder; renderIgCategories(); renderTagPreview(); };
+    box.appendChild(btn);
+  });
+}
+
+function buildTags(){
+  const cat = CATEGORIES.find(c=>c.folder===igCategory);
+  const base = cat ? cat.tags : [];
+  const extras = document.getElementById('igExtraTags').value
+    .split(/[\s,]+/).filter(Boolean)
+    .map(t=> t.startsWith('#') ? t : '#'+t);
+  return Array.from(new Set([...base, ...extras]));
+}
+function renderTagPreview(){
+  document.getElementById('tagPreview').textContent = buildTags().join('  ');
+}
+document.getElementById('igExtraTags').addEventListener('input', renderTagPreview);
+
+document.getElementById('igFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      igImage = img;
+      igCrop = { x:0, y:0, zoom:1 };
+      document.getElementById('igDropzoneText').textContent = 'Tap to choose a different photo';
+      document.getElementById('igCropSection').style.display = 'block';
+      buildCropboxImage();
+      applyCropBoxRatio();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function buildCropboxImage(){
+  const box = document.getElementById('cropbox');
+  box.innerHTML = '';
+  const imgEl = document.createElement('img');
+  imgEl.src = igImage.src;
+  imgEl.id = 'cropImg';
+  imgEl.draggable = false;
+  box.appendChild(imgEl);
+  updateCropTransform();
+
+  box.onmousedown = igPointerDown;
+  box.onmousemove = igPointerMove;
+  box.onmouseup = igPointerUp;
+  box.onmouseleave = igPointerUp;
+  box.ontouchstart = igPointerDown;
+  box.ontouchmove = igPointerMove;
+  box.ontouchend = igPointerUp;
+}
+
+function applyCropBoxRatio(){
+  const box = document.getElementById('cropbox');
+  box.style.aspectRatio = String(RATIOS[igRatioIdx].ratio);
+}
+
+function updateCropTransform(){
+  const imgEl = document.getElementById('cropImg');
+  if(!imgEl) return;
+  imgEl.style.transform = `translate(calc(-50% + ${igCrop.x}px), calc(-50% + ${igCrop.y}px)) scale(${igCrop.zoom})`;
+  imgEl.style.cursor = igDragging ? 'grabbing' : 'grab';
+}
+
+function igPointerDown(e){
+  igDragging = true;
+  const p = e.touches ? e.touches[0] : e;
+  igDragStart = { x: p.clientX - igCrop.x, y: p.clientY - igCrop.y };
+}
+function igPointerMove(e){
+  if(!igDragging) return;
+  const p = e.touches ? e.touches[0] : e;
+  igCrop.x = p.clientX - igDragStart.x;
+  igCrop.y = p.clientY - igDragStart.y;
+  updateCropTransform();
+}
+function igPointerUp(){ igDragging = false; updateCropTransform(); }
+
+document.getElementById('zoomSlider').addEventListener('input', (e)=>{
+  igCrop.zoom = parseFloat(e.target.value);
+  updateCropTransform();
+});
+
+function downloadCropped(){
+  if(!igImage) return;
+  const activeRatio = RATIOS[igRatioIdx].ratio;
+  const outW = 1080;
+  const outH = Math.round(outW / activeRatio);
+  const canvas = document.createElement('canvas');
+  canvas.width = outW;
+  canvas.height = outH;
+  const ctx = canvas.getContext('2d');
+
+  const box = document.getElementById('cropbox');
+  const boxRect = box.getBoundingClientRect();
+  const previewHeight = boxRect.height;
+  const scaleToPreview = (previewHeight / igImage.height) * igCrop.zoom;
+  const outScale = outH / previewHeight;
+  const drawScale = scaleToPreview * outScale;
+
+  ctx.save();
+  ctx.translate(outW/2, outH/2);
+  ctx.scale(drawScale, drawScale);
+  ctx.drawImage(
+    igImage,
+    -igImage.width/2 + (igCrop.x * outScale)/drawScale,
+    -igImage.height/2 + (igCrop.y * outScale)/drawScale
+  );
+  ctx.restore();
+
+  canvas.toBlob((blob)=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${igCategory}-ig-${RATIOS[igRatioIdx].label.toLowerCase()}.jpg`;
+    a.click();
+  }, 'image/jpeg', 0.92);
+}
+
+function copyCaption(){
+  const caption = document.getElementById('igCaption').value.trim();
+  const tags = buildTags().join(' ');
+  const full = caption ? `${caption}\n\n${tags}` : tags;
+  navigator.clipboard.writeText(full);
+  const btn = document.getElementById('copyCaptionBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(()=>{ btn.textContent = original; }, 1500);
+}
+
+renderRatioRow();
+renderIgCategories();
+renderTagPreview();
+</script>
+</body>
+</html>
