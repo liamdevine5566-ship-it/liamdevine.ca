@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Compress Existing Photos | Liam Devine Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ivory:#f2ead9;--stone:#e8ddc7;--char:#2f2f2f;--good:#3f6b4f;--bad:#a4453a;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--ivory);color:var(--char);font-family:'Jost',Georgia,serif;font-weight:300;min-height:100vh}
+.wrap{max-width:680px;margin:0 auto;padding:40px 24px 80px}
+h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:1.9rem;margin:0 0 8px}
+p.sub{opacity:.7;font-size:.95rem;margin-top:0;margin-bottom:28px;line-height:1.5}
+.card{background:#fff;border-radius:6px;padding:22px;margin-bottom:20px;border:1px solid rgba(47,47,47,.1)}
+input[type=text]{width:100%;padding:12px;border:1px solid rgba(47,47,47,.25);border-radius:4px;font-family:monospace;font-size:.85rem;margin-bottom:14px}
+button{padding:13px 22px;background:var(--char);color:var(--ivory);border:none;border-radius:4px;font-family:'Jost';font-size:.9rem;letter-spacing:.04em;text-transform:uppercase;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+button.secondary{background:transparent;color:var(--char);border:1px solid rgba(47,47,47,.3)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.summary{font-size:.9rem;opacity:.75;margin-top:14px}
+.log{margin-top:20px;max-height:420px;overflow-y:auto;font-size:.85rem}
+.log-item{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(47,47,47,.08)}
+.log-item .path{opacity:.8;word-break:break-all}
+.log-item .state{white-space:nowrap;font-weight:400}
+.state.pending{opacity:.4}
+.state.working{color:#8a6d1f}
+.state.done{color:var(--good)}
+.state.skip{opacity:.4}
+.state.error{color:var(--bad)}
+.progress-bar{height:6px;background:rgba(47,47,47,.1);border-radius:3px;overflow:hidden;margin:14px 0}
+.progress-fill{height:100%;background:var(--char);width:0%;transition:width .2s ease}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Compress Existing Photos</h1>
+<p class="sub">This scans every photo already in your site's folders and shrinks any large ones down to a web-friendly size, replacing them in place. New photos uploaded through the phone app are already compressed automatically — this is just a one-time cleanup for what's already there.</p>
+
+<div class="card" id="tokenCard">
+<label style="font-size:.8rem;opacity:.65;display:block;margin-bottom:8px">GitHub token</label>
+<input type="text" id="tokenInput" placeholder="github_pat_..."/>
+<button onclick="saveToken()">Connect</button>
+<span id="tokenStatus" style="margin-left:12px;font-size:.85rem;opacity:.7"></span>
+</div>
+
+<div class="card">
+<div class="row">
+<button onclick="scanRepo()" id="scanBtn">Scan Photos</button>
+<button class="secondary" onclick="startCompressing()" id="startBtn" disabled>Compress Large Photos</button>
+</div>
+<div class="summary" id="summary"></div>
+<div class="progress-bar" id="progressBar" style="display:none"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<div class="card" id="logCard" style="display:none">
+<div class="log" id="log"></div>
+</div>
+</div>
+
+<script>
+const REPO_OWNER = 'liamdevine5566-ship-it';
+const REPO_NAME = 'liamdevine.ca';
+const BRANCH = 'main';
+const CATEGORY_FOLDERS = ['portraits','family','pets','fine-art','showcase'];
+const IMAGE_EXT = /\.(jpe?g|png)$/i;
+const SIZE_THRESHOLD = 500 * 1024; // 500KB — files smaller than this are left alone
+const MAX_DIMENSION = 2000;
+const QUALITY = 0.85;
+
+let allFiles = [];
+let toProcess = [];
+
+function getToken(){ return localStorage.getItem('ld_gh_pat') || ''; }
+
+function saveToken(){
+  const val = document.getElementById('tokenInput').value.trim();
+  if(val) localStorage.setItem('ld_gh_pat', val);
+  refreshTokenStatus();
+}
+
+function refreshTokenStatus(){
+  const el = document.getElementById('tokenStatus');
+  if(getToken()){
+    el.textContent = 'Connected.';
+    document.getElementById('tokenInput').value = getToken();
+  } else {
+    el.textContent = 'Not connected.';
+  }
+}
+refreshTokenStatus();
+
+async function scanRepo(){
+  const token = getToken();
+  if(!token){ alert('Paste your GitHub token and click Connect first.'); return; }
+
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('summary').textContent = 'Scanning…';
+  allFiles = [];
+
+  for(const folder of CATEGORY_FOLDERS){
+    try{
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${folder}?ref=${BRANCH}`;
+      const res = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }});
+      if(!res.ok) continue;
+      const files = await res.json();
+      files.filter(f => f.type === 'file' && IMAGE_EXT.test(f.name)).forEach(f=>{
+        allFiles.push({ path: f.path, size: f.size, sha: f.sha, folder });
+      });
+    }catch(err){ console.error('Scan error for', folder, err); }
+  }
+
+  toProcess = allFiles.filter(f => f.size > SIZE_THRESHOLD);
+  const totalMB = (allFiles.reduce((s,f)=>s+f.size,0) / 1024 / 1024).toFixed(1);
+  const largeMB = (toProcess.reduce((s,f)=>s+f.size,0) / 1024 / 1024).toFixed(1);
+
+  document.getElementById('summary').textContent =
+    `Found ${allFiles.length} photos (${totalMB} MB total). ${toProcess.length} are larger than 500KB (${largeMB} MB) and can be shrunk.`;
+  document.getElementById('scanBtn').disabled = false;
+  document.getElementById('startBtn').disabled = toProcess.length === 0;
+}
+
+function logRow(path, state, note){
+  const log = document.getElementById('log');
+  let row = document.getElementById('row-'+cssSafe(path));
+  if(!row){
+    row = document.createElement('div');
+    row.className = 'log-item';
+    row.id = 'row-'+cssSafe(path);
+    row.innerHTML = `<span class="path">${path}</span><span class="state ${state}">${note}</span>`;
+    log.appendChild(row);
+  } else {
+    const stateSpan = row.querySelector('.state');
+    stateSpan.className = 'state ' + state;
+    stateSpan.textContent = note;
+  }
+  document.getElementById('logCard').style.display = 'block';
+}
+
+function cssSafe(str){ return str.replace(/[^a-zA-Z0-9]/g, '-'); }
+
+async function compressBlob(blob){
+  return new Promise((resolve, reject)=>{
+    const objUrl = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = ()=>{
+      let { width, height } = img;
+      if(width > MAX_DIMENSION || height > MAX_DIMENSION){
+        if(width > height){ height = Math.round(height*(MAX_DIMENSION/width)); width = MAX_DIMENSION; }
+        else { width = Math.round(width*(MAX_DIMENSION/height)); height = MAX_DIMENSION; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob((outBlob)=>{
+        URL.revokeObjectURL(objUrl);
+        if(!outBlob){ reject(new Error('toBlob failed')); return; }
+        const reader = new FileReader();
+        reader.onload = ()=> resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(outBlob);
+      }, 'image/jpeg', QUALITY);
+    };
+    img.onerror = reject;
+    img.src = objUrl;
+  });
+}
+
+async function startCompressing(){
+  const token = getToken();
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('scanBtn').disabled = true;
+  document.getElementById('progressBar').style.display = 'block';
+
+  let done = 0;
+  for(const file of toProcess){
+    logRow(file.path, 'working', 'Downloading…');
+    try{
+      const rawUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${file.path}`;
+      const imgRes = await fetch(rawUrl);
+      if(!imgRes.ok) throw new Error('download failed');
+      const blob = await imgRes.blob();
+
+      logRow(file.path, 'working', 'Compressing…');
+      const base64 = await compressBlob(blob);
+
+      logRow(file.path, 'working', 'Uploading…');
+      const putUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${file.path}`;
+      const putRes = await fetch(putUrl, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+        body: JSON.stringify({
+          message: `Compress ${file.path}`,
+          content: base64,
+          sha: file.sha,
+          branch: BRANCH
+        })
+      });
+      if(putRes.ok){
+        logRow(file.path, 'done', 'Done');
+      } else {
+        const t = await putRes.text();
+        logRow(file.path, 'error', 'Failed');
+        console.error(file.path, t);
+      }
+    }catch(err){
+      logRow(file.path, 'error', 'Failed');
+      console.error(file.path, err);
+    }
+    done++;
+    document.getElementById('progressFill').style.width = Math.round((done/toProcess.length)*100) + '%';
+    document.getElementById('summary').textContent = `Processing ${done} of ${toProcess.length}…`;
+  }
+
+  document.getElementById('summary').textContent = `Finished — processed ${done} of ${toProcess.length} photos. Give the site a couple minutes to update.`;
+  document.getElementById('scanBtn').disabled = false;
+}
+</script>
+</body>
+</html>
