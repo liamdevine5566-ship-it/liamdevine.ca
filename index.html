@@ -116,6 +116,22 @@ footer{background:#2f2f2f;color:#f6f2eb;text-align:center;padding:40px 20px}
 footer a{color:#f6f2eb;text-decoration:none}
 .pets-featured{max-width:650px;margin:0 auto 25px}
 @media(max-width:800px){.pets-featured{max-width:100%}}
+.price-card{background:#f2ead9;border:1px solid #d8cdb8;padding:36px 28px;display:flex;flex-direction:column;border-radius:2px;transition:background .4s ease,border-color .4s ease}
+.price-card *{transition:color .4s ease,border-color .4s ease,background .4s ease}
+.price-card .tag{font-family:'Jost',Georgia,serif;font-size:.75rem;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:#9a8060;margin-bottom:14px}
+.price-card h3{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-size:1.4rem;color:#2f2f2f;margin:0 0 10px}
+.price-card .price{font-family:'Playfair Display',Georgia,serif;font-size:3rem;font-weight:400;color:#2f2f2f;line-height:1;margin-bottom:4px}
+.price-card .duration{font-family:'Jost',Georgia,serif;font-size:.85rem;font-weight:300;color:#888;margin-bottom:24px}
+.price-card ul{list-style:none;padding:0;margin:0;flex:1}
+.price-card li{font-family:'Jost',Georgia,serif;font-size:.9rem;font-weight:300;color:#444;padding:9px 0;border-bottom:1px solid #d8cdb8}
+.price-card li:last-child{border-bottom:none}
+.price-card .book-btn{display:block;text-align:center;margin-top:28px;padding:13px;background:#2f2f2f;color:#fff;font-family:'Jost',Georgia,serif;font-size:.8rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;border-radius:2px}
+.price-card:hover{background:#2f2f2f;border-color:#2f2f2f}
+.price-card:hover .tag{color:#c5a882}
+.price-card:hover h3,.price-card:hover .price{color:#fff}
+.price-card:hover .duration{color:#bbb}
+.price-card:hover li{color:rgba(255,255,255,.75);border-bottom-color:rgba(255,255,255,.15)}
+.price-card:hover .book-btn{background:#fff;color:#2f2f2f}
 #backToTop{position:fixed;right:24px;bottom:24px;display:none;padding:10px 14px;border:none;border-radius:999px;cursor:pointer;background:#2f2f2f;color:#fff}
 </style>
 <meta content="Portrait, fine art and pet photography by Liam Devine. Based in London, Ontario and available throughout Southwestern Ontario." name="description"/>
@@ -144,6 +160,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <a href="#pets">PETS</a>
 <a href="#personal">FINE ART</a>
 <a href="#showcase">SPEED &amp; MOTION</a>
+<a href="#pricing">PRICING</a>
 <a href="#about">ABOUT</a>
 <a href="#contact">CONTACT</a>
 </div>
@@ -183,6 +200,101 @@ footer a{color:#f6f2eb;text-decoration:none}
 <div class="grid" id="showcase-grid"><div class="gallery-msg">Loading photos…</div></div>
 </div>
 </section>
+
+
+<section class="fade-section alt" id="pricing">
+<div class="wrap">
+<h2>Investment</h2>
+<p style="text-align:center;font-family:'Jost',Georgia,serif;font-weight:300;font-size:1rem;color:#555;max-width:560px;margin:-30px auto 50px;line-height:1.7;">Simple, transparent pricing. No hidden fees, no packages to decode.</p>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px;">
+
+  <!-- Headshots -->
+  <div class="price-card">
+    <div class="tag">Most Popular</div>
+    <h3>Headshots</h3>
+    <div class="price">$245</div>
+    <div class="duration">30–45 minutes</div>
+    <ul>
+      <li>5 professionally edited images</li>
+      <li>Pre-session consultation</li>
+      <li>Private online gallery</li>
+      <li>High-res digital downloads</li>
+    </ul>
+    <a href="#contact" class="book-btn">Book Now</a>
+  </div>
+
+  <!-- Portraits -->
+  <div class="price-card">
+    <div class="tag">Portrait Session</div>
+    <h3>Portraits</h3>
+    <div class="price">$315</div>
+    <div class="duration">60–90 minutes</div>
+    <ul>
+      <li>10 professionally edited images</li>
+      <li>Pre-session consultation</li>
+      <li>Private online gallery</li>
+      <li>High-res digital downloads</li>
+    </ul>
+    <a href="#contact" class="book-btn">Book Now</a>
+  </div>
+
+  <!-- Pets -->
+  <div class="price-card">
+    <div class="tag">Pet Session</div>
+    <h3>Pets</h3>
+    <div class="price">$335</div>
+    <div class="duration">60 minutes</div>
+    <ul>
+      <li>10 professionally edited images</li>
+      <li>Pre-session consultation</li>
+      <li>Private online gallery</li>
+      <li>High-res digital downloads</li>
+    </ul>
+    <a href="#contact" class="book-btn">Book Now</a>
+  </div>
+
+  <!-- Families -->
+  <div class="price-card">
+    <div class="tag">Family Session</div>
+    <h3>Families</h3>
+    <div class="price">$425</div>
+    <div class="duration">60–90 minutes</div>
+    <ul>
+      <li>15 professionally edited images</li>
+      <li>Pre-session consultation</li>
+      <li>Private online gallery</li>
+      <li>High-res digital downloads</li>
+    </ul>
+    <a href="#contact" class="book-btn">Book Now</a>
+  </div>
+
+</div>
+
+<!-- Fine print -->
+<div style="display:flex;gap:32px;flex-wrap:wrap;justify-content:center;">
+  <p style="font-family:'Jost',Georgia,serif;font-size:.85rem;font-weight:300;color:#888;margin:0;">📍 Travel included within 30km of London, Ontario. Beyond that, $0.50/km.</p>
+  <p style="font-family:'Jost',Georgia,serif;font-size:.85rem;font-weight:300;color:#888;margin:0;">🖼 Additional edited images available at $25 each.</p>
+  <p style="font-family:'Jost',Georgia,serif;font-size:.85rem;font-weight:300;color:#888;margin:0;">⚡ Gallery delivered within 48 hours.</p>
+</div>
+
+</div>
+</section>
+
+<!-- Mobile pricing grid -->
+<style>
+@media(max-width:800px){
+  #pricing > .wrap > div:first-of-type {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+}
+@media(max-width:480px){
+  #pricing > .wrap > div:first-of-type {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
 
 <section class="fade-section" id="about"><div class="wrap about"><img src="images/site/liamdevine.jpg"/><div><h2>About Liam</h2><p>I’m Liam Devine, a photographer based in London, Ontario. I photograph people, families, pets and the landscapes that catch my eye along the way. My approach is simple: create honest images that feel natural, timeless and authentic.</p></div></div></section>
 
