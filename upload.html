@@ -99,6 +99,7 @@ button.primary:active:not(:disabled),button.secondary:active:not(:disabled){opac
 <div class="hint">Letters, numbers, and dashes only. The extension is added automatically.</div>
 
 <button class="primary" id="uploadBtn" disabled onclick="doUpload()">Upload Photo</button>
+<button class="secondary" onclick="resetForm()">Cancel</button>
 <div class="status" id="status"></div>
 </div>
 
@@ -129,6 +130,7 @@ button.primary:active:not(:disabled),button.secondary:active:not(:disabled){opac
 
   <button class="primary" onclick="downloadCropped()">Download Cropped Image</button>
   <button class="secondary" id="copyCaptionBtn" onclick="copyCaption()">Copy Caption</button>
+  <button class="secondary" onclick="resetIgForm()">Cancel</button>
   <div class="hint" style="text-align:center;margin-top:8px">Download the image, copy the caption, then post both in the Instagram app.</div>
 </div>
 </div>
@@ -339,11 +341,16 @@ async function doUpload(){
 
 function resetForm(){
   selectedFile = null;
+  selectedCategory = null;
   document.getElementById('fileInput').value = '';
   document.getElementById('filename').value = '';
   document.getElementById('preview').style.display = 'none';
   document.getElementById('dropzoneText').style.display = 'block';
   document.getElementById('dropzone').classList.remove('has-image');
+  renderCategories();
+  const statusEl = document.getElementById('status');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
   updateUploadState();
 }
 
@@ -506,6 +513,23 @@ function copyCaption(){
   const original = btn.textContent;
   btn.textContent = 'Copied!';
   setTimeout(()=>{ btn.textContent = original; }, 1500);
+}
+
+function resetIgForm(){
+  igImage = null;
+  igCategory = CATEGORIES[0].folder;
+  igRatioIdx = 1;
+  igCrop = { x:0, y:0, zoom:1 };
+  document.getElementById('igFileInput').value = '';
+  document.getElementById('igDropzoneText').textContent = 'Tap to choose a photo';
+  document.getElementById('igCropSection').style.display = 'none';
+  document.getElementById('cropbox').innerHTML = '';
+  document.getElementById('igCaption').value = '';
+  document.getElementById('igExtraTags').value = '';
+  document.getElementById('zoomSlider').value = 1;
+  renderRatioRow();
+  renderIgCategories();
+  renderTagPreview();
 }
 
 renderRatioRow();
