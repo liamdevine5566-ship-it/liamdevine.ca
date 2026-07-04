@@ -38,8 +38,9 @@ h2{text-align:center;margin-bottom:60px}
 .featured{max-width:820px;margin:0 auto 50px}
 .featured img{width:100%;display:block;border-radius:2px;cursor:pointer}
 .grid{column-count:3;column-gap:28px}
-.grid img{width:100%;display:block;margin-bottom:28px;border-radius:2px;cursor:pointer;break-inside:avoid}
-@media(max-width:800px){.grid{column-count:2;column-gap:14px}.grid img{margin-bottom:14px}}
+.grid .img-wrap{margin-bottom:28px;break-inside:avoid}
+.grid img{width:100%;display:block;border-radius:2px;cursor:pointer}
+@media(max-width:800px){.grid{column-count:2;column-gap:14px}.grid .img-wrap{margin-bottom:14px}}
 .personal img,.about img{width:100%;border-radius:10px}
 .about{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
 .contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}
@@ -89,6 +90,22 @@ nav.shrink{padding:8px 24px;background:rgba(255,255,255,.28);backdrop-filter:blu
 .fade-section{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
 .fade-section.visible{opacity:1;transform:none}
 .grid img,.featured img{transition:transform .35s ease,box-shadow .35s ease}
+.img-wrap{position:relative;display:block}
+.img-wrap::after{
+  content:'© Liam Devine Photography';
+  position:absolute;
+  bottom:8px;
+  right:10px;
+  font-family:'Jost',Georgia,serif;
+  font-weight:400;
+  font-size:.7rem;
+  letter-spacing:.03em;
+  color:rgba(255,255,255,.75);
+  text-shadow:0 1px 3px rgba(0,0,0,.7);
+  pointer-events:none;
+  user-select:none;
+}
+.grid .img-wrap img,.featured .img-wrap img{display:block;width:100%}
 @media (hover:hover){
 .grid img:hover,.featured img:hover{transform:translateY(-6px) scale(1.025);box-shadow:0 16px 32px rgba(0,0,0,.22)}
 }
@@ -125,7 +142,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <a href="#family">FAMILY</a>
 <a href="#pets">PETS</a>
 <a href="#personal">FINE ART</a>
-<a href="#showcase">SHOWCASE</a>
+<a href="#showcase">SPEED &amp; MOTION</a>
 <a href="#about">ABOUT</a>
 <a href="#contact">CONTACT</a>
 </div>
@@ -160,7 +177,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 
 <section class="fade-section" id="showcase">
 <div class="wrap">
-<h2>Showcase</h2>
+<h2>Speed &amp; Motion</h2>
 <div class="featured" id="showcase-featured"></div>
 <div class="grid" id="showcase-grid"><div class="gallery-msg">Loading photos…</div></div>
 </div>
@@ -216,19 +233,25 @@ async function loadCategoryFallback(cat){
     return;
   }
   if(featuredBox){
+    const fwrap = document.createElement('div');
+    fwrap.className = 'img-wrap';
     const fimg = document.createElement('img');
     fimg.src = images[0];
     fimg.alt = 'Photo by Liam Devine';
     fimg.loading = 'eager';
     fimg.decoding = 'async';
-    featuredBox.appendChild(fimg);
+    fwrap.appendChild(fimg);
+    featuredBox.appendChild(fwrap);
   }
   images.forEach(src => {
+    const wrap = document.createElement('div');
+    wrap.className = 'img-wrap';
     const img = document.createElement('img');
     img.src = src;
     img.loading = 'lazy';
     img.decoding = 'async';
-    grid.appendChild(img);
+    wrap.appendChild(img);
+    grid.appendChild(wrap);
   });
 }
 
@@ -266,19 +289,25 @@ async function loadAllCategories(){
         return;
       }
       if(featuredBox){
+        const fwrap = document.createElement('div');
+        fwrap.className = 'img-wrap';
         const fimg = document.createElement('img');
         fimg.src = images[0];
         fimg.alt = 'Photo by Liam Devine';
         fimg.loading = 'eager';
         fimg.decoding = 'async';
-        featuredBox.appendChild(fimg);
+        fwrap.appendChild(fimg);
+        featuredBox.appendChild(fwrap);
       }
       images.forEach(src=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'img-wrap';
         const img = document.createElement('img');
         img.src = src;
         img.loading = 'lazy';
         img.decoding = 'async';
-        grid.appendChild(img);
+        wrap.appendChild(img);
+        grid.appendChild(wrap);
       });
     });
   }catch(err){
