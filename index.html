@@ -46,6 +46,7 @@ h2{text-align:center;margin-bottom:60px}
 .contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}
 input,textarea{width:100%;padding:12px;margin:8px 0}
 .lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
+.lightbox-watermark{position:absolute;bottom:26px;right:30px;font-family:'Jost',Georgia,serif;font-weight:400;font-size:.85rem;letter-spacing:.03em;color:rgba(255,255,255,.75);text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none;user-select:none}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
 .close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer;z-index:2}
 .nav-arrow{position:absolute;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.55);font-size:38px;cursor:pointer;user-select:none;padding:20px;text-shadow:0 2px 8px rgba(0,0,0,.5);transition:color .2s ease}
@@ -196,7 +197,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 </footer>
 <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">×</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"/><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
+<div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">×</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"/><span class="lightbox-watermark">© Liam Devine Photography</span><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
 
 <script>
 // ===== AUTO-LOADING PHOTO GALLERIES =====
