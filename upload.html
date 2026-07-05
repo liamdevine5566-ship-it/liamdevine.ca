@@ -14,11 +14,11 @@
 <style>
 :root{
   --bg:#1b1a19;
-  --panel:#252321;
-  --panel-hi:#302e2b;
+  --panel:#2c2a27;
+  --panel-hi:#3a3733;
   --border:rgba(255,255,255,.09);
   --text:#f2ede4;
-  --text-dim:rgba(242,237,228,.55);
+  --text-dim:rgba(242,237,228,.72);
   --accent:#5a8a6b;
   --accent-text:#0f1a13;
   --good:#6fae82;
@@ -151,6 +151,28 @@ button.danger:active:not(:disabled){background:rgba(224,133,115,.1)}
 </div>
 </div>
 
+<!-- RENAME PANEL -->
+<div class="panel" id="panel-rename">
+<label class="field-label">Category</label>
+<div class="cat-cards" id="renameCategories"></div>
+
+<div id="renamePhotoArea" style="margin-top:22px">
+  <div class="empty-msg">Pick a category above to see its photos.</div>
+</div>
+
+<div id="renameActionSection" style="display:none">
+  <div class="selected-preview" id="renameSelectedPreview"></div>
+
+  <label class="field-label">New file name</label>
+  <input type="text" id="renameInput" placeholder="e.g. tree-sunset"/>
+  <div class="hint">Photos are ordered alphabetically on the site, so renaming also changes where this one appears.</div>
+
+  <button class="primary" id="renameBtn" disabled onclick="doRename()">Rename Photo</button>
+  <button class="secondary" onclick="resetRenameSelection()">Cancel</button>
+  <div class="status" id="renameStatus"></div>
+</div>
+</div>
+
 </div>
 
 <div class="tabbar">
@@ -161,6 +183,10 @@ Upload
 <button class="tab-item" data-tab="manage" onclick="switchTab('manage')">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
 Manage
+</button>
+<button class="tab-item" data-tab="rename" onclick="switchTab('rename')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+Rename
 </button>
 </div>
 
@@ -194,8 +220,11 @@ function switchTab(tab){
   document.querySelectorAll('.tab-item').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.getElementById('panel-upload').classList.toggle('active', tab==='upload');
   document.getElementById('panel-manage').classList.toggle('active', tab==='manage');
-  document.getElementById('pageTitle').textContent = tab==='upload' ? 'Upload' : 'Manage';
-  document.getElementById('pageSubtitle').textContent = tab==='upload' ? 'Add a new photo to the site' : 'Move or remove existing photos';
+  document.getElementById('panel-rename').classList.toggle('active', tab==='rename');
+  const titles = { upload:'Upload', manage:'Manage', rename:'Rename' };
+  const subs = { upload:'Add a new photo to the site', manage:'Move or remove existing photos', rename:'Rename a photo (also changes its order on the page)' };
+  document.getElementById('pageTitle').textContent = titles[tab];
+  document.getElementById('pageSubtitle').textContent = subs[tab];
 }
 
 /* ---------- TOKEN (shared) ---------- */
@@ -251,6 +280,7 @@ async function preloadCategoryThumbs(){
   }
   renderCategories();
   renderManageCategories();
+  renderRenameCategories();
 }
 
 /* ---------- UPLOAD TAB ---------- */
@@ -579,6 +609,168 @@ function resetManageSelection(keepSource){
     manageSource = null;
     renderManageCategories();
     document.getElementById('managePhotoArea').innerHTML = '<div class="empty-msg">Pick a category above to see its photos.</div>';
+  }
+}
+
+/* ---------- RENAME TAB ---------- */
+let renameCategory = null;
+let renameSelectedFile = null;
+
+function renderRenameCategories(){
+  makeCategoryCards('renameCategories', renameCategory, (folder)=>{
+    renameCategory = folder;
+    renderRenameCategories();
+    loadPhotosForRename(folder);
+  });
+}
+renderRenameCategories();
+
+async function loadPhotosForRename(folder){
+  const area = document.getElementById('renamePhotoArea');
+  area.innerHTML = '<div class="empty-msg">Loading photos…</div>';
+  document.getElementById('renameActionSection').style.display = 'none';
+  renameSelectedFile = null;
+
+  const token = getToken();
+  if(!token){
+    area.innerHTML = '<div class="empty-msg">Connect to GitHub first — tap the gear icon.</div>';
+    return;
+  }
+
+  try{
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${folder}?ref=${BRANCH}`;
+    const res = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }});
+    if(!res.ok) throw new Error('fetch failed');
+    const files = await res.json();
+    const images = files.filter(f => f.type === 'file' && /\.(jpe?g|png)$/i.test(f.name));
+
+    if(images.length === 0){
+      area.innerHTML = '<div class="empty-msg">No photos in this category yet.</div>';
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    images.forEach(f=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      const thumbUrl = `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}/${f.path}`;
+      thumb.innerHTML = `<img src="${thumbUrl}" loading="lazy"/>`;
+      thumb.onclick = ()=>{
+        renameSelectedFile = { path: f.path, sha: f.sha, name: f.name, url: thumbUrl };
+        grid.querySelectorAll('.photo-thumb').forEach(t=>t.classList.remove('selected'));
+        thumb.classList.add('selected');
+        showRenameAction();
+      };
+      grid.appendChild(thumb);
+    });
+    area.innerHTML = '';
+    area.appendChild(grid);
+  }catch(err){
+    area.innerHTML = '<div class="empty-msg">Could not load photos. Check your connection.</div>';
+  }
+}
+
+function showRenameAction(){
+  document.getElementById('renameActionSection').style.display = 'block';
+  const preview = document.getElementById('renameSelectedPreview');
+  preview.innerHTML = `<img src="${renameSelectedFile.url}"/><div class="name">${renameSelectedFile.name}</div>`;
+  const nameOnly = renameSelectedFile.name.replace(/\.[^/.]+$/, '');
+  const input = document.getElementById('renameInput');
+  input.value = nameOnly;
+  updateRenameState();
+  const statusEl = document.getElementById('renameStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
+}
+
+document.getElementById('renameInput').addEventListener('input', updateRenameState);
+
+function updateRenameState(){
+  const val = document.getElementById('renameInput').value.trim();
+  document.getElementById('renameBtn').disabled = !(renameSelectedFile && val.length > 0);
+}
+
+async function doRename(){
+  const token = getToken();
+  if(!token || !renameSelectedFile) return;
+
+  const rawName = document.getElementById('renameInput').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if(!rawName){ showStatus('renameStatus','err','Please enter a name.'); return; }
+
+  const ext = (renameSelectedFile.name.match(/\.[^/.]+$/) || ['.jpg'])[0];
+  const currentNameOnly = renameSelectedFile.name.replace(/\.[^/.]+$/, '');
+  if(rawName === currentNameOnly){
+    showStatus('renameStatus','err','That\'s already the current name.');
+    return;
+  }
+
+  document.getElementById('renameBtn').disabled = true;
+  showStatus('renameStatus','busy','Downloading photo…');
+
+  try{
+    const imgRes = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${renameSelectedFile.path}`);
+    if(!imgRes.ok) throw new Error('download failed');
+    const blob = await imgRes.blob();
+    const base64 = await new Promise((resolve, reject)=>{
+      const r = new FileReader();
+      r.onload = ()=> resolve(r.result.split(',')[1]);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+
+    const newPath = `images/${renameCategory}/${rawName}${ext}`;
+    showStatus('renameStatus','busy','Renaming…');
+
+    const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${newPath}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Rename ${renameSelectedFile.name} to ${rawName}${ext}`, content: base64, branch: BRANCH })
+    });
+
+    if(putRes.status === 422){
+      showStatus('renameStatus','err','A photo with that name already exists in this category.');
+      document.getElementById('renameBtn').disabled = false;
+      return;
+    }
+    if(!putRes.ok){
+      showStatus('renameStatus','err',`Rename failed (${putRes.status}).`);
+      document.getElementById('renameBtn').disabled = false;
+      return;
+    }
+
+    const delRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${renameSelectedFile.path}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Remove old file after rename`, sha: renameSelectedFile.sha, branch: BRANCH })
+    });
+
+    if(delRes.ok){
+      showStatus('renameStatus','ok','Renamed! The site will update within a couple minutes.');
+      resetRenameSelection(true);
+      preloadCategoryThumbs();
+    } else {
+      showStatus('renameStatus','err','Renamed, but removing the old file failed — you may have it under both names.');
+    }
+  }catch(err){
+    showStatus('renameStatus','err','Something went wrong. Check your connection and try again.');
+    document.getElementById('renameBtn').disabled = false;
+  }
+}
+
+function resetRenameSelection(keepCategory){
+  renameSelectedFile = null;
+  document.getElementById('renameActionSection').style.display = 'none';
+  const statusEl = document.getElementById('renameStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
+  document.getElementById('renameBtn').disabled = false;
+  if(keepCategory && renameCategory){
+    loadPhotosForRename(renameCategory);
+  } else {
+    renameCategory = null;
+    renderRenameCategories();
+    document.getElementById('renamePhotoArea').innerHTML = '<div class="empty-msg">Pick a category above to see its photos.</div>';
   }
 }
 
