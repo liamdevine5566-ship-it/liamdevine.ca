@@ -513,7 +513,7 @@ lb.addEventListener('touchmove',e=>{
   const dY=curY-startY;
   if(Math.abs(dY) > Math.abs(dX) && dY > 10){
     dragging=true;
-    const progress=Math.min(dY/300,1);
+    const progress=Math.min(dY/160,1);
     lbImg.style.transition='none';
     lbImg.style.transform=`translateY(${dY}px) scale(${1-progress*0.3})`;
     lbImg.style.opacity=`${1-progress*0.6}`;
@@ -528,7 +528,7 @@ lb.addEventListener('touchend',e=>{
   if(dragging){
     lbImg.style.transition='transform .25s ease, opacity .25s ease';
     document.getElementById('lightbox').style.transition='background .25s ease';
-    if(deltaY > 100){
+    if(deltaY > 55){
       lbImg.style.transform='translateY(300px) scale(0.7)';
       lbImg.style.opacity='0';
       setTimeout(()=>{
