@@ -10,82 +10,108 @@
 <link rel="apple-touch-icon" href="images/logo1.jpg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--ivory:#f2ead9;--stone:#e8ddc7;--char:#2f2f2f;--good:#3f6b4f;--bad:#a4453a;}
+:root{
+  --bg:#1b1a19;
+  --panel:#2c2a27;
+  --panel-hi:#3a3733;
+  --border:rgba(255,255,255,.09);
+  --text:#f2ede4;
+  --text-dim:rgba(242,237,228,.72);
+  --accent:#5a8a6b;
+  --accent-text:#0f1a13;
+  --good:#6fae82;
+  --bad:#e08573;
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0;background:var(--ivory);color:var(--char);font-family:'Jost',Georgia,serif;font-weight:300;min-height:100vh}
-.wrap{max-width:520px;margin:0 auto;padding:24px 20px 60px;padding-top:calc(24px + env(safe-area-inset-top));min-height:100vh}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:1.7rem;margin:0}
-.gear{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--char);padding:8px;opacity:.7}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:20px 20px 100px;padding-top:calc(20px + env(safe-area-inset-top));min-height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+h1{font-family:'Jost',sans-serif;font-weight:500;font-size:1.4rem;margin:0;letter-spacing:.01em}
+.subtitle{color:var(--text-dim);font-size:.85rem;margin:2px 0 20px}
+.gear{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text);padding:8px;opacity:.6}
 
-/* Tabs */
-.tabs{display:flex;gap:8px;margin-bottom:26px;border-bottom:1px solid rgba(47,47,47,.15)}
-.tab-btn{flex:1;padding:12px 4px;background:none;border:none;font-family:'Jost';font-size:.95rem;color:var(--char);opacity:.5;cursor:pointer;border-bottom:2px solid transparent;transition:opacity .15s ease,border-color .15s ease}
-.tab-btn.active{opacity:1;border-bottom-color:var(--char)}
 .panel{display:none}
 .panel.active{display:block}
 
-label.field-label{display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;opacity:.65;margin-bottom:10px}
-.categories{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px}
-.cat-btn{padding:14px 10px;border:1px solid rgba(47,47,47,.25);border-radius:4px;background:transparent;font-family:'Jost';font-size:.95rem;color:var(--char);cursor:pointer;transition:background .15s ease,color .15s ease}
-.cat-btn.selected{background:var(--char);color:var(--ivory);border-color:var(--char)}
-.dropzone{border:1.5px dashed rgba(47,47,47,.35);border-radius:6px;padding:36px 20px;text-align:center;margin-bottom:24px;cursor:pointer;transition:border-color .15s ease}
+label.field-label{display:block;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;margin-top:22px}
+label.field-label:first-of-type{margin-top:0}
+
+.cat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cat-card{position:relative;aspect-ratio:1.4;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;background:var(--panel) center/cover no-repeat}
+.cat-card.wide{grid-column:1/-1;aspect-ratio:2.6}
+.cat-card.selected{border-color:var(--accent)}
+.cat-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55),rgba(0,0,0,.05) 60%)}
+.cat-card span{position:absolute;bottom:10px;left:12px;z-index:1;color:#fff;font-size:.92rem;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.cat-card.selected span::before{content:'✓ ';color:var(--accent)}
+
+.dropzone{border:1.5px dashed var(--border);border-radius:8px;padding:36px 20px;text-align:center;cursor:pointer;background:var(--panel);transition:border-color .15s ease}
 .dropzone.has-image{padding:0;border-style:solid;overflow:hidden}
-.dropzone p{margin:0;opacity:.6;font-size:.95rem}
+.dropzone p{margin:0;color:var(--text-dim);font-size:.95rem}
 .dropzone img{width:100%;display:block;max-height:340px;object-fit:cover}
 input[type=file]{display:none}
-input[type=text],textarea.plain{width:100%;padding:14px;border:1px solid rgba(47,47,47,.25);border-radius:4px;font-family:'Jost';font-size:1rem;background:#fff;margin-bottom:24px;color:var(--char)}
-input[type=text]:focus,textarea.plain:focus{outline:none;border-color:var(--char)}
-.hint{font-size:.78rem;opacity:.55;margin-top:-16px;margin-bottom:24px}
-button.primary{width:100%;padding:16px;background:var(--char);color:var(--ivory);border:none;border-radius:4px;font-family:'Jost';font-size:1rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:opacity .15s ease;margin-bottom:12px}
-button.secondary{width:100%;padding:16px;background:transparent;color:var(--char);border:1px solid var(--char);border-radius:4px;font-family:'Jost';font-size:1rem;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:opacity .15s ease;margin-bottom:12px}
-button.primary:disabled,button.secondary:disabled{opacity:.4;cursor:default}
-button.primary:active:not(:disabled),button.secondary:active:not(:disabled){opacity:.8}
-.status{margin-top:8px;padding:14px;border-radius:4px;font-size:.9rem;text-align:center;display:none}
-.status.show{display:block}
-.status.ok{background:rgba(63,107,79,.12);color:var(--good)}
-.status.err{background:rgba(164,69,58,.12);color:var(--bad)}
-.status.busy{background:rgba(47,47,47,.08);color:var(--char)}
-.overlay{position:fixed;inset:0;background:var(--ivory);z-index:50;display:none;padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top))}
-.overlay.show{display:block}
-.overlay h2{font-family:'Playfair Display';font-style:italic;font-weight:400;font-size:1.4rem;margin-top:0}
-.overlay p{font-size:.9rem;line-height:1.5;opacity:.8}
-.overlay textarea{width:100%;min-height:100px;padding:14px;border:1px solid rgba(47,47,47,.25);border-radius:4px;font-family:monospace;font-size:.85rem;margin-bottom:16px;resize:vertical}
-.overlay-actions{display:flex;gap:10px}
-.overlay-actions button{flex:1;padding:14px;border-radius:4px;font-family:'Jost';font-size:.9rem;cursor:pointer;border:1px solid rgba(47,47,47,.25);background:transparent;color:var(--char)}
-.overlay-actions button.save{background:var(--char);color:var(--ivory);border-color:var(--char)}
-.token-state{font-size:.82rem;opacity:.6;margin-bottom:20px}
 
-/* IG prep specific */
-.ratio-row{display:flex;gap:10px;margin-bottom:16px}
-.ratio-btn{flex:1;padding:10px 0;border-radius:20px;border:1px solid rgba(47,47,47,.3);background:transparent;font-family:'Jost';font-size:.85rem;color:var(--char);cursor:pointer}
-.ratio-btn.selected{background:var(--char);color:var(--ivory);border-color:var(--char)}
-.cropbox{position:relative;overflow:hidden;border-radius:6px;background:#1c1a17;width:100%;margin-bottom:14px;touch-action:none}
-.cropbox img{position:absolute;left:50%;top:50%;max-width:none;height:100%;user-select:none;cursor:grab}
-.zoom-hint{font-size:.78rem;opacity:.55;margin-bottom:10px}
-.tag-preview{font-size:.8rem;opacity:.65;line-height:1.6;margin-top:-14px;margin-bottom:24px}
+input[type=text]{width:100%;padding:14px;border:1px solid var(--border);border-radius:6px;font-family:'Jost';font-size:1rem;background:var(--panel);color:var(--text)}
+input[type=text]:focus{outline:none;border-color:var(--accent)}
+.hint{font-size:.78rem;color:var(--text-dim);margin-top:8px}
+
+button.primary{width:100%;padding:16px;background:var(--accent);color:var(--accent-text);border:none;border-radius:6px;font-family:'Jost';font-size:.95rem;font-weight:500;letter-spacing:.03em;cursor:pointer;transition:opacity .15s ease;margin-top:22px}
+button.secondary{width:100%;padding:16px;background:transparent;color:var(--text);border:1px solid var(--border);border-radius:6px;font-family:'Jost';font-size:.95rem;cursor:pointer;transition:background .15s ease;margin-top:10px}
+button.danger{width:100%;padding:16px;background:transparent;color:var(--bad);border:1px solid rgba(224,133,115,.4);border-radius:6px;font-family:'Jost';font-size:.95rem;cursor:pointer;margin-top:10px}
+button.primary:disabled,button.secondary:disabled,button.danger:disabled{opacity:.35;cursor:default}
+button.primary:active:not(:disabled){opacity:.8}
+button.secondary:active:not(:disabled){background:var(--panel-hi)}
+button.danger:active:not(:disabled){background:rgba(224,133,115,.1)}
+
+.status{margin-top:14px;padding:14px;border-radius:6px;font-size:.9rem;text-align:center;display:none}
+.status.show{display:block}
+.status.ok{background:rgba(111,174,130,.15);color:var(--good)}
+.status.err{background:rgba(224,133,115,.15);color:var(--bad)}
+.status.busy{background:var(--panel);color:var(--text-dim)}
+
+.overlay{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top))}
+.overlay.show{display:block}
+.overlay h2{font-family:'Jost';font-weight:500;font-size:1.3rem;margin-top:0}
+.overlay p{font-size:.9rem;line-height:1.5;color:var(--text-dim)}
+.overlay textarea{width:100%;min-height:100px;padding:14px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text);font-family:monospace;font-size:.85rem;margin-bottom:16px;resize:vertical}
+.overlay-actions{display:flex;gap:10px}
+.overlay-actions button{flex:1;padding:14px;border-radius:6px;font-family:'Jost';font-size:.9rem;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text)}
+.overlay-actions button.save{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:500}
+.token-state{font-size:.82rem;color:var(--text-dim);margin-bottom:4px}
+
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:340px;overflow-y:auto;padding:2px}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:6px;overflow:hidden;cursor:pointer;border:2px solid transparent}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-thumb.selected{border-color:var(--accent)}
+.photo-thumb.selected::after{content:'✓';position:absolute;top:4px;right:4px;background:var(--accent);color:var(--accent-text);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600}
+.empty-msg{color:var(--text-dim);font-size:.9rem;text-align:center;padding:30px 0}
+.selected-preview{display:flex;align-items:center;gap:12px;background:var(--panel);border-radius:8px;padding:10px;margin-top:14px}
+.selected-preview img{width:56px;height:56px;object-fit:cover;border-radius:6px}
+.selected-preview .name{font-size:.85rem;color:var(--text-dim);flex:1;word-break:break-all}
+
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:var(--panel);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:40}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px 10px;background:none;border:none;cursor:pointer;color:var(--text-dim);font-family:'Jost';font-size:.72rem}
+.tab-item.active{color:var(--accent)}
+.tab-item svg{width:22px;height:22px}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
-<h1 id="pageTitle">Upload a Photo</h1>
+<div>
+<h1 id="pageTitle">Upload</h1>
+</div>
 <button class="gear" onclick="openSettings()">&#9881;</button>
 </header>
-
-<div class="tabs">
-<button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
-<button class="tab-btn" data-tab="igprep" onclick="switchTab('igprep')">Instagram Prep</button>
-</div>
+<div class="subtitle" id="pageSubtitle">Add a new photo to the site</div>
 
 <div class="token-state" id="tokenState"></div>
 
 <!-- UPLOAD PANEL -->
 <div class="panel active" id="panel-upload">
 <label class="field-label">Category</label>
-<div class="categories" id="categories"></div>
+<div class="cat-cards" id="categories"></div>
 
 <label class="field-label">Photo</label>
 <div class="dropzone" id="dropzone" onclick="document.getElementById('fileInput').click()">
@@ -103,38 +129,65 @@ button.primary:active:not(:disabled),button.secondary:active:not(:disabled){opac
 <div class="status" id="status"></div>
 </div>
 
-<!-- IG PREP PANEL -->
-<div class="panel" id="panel-igprep">
-<label class="field-label">Photo</label>
-<div class="dropzone" id="igDropzone" onclick="document.getElementById('igFileInput').click()">
-  <p id="igDropzoneText">Tap to choose a photo</p>
+<!-- MANAGE PANEL -->
+<div class="panel" id="panel-manage">
+<label class="field-label">Category</label>
+<div class="cat-cards" id="manageCategories"></div>
+
+<div id="managePhotoArea" style="margin-top:22px">
+  <div class="empty-msg">Pick a category above to see its photos.</div>
 </div>
-<input type="file" id="igFileInput" accept="image/*"/>
 
-<div id="igCropSection" style="display:none">
-  <label class="field-label">Crop ratio</label>
-  <div class="ratio-row" id="ratioRow"></div>
-  <div class="cropbox" id="cropbox"></div>
-  <div class="zoom-hint">Drag the photo to reposition. Use zoom to fill the frame.</div>
-  <input type="range" id="zoomSlider" min="1" max="2.5" step="0.01" value="1" style="width:100%;margin-bottom:24px"/>
+<div id="manageActionSection" style="display:none">
+  <div class="selected-preview" id="selectedPreview"></div>
 
-  <label class="field-label">Category</label>
-  <div class="categories" id="igCategories"></div>
+  <label class="field-label">Move to a different category</label>
+  <div class="cat-cards" id="manageDestCategories"></div>
+  <button class="primary" id="moveBtn" disabled onclick="doMove()">Move Photo</button>
 
-  <label class="field-label">Caption</label>
-  <textarea class="plain" id="igCaption" rows="3" placeholder="Write your caption..."></textarea>
-
-  <label class="field-label">Extra hashtags</label>
-  <input type="text" id="igExtraTags" placeholder="e.g. goldenhour, ontario"/>
-  <div class="tag-preview" id="tagPreview"></div>
-
-  <button class="primary" onclick="downloadCropped()">Download Cropped Image</button>
-  <button class="secondary" id="copyCaptionBtn" onclick="copyCaption()">Copy Caption</button>
-  <button class="secondary" onclick="resetIgForm()">Cancel</button>
-  <div class="hint" style="text-align:center;margin-top:8px">Download the image, copy the caption, then post both in the Instagram app.</div>
+  <button class="danger" onclick="confirmDelete()" id="deleteBtn">Delete This Photo</button>
+  <button class="secondary" onclick="resetManageSelection()">Cancel</button>
+  <div class="status" id="manageStatus"></div>
 </div>
 </div>
 
+<!-- RENAME PANEL -->
+<div class="panel" id="panel-rename">
+<label class="field-label">Category</label>
+<div class="cat-cards" id="renameCategories"></div>
+
+<div id="renamePhotoArea" style="margin-top:22px">
+  <div class="empty-msg">Pick a category above to see its photos.</div>
+</div>
+
+<div id="renameActionSection" style="display:none">
+  <div class="selected-preview" id="renameSelectedPreview"></div>
+
+  <label class="field-label">New file name</label>
+  <input type="text" id="renameInput" placeholder="e.g. tree-sunset"/>
+  <div class="hint">Photos are ordered alphabetically on the site, so renaming also changes where this one appears.</div>
+
+  <button class="primary" id="renameBtn" disabled onclick="doRename()">Rename Photo</button>
+  <button class="secondary" onclick="resetRenameSelection()">Cancel</button>
+  <div class="status" id="renameStatus"></div>
+</div>
+</div>
+
+</div>
+
+<div class="tabbar">
+<button class="tab-item active" data-tab="upload" onclick="switchTab('upload')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4M12 4l-5 5M12 4l5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+Upload
+</button>
+<button class="tab-item" data-tab="manage" onclick="switchTab('manage')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+Manage
+</button>
+<button class="tab-item" data-tab="rename" onclick="switchTab('rename')">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+Rename
+</button>
 </div>
 
 <div class="overlay" id="settingsOverlay">
@@ -153,40 +206,92 @@ const REPO_NAME = 'liamdevine.ca';
 const BRANCH = 'main';
 
 const CATEGORIES = [
-  {label:'Portraits', folder:'portraits', tags:['#portraitphotography','#headshot','#naturallight','#strathroyontario']},
-  {label:'Family', folder:'family', tags:['#familyphotography','#familyportraits','#ontariophotographer']},
-  {label:'Pets', folder:'pets', tags:['#petphotography','#dogsofinstagram','#petportrait']},
-  {label:'Fine Art', folder:'fine-art', tags:['#fineartphotography','#landscapephotography','#wildlifephotography']},
-  {label:'Speed & Motion', folder:'showcase', tags:['#motorsportphotography','#actionphotography','#panning']}
+  {label:'Portraits', folder:'portraits'},
+  {label:'Family', folder:'family'},
+  {label:'Pets', folder:'pets'},
+  {label:'Fine Art', folder:'fine-art'},
+  {label:'Speed & Motion', folder:'showcase', wide:true}
 ];
 
-const RATIOS = [
-  {label:'Square', ratio:1},
-  {label:'Portrait', ratio:4/5},
-  {label:'Landscape', ratio:1.91}
-];
+let categoryFirstImage = {};
 
 /* ---------- TABS ---------- */
 function switchTab(tab){
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.tab-item').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
   document.getElementById('panel-upload').classList.toggle('active', tab==='upload');
-  document.getElementById('panel-igprep').classList.toggle('active', tab==='igprep');
-  document.getElementById('pageTitle').textContent = tab==='upload' ? 'Upload a Photo' : 'Prep for Instagram';
+  document.getElementById('panel-manage').classList.toggle('active', tab==='manage');
+  document.getElementById('panel-rename').classList.toggle('active', tab==='rename');
+  const titles = { upload:'Upload', manage:'Manage', rename:'Rename' };
+  const subs = { upload:'Add a new photo to the site', manage:'Move or remove existing photos', rename:'Rename a photo (also changes its order on the page)' };
+  document.getElementById('pageTitle').textContent = titles[tab];
+  document.getElementById('pageSubtitle').textContent = subs[tab];
 }
 
-/* ---------- UPLOAD TAB (unchanged logic) ---------- */
+/* ---------- TOKEN (shared) ---------- */
+function getToken(){ return localStorage.getItem('ld_gh_pat') || ''; }
+function refreshTokenState(){
+  const el = document.getElementById('tokenState');
+  el.textContent = getToken() ? 'Connected to GitHub.' : 'Not connected yet — tap the gear icon to set up.';
+}
+refreshTokenState();
+function openSettings(){
+  document.getElementById('tokenInput').value = getToken();
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+function saveToken(){
+  const val = document.getElementById('tokenInput').value.trim();
+  localStorage.setItem('ld_gh_pat', val);
+  refreshTokenState();
+  closeSettings();
+  preloadCategoryThumbs();
+}
+
+/* ---------- Category card renderer (shared) ---------- */
+function makeCategoryCards(containerId, selectedFolder, onSelect, excludeFolder){
+  const box = document.getElementById(containerId);
+  box.innerHTML = '';
+  CATEGORIES.filter(c => c.folder !== excludeFolder).forEach(cat=>{
+    const card = document.createElement('div');
+    card.className = 'cat-card' + (cat.wide ? ' wide' : '') + (selectedFolder === cat.folder ? ' selected' : '');
+    card.innerHTML = `<span>${cat.label}</span>`;
+    if(categoryFirstImage[cat.folder]){
+      card.style.backgroundImage = `url(${categoryFirstImage[cat.folder]})`;
+    }
+    card.onclick = () => onSelect(cat.folder);
+    box.appendChild(card);
+  });
+}
+
+async function preloadCategoryThumbs(){
+  const token = getToken();
+  if(!token) return;
+  for(const cat of CATEGORIES){
+    try{
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${cat.folder}?ref=${BRANCH}`;
+      const res = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }});
+      if(!res.ok) continue;
+      const files = await res.json();
+      const first = files.find(f => f.type === 'file' && /\.(jpe?g|png)$/i.test(f.name));
+      if(first){
+        categoryFirstImage[cat.folder] = `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}/${first.path}`;
+      }
+    }catch(err){ /* silently skip */ }
+  }
+  renderCategories();
+  renderManageCategories();
+  renderRenameCategories();
+}
+
+/* ---------- UPLOAD TAB ---------- */
 let selectedCategory = null;
 let selectedFile = null;
 
 function renderCategories(){
-  const box = document.getElementById('categories');
-  box.innerHTML = '';
-  CATEGORIES.forEach(cat=>{
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (selectedCategory === cat.folder ? ' selected' : '');
-    btn.textContent = cat.label;
-    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); updateUploadState(); };
-    box.appendChild(btn);
+  makeCategoryCards('categories', selectedCategory, (folder)=>{
+    selectedCategory = folder;
+    renderCategories();
+    updateUploadState();
   });
 }
 renderCategories();
@@ -212,7 +317,6 @@ document.getElementById('fileInput').addEventListener('change', (e)=>{
   }
   updateUploadState();
 });
-
 document.getElementById('filename').addEventListener('input', updateUploadState);
 
 function updateUploadState(){
@@ -220,32 +324,8 @@ function updateUploadState(){
   document.getElementById('uploadBtn').disabled = !(selectedCategory && selectedFile && nameOk);
 }
 
-function getToken(){
-  return localStorage.getItem('ld_gh_pat') || '';
-}
-
-function refreshTokenState(){
-  const el = document.getElementById('tokenState');
-  el.textContent = getToken() ? 'Connected to GitHub.' : 'Not connected yet — tap the gear icon to set up.';
-}
-refreshTokenState();
-
-function openSettings(){
-  document.getElementById('tokenInput').value = getToken();
-  document.getElementById('settingsOverlay').classList.add('show');
-}
-function closeSettings(){
-  document.getElementById('settingsOverlay').classList.remove('show');
-}
-function saveToken(){
-  const val = document.getElementById('tokenInput').value.trim();
-  localStorage.setItem('ld_gh_pat', val);
-  refreshTokenState();
-  closeSettings();
-}
-
-function showStatus(kind, msg){
-  const el = document.getElementById('status');
+function showStatus(elId, kind, msg){
+  const el = document.getElementById(elId);
   el.className = 'status show ' + kind;
   el.textContent = msg;
 }
@@ -259,25 +339,18 @@ function compressImage(file, maxDimension=2000, quality=0.85){
     img.onload = ()=>{
       let { width, height } = img;
       if(width > maxDimension || height > maxDimension){
-        if(width > height){
-          height = Math.round(height * (maxDimension / width));
-          width = maxDimension;
-        }else{
-          width = Math.round(width * (maxDimension / height));
-          height = maxDimension;
-        }
+        if(width > height){ height = Math.round(height*(maxDimension/width)); width = maxDimension; }
+        else { width = Math.round(width*(maxDimension/height)); height = maxDimension; }
       }
       const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       canvas.toBlob((blob)=>{
         if(!blob){ reject(new Error('Compression failed')); return; }
-        const compressedReader = new FileReader();
-        compressedReader.onload = ()=> resolve(compressedReader.result.split(',')[1]);
-        compressedReader.onerror = reject;
-        compressedReader.readAsDataURL(blob);
+        const r = new FileReader();
+        r.onload = ()=> resolve(r.result.split(',')[1]);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
       }, 'image/jpeg', quality);
     };
     img.onerror = reject;
@@ -287,54 +360,40 @@ function compressImage(file, maxDimension=2000, quality=0.85){
 
 async function doUpload(){
   const token = getToken();
-  if(!token){
-    showStatus('err', 'Connect to GitHub first — tap the gear icon at the top.');
-    return;
-  }
+  if(!token){ showStatus('status','err','Connect to GitHub first — tap the gear icon at the top.'); return; }
   const rawName = document.getElementById('filename').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  if(!rawName){
-    showStatus('err', 'Please enter a file name.');
-    return;
-  }
-  const ext = '.jpg';
-  const path = `images/${selectedCategory}/${rawName}${ext}`;
+  if(!rawName){ showStatus('status','err','Please enter a file name.'); return; }
+  const path = `images/${selectedCategory}/${rawName}.jpg`;
 
   document.getElementById('uploadBtn').disabled = true;
-  showStatus('busy', 'Compressing photo…');
+  showStatus('status','busy','Compressing photo…');
 
   try{
     const base64 = await compressImage(selectedFile);
-    showStatus('busy', 'Uploading…');
+    showStatus('status','busy','Uploading…');
     const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
     const res = await fetch(url, {
       method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github+json'
-      },
-      body: JSON.stringify({
-        message: `Add photo via upload app: ${rawName}${ext}`,
-        content: base64,
-        branch: BRANCH
-      })
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Add photo via app: ${rawName}.jpg`, content: base64, branch: BRANCH })
     });
 
     if(res.status === 201){
-      showStatus('ok', `Uploaded! It'll appear on the site within a couple minutes.`);
+      showStatus('status','ok', `Uploaded! It'll appear on the site within a couple minutes.`);
       resetForm();
+      preloadCategoryThumbs();
     } else if(res.status === 422){
-      showStatus('err', 'A file with that name already exists in this category. Try a different name.');
+      showStatus('status','err','A file with that name already exists in this category. Try a different name.');
       document.getElementById('uploadBtn').disabled = false;
     } else if(res.status === 401 || res.status === 403){
-      showStatus('err', 'GitHub rejected the connection. Your token may be wrong or expired — tap the gear icon to update it.');
+      showStatus('status','err','GitHub rejected the connection. Tap the gear icon to update your token.');
       document.getElementById('uploadBtn').disabled = false;
     } else {
-      const body = await res.text();
-      showStatus('err', `Upload failed (${res.status}). ${body.slice(0,120)}`);
+      showStatus('status','err', `Upload failed (${res.status}).`);
       document.getElementById('uploadBtn').disabled = false;
     }
   }catch(err){
-    showStatus('err', 'Could not reach GitHub. Check your connection and try again.');
+    showStatus('status','err','Could not reach GitHub. Check your connection and try again.');
     document.getElementById('uploadBtn').disabled = false;
   }
 }
@@ -354,187 +413,368 @@ function resetForm(){
   updateUploadState();
 }
 
-/* ---------- INSTAGRAM PREP TAB ---------- */
-let igImage = null;      // Image object
-let igCategory = CATEGORIES[0].folder;
-let igRatioIdx = 1;
-let igCrop = { x:0, y:0, zoom:1 };
-let igDragging = false;
-let igDragStart = { x:0, y:0 };
+/* ---------- MANAGE TAB ---------- */
+let manageSource = null;
+let manageDest = null;
+let manageSelectedFile = null;
 
-function renderRatioRow(){
-  const row = document.getElementById('ratioRow');
-  row.innerHTML = '';
-  RATIOS.forEach((r, i)=>{
-    const btn = document.createElement('button');
-    btn.className = 'ratio-btn' + (i===igRatioIdx ? ' selected' : '');
-    btn.textContent = r.label;
-    btn.onclick = ()=>{ igRatioIdx = i; renderRatioRow(); applyCropBoxRatio(); };
-    row.appendChild(btn);
+function renderManageCategories(){
+  makeCategoryCards('manageCategories', manageSource, (folder)=>{
+    manageSource = folder;
+    renderManageCategories();
+    loadPhotosForManage(folder);
   });
 }
+renderManageCategories();
 
-function renderIgCategories(){
-  const box = document.getElementById('igCategories');
-  box.innerHTML = '';
-  CATEGORIES.forEach(cat=>{
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (igCategory === cat.folder ? ' selected' : '');
-    btn.textContent = cat.label;
-    btn.onclick = ()=>{ igCategory = cat.folder; renderIgCategories(); renderTagPreview(); };
-    box.appendChild(btn);
+async function loadPhotosForManage(folder){
+  const area = document.getElementById('managePhotoArea');
+  area.innerHTML = '<div class="empty-msg">Loading photos…</div>';
+  document.getElementById('manageActionSection').style.display = 'none';
+  manageSelectedFile = null;
+
+  const token = getToken();
+  if(!token){
+    area.innerHTML = '<div class="empty-msg">Connect to GitHub first — tap the gear icon.</div>';
+    return;
+  }
+
+  try{
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${folder}?ref=${BRANCH}`;
+    const res = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }});
+    if(!res.ok) throw new Error('fetch failed');
+    const files = await res.json();
+    const images = files.filter(f => f.type === 'file' && /\.(jpe?g|png)$/i.test(f.name));
+
+    if(images.length === 0){
+      area.innerHTML = '<div class="empty-msg">No photos in this category yet.</div>';
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    images.forEach(f=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      const thumbUrl = `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}/${f.path}`;
+      thumb.innerHTML = `<img src="${thumbUrl}" loading="lazy"/>`;
+      thumb.onclick = ()=>{
+        manageSelectedFile = { path: f.path, sha: f.sha, name: f.name, url: thumbUrl };
+        grid.querySelectorAll('.photo-thumb').forEach(t=>t.classList.remove('selected'));
+        thumb.classList.add('selected');
+        showManageActions();
+      };
+      grid.appendChild(thumb);
+    });
+    area.innerHTML = '';
+    area.appendChild(grid);
+  }catch(err){
+    area.innerHTML = '<div class="empty-msg">Could not load photos. Check your connection.</div>';
+  }
+}
+
+function showManageActions(){
+  document.getElementById('manageActionSection').style.display = 'block';
+  const preview = document.getElementById('selectedPreview');
+  preview.innerHTML = `<img src="${manageSelectedFile.url}"/><div class="name">${manageSelectedFile.name}</div>`;
+  manageDest = null;
+  renderManageDestCategories();
+  updateMoveState();
+  const statusEl = document.getElementById('manageStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
+}
+
+function renderManageDestCategories(){
+  makeCategoryCards('manageDestCategories', manageDest, (folder)=>{
+    manageDest = folder;
+    renderManageDestCategories();
+    updateMoveState();
+  }, manageSource);
+}
+
+function updateMoveState(){
+  document.getElementById('moveBtn').disabled = !(manageSelectedFile && manageDest);
+}
+
+async function doMove(){
+  const token = getToken();
+  if(!token || !manageSelectedFile || !manageDest) return;
+
+  document.getElementById('moveBtn').disabled = true;
+  document.getElementById('deleteBtn').disabled = true;
+  showStatus('manageStatus','busy','Downloading photo…');
+
+  try{
+    const imgRes = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${manageSelectedFile.path}`);
+    if(!imgRes.ok) throw new Error('download failed');
+    const blob = await imgRes.blob();
+    const base64 = await new Promise((resolve, reject)=>{
+      const r = new FileReader();
+      r.onload = ()=> resolve(r.result.split(',')[1]);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
+
+    const newPath = `images/${manageDest}/${manageSelectedFile.name}`;
+    showStatus('manageStatus','busy','Moving…');
+
+    const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${newPath}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Move ${manageSelectedFile.name} to ${manageDest}`, content: base64, branch: BRANCH })
+    });
+
+    if(putRes.status === 422){
+      showStatus('manageStatus','err','A photo with that name already exists in the destination category.');
+      document.getElementById('moveBtn').disabled = false;
+      document.getElementById('deleteBtn').disabled = false;
+      return;
+    }
+    if(!putRes.ok){
+      showStatus('manageStatus','err',`Move failed (${putRes.status}).`);
+      document.getElementById('moveBtn').disabled = false;
+      document.getElementById('deleteBtn').disabled = false;
+      return;
+    }
+
+    const delRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${manageSelectedFile.path}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Remove ${manageSelectedFile.name} from old category`, sha: manageSelectedFile.sha, branch: BRANCH })
+    });
+
+    if(delRes.ok){
+      showStatus('manageStatus','ok','Moved! The site will update within a couple minutes.');
+      resetManageSelection(true);
+      preloadCategoryThumbs();
+    } else {
+      showStatus('manageStatus','err','Copied to the new category, but removing the old copy failed — you may have it in both places.');
+    }
+  }catch(err){
+    showStatus('manageStatus','err','Something went wrong. Check your connection and try again.');
+    document.getElementById('moveBtn').disabled = false;
+    document.getElementById('deleteBtn').disabled = false;
+  }
+}
+
+function confirmDelete(){
+  if(!manageSelectedFile) return;
+  const sure = confirm(`Delete "${manageSelectedFile.name}" permanently? This can't be undone from the app.`);
+  if(sure) doDelete();
+}
+
+async function doDelete(){
+  const token = getToken();
+  if(!token || !manageSelectedFile) return;
+
+  document.getElementById('moveBtn').disabled = true;
+  document.getElementById('deleteBtn').disabled = true;
+  showStatus('manageStatus','busy','Deleting…');
+
+  try{
+    const delRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${manageSelectedFile.path}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Delete ${manageSelectedFile.name}`, sha: manageSelectedFile.sha, branch: BRANCH })
+    });
+    if(delRes.ok){
+      showStatus('manageStatus','ok','Deleted. The site will update within a couple minutes.');
+      resetManageSelection(true);
+      preloadCategoryThumbs();
+    } else {
+      showStatus('manageStatus','err',`Delete failed (${delRes.status}).`);
+      document.getElementById('moveBtn').disabled = false;
+      document.getElementById('deleteBtn').disabled = false;
+    }
+  }catch(err){
+    showStatus('manageStatus','err','Something went wrong. Check your connection and try again.');
+    document.getElementById('moveBtn').disabled = false;
+    document.getElementById('deleteBtn').disabled = false;
+  }
+}
+
+function resetManageSelection(keepSource){
+  manageDest = null;
+  manageSelectedFile = null;
+  document.getElementById('manageActionSection').style.display = 'none';
+  const statusEl = document.getElementById('manageStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
+  document.getElementById('moveBtn').disabled = false;
+  document.getElementById('deleteBtn').disabled = false;
+  if(keepSource && manageSource){
+    loadPhotosForManage(manageSource);
+  } else {
+    manageSource = null;
+    renderManageCategories();
+    document.getElementById('managePhotoArea').innerHTML = '<div class="empty-msg">Pick a category above to see its photos.</div>';
+  }
+}
+
+/* ---------- RENAME TAB ---------- */
+let renameCategory = null;
+let renameSelectedFile = null;
+
+function renderRenameCategories(){
+  makeCategoryCards('renameCategories', renameCategory, (folder)=>{
+    renameCategory = folder;
+    renderRenameCategories();
+    loadPhotosForRename(folder);
   });
 }
+renderRenameCategories();
 
-function buildTags(){
-  const cat = CATEGORIES.find(c=>c.folder===igCategory);
-  const base = cat ? cat.tags : [];
-  const extras = document.getElementById('igExtraTags').value
-    .split(/[\s,]+/).filter(Boolean)
-    .map(t=> t.startsWith('#') ? t : '#'+t);
-  return Array.from(new Set([...base, ...extras]));
-}
-function renderTagPreview(){
-  document.getElementById('tagPreview').textContent = buildTags().join('  ');
-}
-document.getElementById('igExtraTags').addEventListener('input', renderTagPreview);
+async function loadPhotosForRename(folder){
+  const area = document.getElementById('renamePhotoArea');
+  area.innerHTML = '<div class="empty-msg">Loading photos…</div>';
+  document.getElementById('renameActionSection').style.display = 'none';
+  renameSelectedFile = null;
 
-document.getElementById('igFileInput').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    const img = new Image();
-    img.onload = ()=>{
-      igImage = img;
-      igCrop = { x:0, y:0, zoom:1 };
-      document.getElementById('igDropzoneText').textContent = 'Tap to choose a different photo';
-      document.getElementById('igCropSection').style.display = 'block';
-      buildCropboxImage();
-      applyCropBoxRatio();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
+  const token = getToken();
+  if(!token){
+    area.innerHTML = '<div class="empty-msg">Connect to GitHub first — tap the gear icon.</div>';
+    return;
+  }
 
-function buildCropboxImage(){
-  const box = document.getElementById('cropbox');
-  box.innerHTML = '';
-  const imgEl = document.createElement('img');
-  imgEl.src = igImage.src;
-  imgEl.id = 'cropImg';
-  imgEl.draggable = false;
-  box.appendChild(imgEl);
-  updateCropTransform();
+  try{
+    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/images/${folder}?ref=${BRANCH}`;
+    const res = await fetch(url, { headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' }});
+    if(!res.ok) throw new Error('fetch failed');
+    const files = await res.json();
+    const images = files.filter(f => f.type === 'file' && /\.(jpe?g|png)$/i.test(f.name));
 
-  box.onmousedown = igPointerDown;
-  box.onmousemove = igPointerMove;
-  box.onmouseup = igPointerUp;
-  box.onmouseleave = igPointerUp;
-  box.ontouchstart = igPointerDown;
-  box.ontouchmove = igPointerMove;
-  box.ontouchend = igPointerUp;
+    if(images.length === 0){
+      area.innerHTML = '<div class="empty-msg">No photos in this category yet.</div>';
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    images.forEach(f=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'photo-thumb';
+      const thumbUrl = `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}/${f.path}`;
+      thumb.innerHTML = `<img src="${thumbUrl}" loading="lazy"/>`;
+      thumb.onclick = ()=>{
+        renameSelectedFile = { path: f.path, sha: f.sha, name: f.name, url: thumbUrl };
+        grid.querySelectorAll('.photo-thumb').forEach(t=>t.classList.remove('selected'));
+        thumb.classList.add('selected');
+        showRenameAction();
+      };
+      grid.appendChild(thumb);
+    });
+    area.innerHTML = '';
+    area.appendChild(grid);
+  }catch(err){
+    area.innerHTML = '<div class="empty-msg">Could not load photos. Check your connection.</div>';
+  }
 }
 
-function applyCropBoxRatio(){
-  const box = document.getElementById('cropbox');
-  box.style.aspectRatio = String(RATIOS[igRatioIdx].ratio);
+function showRenameAction(){
+  document.getElementById('renameActionSection').style.display = 'block';
+  const preview = document.getElementById('renameSelectedPreview');
+  preview.innerHTML = `<img src="${renameSelectedFile.url}"/><div class="name">${renameSelectedFile.name}</div>`;
+  const nameOnly = renameSelectedFile.name.replace(/\.[^/.]+$/, '');
+  const input = document.getElementById('renameInput');
+  input.value = nameOnly;
+  updateRenameState();
+  const statusEl = document.getElementById('renameStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
 }
 
-function updateCropTransform(){
-  const imgEl = document.getElementById('cropImg');
-  if(!imgEl) return;
-  imgEl.style.transform = `translate(calc(-50% + ${igCrop.x}px), calc(-50% + ${igCrop.y}px)) scale(${igCrop.zoom})`;
-  imgEl.style.cursor = igDragging ? 'grabbing' : 'grab';
+document.getElementById('renameInput').addEventListener('input', updateRenameState);
+
+function updateRenameState(){
+  const val = document.getElementById('renameInput').value.trim();
+  document.getElementById('renameBtn').disabled = !(renameSelectedFile && val.length > 0);
 }
 
-function igPointerDown(e){
-  igDragging = true;
-  const p = e.touches ? e.touches[0] : e;
-  igDragStart = { x: p.clientX - igCrop.x, y: p.clientY - igCrop.y };
-}
-function igPointerMove(e){
-  if(!igDragging) return;
-  const p = e.touches ? e.touches[0] : e;
-  igCrop.x = p.clientX - igDragStart.x;
-  igCrop.y = p.clientY - igDragStart.y;
-  updateCropTransform();
-}
-function igPointerUp(){ igDragging = false; updateCropTransform(); }
+async function doRename(){
+  const token = getToken();
+  if(!token || !renameSelectedFile) return;
 
-document.getElementById('zoomSlider').addEventListener('input', (e)=>{
-  igCrop.zoom = parseFloat(e.target.value);
-  updateCropTransform();
-});
+  const rawName = document.getElementById('renameInput').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if(!rawName){ showStatus('renameStatus','err','Please enter a name.'); return; }
 
-function downloadCropped(){
-  if(!igImage) return;
-  const activeRatio = RATIOS[igRatioIdx].ratio;
-  const outW = 1080;
-  const outH = Math.round(outW / activeRatio);
-  const canvas = document.createElement('canvas');
-  canvas.width = outW;
-  canvas.height = outH;
-  const ctx = canvas.getContext('2d');
+  const ext = (renameSelectedFile.name.match(/\.[^/.]+$/) || ['.jpg'])[0];
+  const currentNameOnly = renameSelectedFile.name.replace(/\.[^/.]+$/, '');
+  if(rawName === currentNameOnly){
+    showStatus('renameStatus','err','That\'s already the current name.');
+    return;
+  }
 
-  const box = document.getElementById('cropbox');
-  const boxRect = box.getBoundingClientRect();
-  const previewHeight = boxRect.height;
-  const scaleToPreview = (previewHeight / igImage.height) * igCrop.zoom;
-  const outScale = outH / previewHeight;
-  const drawScale = scaleToPreview * outScale;
+  document.getElementById('renameBtn').disabled = true;
+  showStatus('renameStatus','busy','Downloading photo…');
 
-  ctx.save();
-  ctx.translate(outW/2, outH/2);
-  ctx.scale(drawScale, drawScale);
-  ctx.drawImage(
-    igImage,
-    -igImage.width/2 + (igCrop.x * outScale)/drawScale,
-    -igImage.height/2 + (igCrop.y * outScale)/drawScale
-  );
-  ctx.restore();
+  try{
+    const imgRes = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${renameSelectedFile.path}`);
+    if(!imgRes.ok) throw new Error('download failed');
+    const blob = await imgRes.blob();
+    const base64 = await new Promise((resolve, reject)=>{
+      const r = new FileReader();
+      r.onload = ()=> resolve(r.result.split(',')[1]);
+      r.onerror = reject;
+      r.readAsDataURL(blob);
+    });
 
-  canvas.toBlob((blob)=>{
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${igCategory}-ig-${RATIOS[igRatioIdx].label.toLowerCase()}.jpg`;
-    a.click();
-  }, 'image/jpeg', 0.92);
-}
+    const newPath = `images/${renameCategory}/${rawName}${ext}`;
+    showStatus('renameStatus','busy','Renaming…');
 
-function copyCaption(){
-  const caption = document.getElementById('igCaption').value.trim();
-  const tags = buildTags().join(' ');
-  const full = caption ? `${caption}\n\n${tags}` : tags;
-  navigator.clipboard.writeText(full);
-  const btn = document.getElementById('copyCaptionBtn');
-  const original = btn.textContent;
-  btn.textContent = 'Copied!';
-  setTimeout(()=>{ btn.textContent = original; }, 1500);
-}
+    const putRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${newPath}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Rename ${renameSelectedFile.name} to ${rawName}${ext}`, content: base64, branch: BRANCH })
+    });
 
-function resetIgForm(){
-  igImage = null;
-  igCategory = CATEGORIES[0].folder;
-  igRatioIdx = 1;
-  igCrop = { x:0, y:0, zoom:1 };
-  document.getElementById('igFileInput').value = '';
-  document.getElementById('igDropzoneText').textContent = 'Tap to choose a photo';
-  document.getElementById('igCropSection').style.display = 'none';
-  document.getElementById('cropbox').innerHTML = '';
-  document.getElementById('igCaption').value = '';
-  document.getElementById('igExtraTags').value = '';
-  document.getElementById('zoomSlider').value = 1;
-  renderRatioRow();
-  renderIgCategories();
-  renderTagPreview();
+    if(putRes.status === 422){
+      showStatus('renameStatus','err','A photo with that name already exists in this category.');
+      document.getElementById('renameBtn').disabled = false;
+      return;
+    }
+    if(!putRes.ok){
+      showStatus('renameStatus','err',`Rename failed (${putRes.status}).`);
+      document.getElementById('renameBtn').disabled = false;
+      return;
+    }
+
+    const delRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${renameSelectedFile.path}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github+json' },
+      body: JSON.stringify({ message: `Remove old file after rename`, sha: renameSelectedFile.sha, branch: BRANCH })
+    });
+
+    if(delRes.ok){
+      showStatus('renameStatus','ok','Renamed! The site will update within a couple minutes.');
+      resetRenameSelection(true);
+      preloadCategoryThumbs();
+    } else {
+      showStatus('renameStatus','err','Renamed, but removing the old file failed — you may have it under both names.');
+    }
+  }catch(err){
+    showStatus('renameStatus','err','Something went wrong. Check your connection and try again.');
+    document.getElementById('renameBtn').disabled = false;
+  }
 }
 
-renderRatioRow();
-renderIgCategories();
-renderTagPreview();
+function resetRenameSelection(keepCategory){
+  renameSelectedFile = null;
+  document.getElementById('renameActionSection').style.display = 'none';
+  const statusEl = document.getElementById('renameStatus');
+  statusEl.className = 'status';
+  statusEl.textContent = '';
+  document.getElementById('renameBtn').disabled = false;
+  if(keepCategory && renameCategory){
+    loadPhotosForRename(renameCategory);
+  } else {
+    renameCategory = null;
+    renderRenameCategories();
+    document.getElementById('renamePhotoArea').innerHTML = '<div class="empty-msg">Pick a category above to see its photos.</div>';
+  }
+}
+
+preloadCategoryThumbs();
 </script>
 </body>
 </html>
