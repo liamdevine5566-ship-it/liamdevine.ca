@@ -1,4 +1,4 @@
-<!-- site build: stable v3 -->
+<!-- site build: stable v4 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -580,6 +580,11 @@ lbImg.addEventListener('click',()=>{
 });
 
 // Load every category, then wire up the lightbox once all photos are in place
+// Prevents iOS Safari from "using up" the very first tap on the page
+// to simulate a hover state, which otherwise makes the first photo
+// tapped require two taps instead of one.
+document.addEventListener('touchstart', function(){}, true);
+
 loadAllCategories().then(wireUpGalleries);
 </script>
 </body></html>
