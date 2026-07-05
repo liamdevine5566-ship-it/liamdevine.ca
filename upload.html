@@ -27,30 +27,31 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--chassis);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
 .mono{font-family:'JetBrains Mono',monospace}
-.wrap{max-width:480px;margin:0 auto;padding:22px 20px 60px;padding-top:calc(22px + env(safe-area-inset-top));min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:18px 20px 40px;padding-top:calc(18px + env(safe-area-inset-top));min-height:100vh}
 
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .brand{display:flex;align-items:center;gap:10px}
 .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--tungsten);box-shadow:0 0 8px var(--tungsten)}
-h1{font-size:1rem;font-weight:500;margin:0;letter-spacing:.02em}
-.readout{font-size:.7rem;color:var(--text-dim);letter-spacing:.05em}
-.gear{background:none;border:1px solid var(--hairline);border-radius:50%;width:34px;height:34px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem}
+h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
+.readout{font-size:.8rem;color:var(--text-dim);letter-spacing:.05em}
+.gear{background:none;border:1px solid var(--hairline);border-radius:50%;width:38px;height:38px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem}
 
-.status-line{font-size:.72rem;color:var(--text-dim);margin:18px 0 22px;padding-bottom:14px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
+.status-line{font-size:.8rem;color:var(--text-dim);margin:14px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
 .status-line .dot{color:var(--good)}
 .status-line.off .dot{color:var(--bad)}
 
-.section-label{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:12px;display:flex;justify-content:space-between}
+.section-label{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between}
 
-/* Aperture-dial category picker */
-.dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:28px;scrollbar-width:none}
+.dial-wrap{position:relative;margin-bottom:22px}
+.dial-wrap::after{content:'';position:absolute;top:0;right:0;bottom:4px;width:28px;background:linear-gradient(to right, transparent, var(--chassis));pointer-events:none}
+.dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .dial::-webkit-scrollbar{display:none}
-.dial-item{flex:0 0 auto;padding:10px 16px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.82rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
+.dial-item{flex:0 0 auto;padding:11px 18px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.92rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
 .dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
 
 /* Viewfinder */
-.viewfinder{position:relative;aspect-ratio:4/5;max-height:60vh;border-radius:4px;background:var(--panel);margin-bottom:22px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.viewfinder.has-image{aspect-ratio:auto;min-height:220px}
+.viewfinder{position:relative;aspect-ratio:3/2;max-height:34vh;border-radius:4px;background:var(--panel);margin-bottom:18px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewfinder.has-image{aspect-ratio:auto;min-height:180px}
 .viewfinder img{width:100%;height:100%;object-fit:contain;display:block}
 .bracket{position:absolute;width:22px;height:22px;border-color:var(--tungsten);opacity:.55;transition:opacity .2s ease}
 .viewfinder:hover .bracket{opacity:.9}
@@ -65,10 +66,10 @@ input[type=file]{display:none}
 label.field-label{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
 input[type=text]{width:100%;padding:13px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.9rem;background:var(--panel);color:var(--text);margin-bottom:8px}
 input[type=text]:focus{outline:none;border-color:var(--tungsten)}
-.hint{font-size:.72rem;color:var(--text-dim);margin-bottom:26px}
+.hint{font-size:.8rem;color:var(--text-dim);margin-bottom:20px}
 
 /* Shutter button */
-.shutter-row{display:flex;justify-content:center;margin:8px 0 20px}
+.shutter-row{display:flex;justify-content:center;margin:4px 0 14px}
 .shutter{width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #3a3a36, #161614 70%);border:3px solid var(--hairline);cursor:pointer;position:relative;transition:transform .12s ease, border-color .2s ease}
 .shutter::after{content:'';position:absolute;inset:8px;border-radius:50%;border:2px solid var(--tungsten);opacity:.7}
 .shutter:active:not(:disabled){transform:scale(.94)}
@@ -76,7 +77,7 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .shutter:disabled::after{border-color:var(--text-dim)}
 .shutter-label{text-align:center;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:10px}
 
-button.text-btn{display:block;margin:0 auto;background:none;border:none;color:var(--text-dim);font-family:'Space Grotesk';font-size:.82rem;text-decoration:underline;cursor:pointer;padding:8px}
+button.text-btn{display:block;margin:14px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:11px 26px}
 
 .status{margin-top:18px;padding:13px;border-radius:4px;font-size:.85rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
 .status.show{display:block}
@@ -108,7 +109,7 @@ button.text-btn{display:block;margin:0 auto;background:none;border:none;color:va
 <div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> <span id="connState">checking…</span></span><span id="clock"></span></div>
 
 <div class="section-label"><span>Category</span><span id="catCount" class="mono"></span></div>
-<div class="dial" id="categories"></div>
+<div class="dial-wrap"><div class="dial" id="categories"></div></div>
 
 <div class="section-label"><span>Frame</span></div>
 <div class="viewfinder" id="viewfinder" onclick="document.getElementById('fileInput').click()">
@@ -197,7 +198,7 @@ function updateState(){
   const nameOk = document.getElementById('filename').value.trim().length > 0;
   const ready = selectedCategory && selectedFile && nameOk;
   document.getElementById('uploadBtn').disabled = !ready;
-  document.getElementById('shutterLabel').textContent = ready ? 'Tap to upload' : (!selectedCategory ? 'Select a category' : (!selectedFile ? 'Load a photo' : 'Name the file'));
+  document.getElementById('shutterLabel').textContent = ready ? 'Tap to upload' : '';
 }
 
 function showStatus(kind, msg){
