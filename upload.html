@@ -80,7 +80,7 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 
 button.text-btn{display:block;margin:14px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:11px 26px}
 
-.status{margin-top:18px;padding:13px;border-radius:4px;font-size:.85rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
+.status{margin:0 0 18px;padding:13px;border-radius:4px;font-size:.85rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
 .status.show{display:block}
 .status.ok{background:rgba(127,184,138,.12);color:var(--good)}
 .status.err{background:rgba(224,102,90,.12);color:var(--bad)}
@@ -112,7 +112,8 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 <div class="section-label"><span>Category</span><span id="catCount" class="mono"></span></div>
 <div class="dial-wrap"><div class="dial" id="categories"></div></div>
 
-<div class="section-label"><span>Frame</span></div>
+<div class="status" id="status"></div>
+
 <div class="viewfinder" id="viewfinder" onclick="document.getElementById('fileInput').click()">
 <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
 <div class="vf-empty" id="vfEmpty"><span class="icon">&#9678;</span>Tap to load a photo</div>
@@ -130,9 +131,8 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 <div class="shutter-label" id="shutterLabel">Select category &amp; photo</div>
 
 <button class="text-btn" onclick="resetForm()">Clear</button>
-
-<div class="status" id="status"></div>
 </div>
+
 
 <div class="overlay" id="settingsOverlay">
 <h2>Connect this device</h2>
