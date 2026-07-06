@@ -62,6 +62,14 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .bracket.br{bottom:14px;right:14px;border-bottom:2px solid;border-right:2px solid}
 .vf-empty{color:var(--text-dim);font-size:.85rem;text-align:center;padding:0 40px}
 .vf-empty .icon{font-size:1.8rem;display:block;margin-bottom:10px;opacity:.6}
+.vf-count{display:none;position:absolute;top:12px;right:44px;background:rgba(0,0,0,.55);border:1px solid var(--hairline);color:var(--text);font-size:.7rem;letter-spacing:.08em;padding:4px 10px;border-radius:999px;z-index:2}
+.thumbs{display:none;gap:8px;overflow-x:auto;margin:-8px 0 18px;padding-bottom:4px;scrollbar-width:none}
+.thumbs.show{display:flex}
+.thumbs::-webkit-scrollbar{display:none}
+.thumb{flex:0 0 auto;position:relative;width:58px;height:58px;border-radius:4px;overflow:hidden;border:1px solid var(--hairline);cursor:pointer}
+.thumb.current{border-color:var(--tungsten)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .rm{position:absolute;top:0;right:0;width:20px;height:20px;background:rgba(0,0,0,.65);color:var(--text);font-size:.8rem;line-height:20px;text-align:center;border-bottom-left-radius:4px}
 input[type=file]{display:none}
 
 label.field-label{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
@@ -76,6 +84,16 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .shutter:active:not(:disabled){transform:scale(.94)}
 .shutter:disabled{opacity:.3;cursor:default}
 .shutter:disabled::after{border-color:var(--text-dim)}
+.shutter.ready{border-color:rgba(127,184,138,.6);box-shadow:0 0 20px rgba(127,184,138,.28)}
+.shutter.ready::after{border-color:var(--good);opacity:.9}
+
+/* Folder name list */
+.names-panel{margin:-8px 0 20px;display:none}
+.names-panel.show{display:block}
+.names-list{max-height:150px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.78rem;color:var(--text-dim);line-height:2}
+.names-list .name-row.dupe{color:var(--bad)}
+input[type=text].taken{border-color:var(--bad)}
+.hint.warn{color:var(--bad)}
 .shutter-label{text-align:center;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:10px}
 
 button.text-btn{display:block;margin:14px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:11px 26px}
@@ -94,6 +112,16 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 .overlay-actions{display:flex;gap:10px}
 .overlay-actions button{flex:1;padding:13px;border-radius:4px;font-family:'Space Grotesk';font-size:.85rem;cursor:pointer;border:1px solid var(--hairline);background:transparent;color:var(--text)}
 .overlay-actions button.save{background:var(--tungsten);color:#161412;border-color:var(--tungsten);font-weight:500}
+
+/* Upload success confirmation */
+.done-flash{position:fixed;inset:0;background:rgba(10,14,11,.94);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;transition:opacity .25s ease}
+.done-flash.show{display:flex}
+.done-flash.visible{opacity:1}
+.done-ring{width:96px;height:96px;border-radius:50%;border:3px solid var(--good);display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(127,184,138,.35)}
+.done-ring svg{width:44px;height:44px;stroke:var(--good);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48;stroke-dashoffset:48;transition:stroke-dashoffset .4s ease .15s}
+.done-flash.visible .done-ring svg{stroke-dashoffset:0}
+.done-msg{font-size:1rem;color:var(--text);letter-spacing:.04em}
+.done-sub{font-size:.8rem;color:var(--text-dim)}
 </style>
 </head>
 <body>
@@ -112,17 +140,24 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 <div class="section-label"><span>Category</span><span id="catCount" class="mono"></span></div>
 <div class="dial-wrap"><div class="dial" id="categories"></div></div>
 
+<div class="names-panel" id="namesPanel">
+<div class="section-label"><span>Already in this folder</span><span id="namesCount" class="mono"></span></div>
+<div class="names-list mono" id="namesList"></div>
+</div>
+
 <div class="status" id="status"></div>
 
 <div class="viewfinder" id="viewfinder" onclick="document.getElementById('fileInput').click()">
 <div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
-<div class="vf-empty" id="vfEmpty"><span class="icon">&#9678;</span>Tap to load a photo</div>
+<div class="vf-count mono" id="vfCount"></div>
+<div class="vf-empty" id="vfEmpty"><span class="icon">&#9678;</span>Tap to load photos</div>
 <img id="preview" style="display:none"/>
 </div>
-<input type="file" id="fileInput" accept="image/*"/>
+<div class="thumbs" id="thumbs"></div>
+<input type="file" id="fileInput" accept="image/*" multiple/>
 
 <label class="field-label">File name</label>
-<input type="text" id="filename" placeholder="e.g. tree-sunset"/>
+<input type="text" id="filename" placeholder="e.g. tree-sunset" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <div class="hint mono">a–z, 0–9, dashes only &middot; extension added automatically</div>
 
 <div class="shutter-row">
@@ -133,6 +168,12 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 <button class="text-btn" onclick="resetForm()">Clear</button>
 </div>
 
+
+<div class="done-flash" id="doneFlash">
+<div class="done-ring"><svg viewBox="0 0 24 24"><polyline points="4,13 10,19 20,6"/></svg></div>
+<div class="done-msg mono" id="doneMsg">UPLOADED</div>
+<div class="done-sub">live on the site in a couple minutes</div>
+</div>
 
 <div class="overlay" id="settingsOverlay">
 <h2>Connect this device</h2>
@@ -156,7 +197,8 @@ const CATEGORIES = [
 ];
 
 let selectedCategory = null;
-let selectedFile = null;
+let selectedFiles = [];   // [{file, url}]
+let previewIndex = 0;
 
 function renderCategories(){
   const box = document.getElementById('categories');
@@ -165,41 +207,219 @@ function renderCategories(){
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (selectedCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
-    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); updateState(); };
+    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); loadNames(cat.folder); updateState(); };
     box.appendChild(btn);
   });
   document.getElementById('catCount').textContent = selectedCategory ? '1/1' : `0/${CATEGORIES.length}`;
 }
 renderCategories();
 
+// ===== Folder name list (uses the same public feed as the website — no secrets) =====
+const nameCache = {};
+
+function sanitizeName(v){
+  return v.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+async function loadNames(folder){
+  const panel = document.getElementById('namesPanel');
+  const list = document.getElementById('namesList');
+  panel.classList.add('show');
+  if(nameCache[folder]){ renderNames(); return; }
+  list.innerHTML = '<div class="name-row">loading&hellip;</div>';
+  document.getElementById('namesCount').textContent = '';
+  try{
+    const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json`, {cache:'no-store'});
+    if(res.status === 404){
+      nameCache[folder] = [];
+    } else if(res.ok){
+      const data = await res.json();
+      nameCache[folder] = (data.resources || [])
+        .map(r => r.public_id.split('/').pop())
+        .sort((a,b)=>a.localeCompare(b));
+    } else {
+      throw new Error('list error');
+    }
+  }catch(err){
+    list.innerHTML = '<div class="name-row">couldn\'t load the list — check connection</div>';
+    return;
+  }
+  renderNames();
+}
+
+function renderNames(){
+  const names = nameCache[selectedCategory];
+  const list = document.getElementById('namesList');
+  if(!names){ return; }
+  document.getElementById('namesCount').textContent = names.length + ' photo' + (names.length === 1 ? '' : 's');
+  if(names.length === 0){
+    list.innerHTML = '<div class="name-row">empty — no photos yet</div>';
+    return;
+  }
+  const planned = new Set(plannedNames());
+  list.innerHTML = '';
+  names.forEach(n=>{
+    const row = document.createElement('div');
+    row.className = 'name-row' + (planned.has(n) ? ' dupe' : '');
+    row.textContent = n;
+    list.appendChild(row);
+  });
+}
+
+function isDuplicate(){
+  if(selectedFiles.length > 1) return false; // batches auto-number around taken names
+  const names = nameCache[selectedCategory];
+  const typed = sanitizeName(document.getElementById('filename').value);
+  return Array.isArray(names) && typed.length > 0 && names.includes(typed);
+}
+
 document.getElementById('fileInput').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  selectedFile = file;
-  const reader = new FileReader();
-  reader.onload = (ev)=>{
-    const preview = document.getElementById('preview');
-    preview.src = ev.target.result;
-    preview.style.display = 'block';
-    document.getElementById('vfEmpty').style.display = 'none';
-    document.getElementById('viewfinder').classList.add('has-image');
-  };
-  reader.readAsDataURL(file);
+  const files = Array.from(e.target.files || []);
+  if(files.length === 0) return;
+  files.forEach(f=>{
+    const alreadyIn = selectedFiles.some(s => s.file.name === f.name && s.file.size === f.size);
+    if(!alreadyIn){ selectedFiles.push({file:f, url:URL.createObjectURL(f)}); }
+  });
+  e.target.value = '';
+  previewIndex = selectedFiles.length ? selectedFiles.length - 1 : 0;
 
   const nameField = document.getElementById('filename');
-  if(!nameField.value){
-    const base = file.name.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if(!nameField.value && selectedFiles.length){
+    const base = selectedFiles[0].file.name.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
     nameField.value = base;
   }
+  renderPreview();
+  renderThumbs();
+  renderNames();
   updateState();
 });
-document.getElementById('filename').addEventListener('input', updateState);
+
+function renderPreview(){
+  const preview = document.getElementById('preview');
+  const empty = document.getElementById('vfEmpty');
+  const vf = document.getElementById('viewfinder');
+  const chip = document.getElementById('vfCount');
+  if(selectedFiles.length === 0){
+    preview.style.display = 'none';
+    preview.removeAttribute('src');
+    empty.style.display = 'block';
+    vf.classList.remove('has-image');
+    chip.style.display = 'none';
+    return;
+  }
+  if(previewIndex >= selectedFiles.length) previewIndex = selectedFiles.length - 1;
+  preview.src = selectedFiles[previewIndex].url;
+  preview.style.display = 'block';
+  empty.style.display = 'none';
+  vf.classList.add('has-image');
+  if(selectedFiles.length > 1){
+    chip.style.display = 'block';
+    chip.textContent = (previewIndex+1) + ' / ' + selectedFiles.length;
+  } else {
+    chip.style.display = 'none';
+  }
+}
+
+function renderThumbs(){
+  const box = document.getElementById('thumbs');
+  box.classList.toggle('show', selectedFiles.length > 1);
+  box.innerHTML = '';
+  if(selectedFiles.length < 2) return;
+  selectedFiles.forEach((s, i)=>{
+    const t = document.createElement('div');
+    t.className = 'thumb' + (i === previewIndex ? ' current' : '');
+    const im = document.createElement('img');
+    im.src = s.url;
+    t.appendChild(im);
+    const rm = document.createElement('span');
+    rm.className = 'rm';
+    rm.textContent = '\u00d7';
+    rm.onclick = (ev)=>{ ev.stopPropagation(); removePhoto(i); };
+    t.appendChild(rm);
+    t.onclick = ()=>{ previewIndex = i; renderPreview(); renderThumbs(); };
+    box.appendChild(t);
+  });
+}
+
+function removePhoto(i){
+  URL.revokeObjectURL(selectedFiles[i].url);
+  selectedFiles.splice(i, 1);
+  if(previewIndex >= selectedFiles.length) previewIndex = Math.max(0, selectedFiles.length - 1);
+  renderPreview();
+  renderThumbs();
+  renderNames();
+  updateState();
+}
+
+// Names the photos will actually get: typed name as-is for one photo,
+// auto-numbered (name-01, name-02…) for several, skipping numbers already used.
+function plannedNames(){
+  const base = sanitizeName(document.getElementById('filename').value);
+  if(!base || selectedFiles.length === 0) return [];
+  if(selectedFiles.length === 1) return [base];
+  const existing = new Set(nameCache[selectedCategory] || []);
+  const names = [];
+  let i = 1;
+  while(names.length < selectedFiles.length && i < 1000){
+    const n = base + '-' + String(i).padStart(2,'0');
+    if(!existing.has(n)) names.push(n);
+    i++;
+  }
+  return names;
+}
+document.getElementById('filename').addEventListener('input', ()=>{
+  const field = document.getElementById('filename');
+  const lower = field.value.toLowerCase();
+  if(field.value !== lower){
+    const pos = field.selectionStart;
+    field.value = lower;
+    field.setSelectionRange(pos, pos);
+  }
+  renderNames();
+  updateState();
+});
 
 function updateState(){
-  const nameOk = document.getElementById('filename').value.trim().length > 0;
-  const ready = selectedCategory && selectedFile && nameOk;
-  document.getElementById('uploadBtn').disabled = !ready;
-  document.getElementById('shutterLabel').textContent = ready ? 'Tap to upload' : '';
+  const field = document.getElementById('filename');
+  const hint = document.querySelector('.hint');
+  const nameOk = field.value.trim().length > 0;
+  const dupe = isDuplicate();
+
+  field.classList.toggle('taken', dupe);
+  if(dupe){
+    hint.classList.add('warn');
+    hint.textContent = 'That name is already taken in this folder — pick another';
+  } else {
+    hint.classList.remove('warn');
+    hint.innerHTML = 'a\u2013z, 0\u20139, dashes only \u00b7 extension added automatically';
+  }
+
+  const ready = selectedCategory && selectedFiles.length > 0 && nameOk && !dupe;
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = !ready;
+  btn.classList.toggle('ready', !!ready);
+
+  if(!dupe && selectedFiles.length > 1 && nameOk){
+    const plan = plannedNames();
+    hint.textContent = 'Will upload as: ' + plan[0] + ' \u2026 ' + plan[plan.length-1];
+  }
+
+  const label = document.getElementById('shutterLabel');
+  if(dupe){ label.textContent = 'Name already taken'; }
+  else if(ready){ label.textContent = selectedFiles.length > 1 ? 'Ready \u2014 upload ' + selectedFiles.length + ' photos' : 'Ready \u2014 tap to upload'; }
+  else { label.textContent = ''; }
+}
+
+function showSuccess(count){
+  const flash = document.getElementById('doneFlash');
+  document.getElementById('doneMsg').textContent = count > 1 ? `ALL ${count} UPLOADED` : 'UPLOADED';
+  flash.classList.add('show');
+  requestAnimationFrame(()=> flash.classList.add('visible'));
+  if(navigator.vibrate){ navigator.vibrate(60); }
+  setTimeout(()=>{
+    flash.classList.remove('visible');
+    setTimeout(()=> flash.classList.remove('show'), 300);
+  }, 2200);
 }
 
 function showStatus(kind, msg){
@@ -234,57 +454,83 @@ function compressImage(file, maxDimension=2000, quality=0.85){
 }
 
 async function doUpload(){
-  const rawName = document.getElementById('filename').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  if(!rawName){ showStatus('err', 'Enter a file name.'); return; }
+  const names = plannedNames();
+  if(names.length === 0){ showStatus('err', 'Enter a file name.'); return; }
 
-  document.getElementById('uploadBtn').disabled = true;
-  document.getElementById('shutterLabel').textContent = 'Compressing…';
-  showStatus('busy', 'COMPRESSING…');
+  const btn = document.getElementById('uploadBtn');
+  const label = document.getElementById('shutterLabel');
+  btn.disabled = true;
+  btn.classList.remove('ready');
+
+  const total = selectedFiles.length;
+  let doneCount = 0;
 
   try{
-    const blob = await compressImage(selectedFile);
-    document.getElementById('shutterLabel').textContent = 'Uploading…';
-    showStatus('busy', 'UPLOADING…');
+    while(selectedFiles.length > 0){
+      const n = doneCount + 1;
+      label.textContent = total > 1 ? `Uploading ${n} of ${total}\u2026` : 'Uploading\u2026';
+      showStatus('busy', total > 1 ? `UPLOADING ${n}/${total}\u2026` : 'UPLOADING\u2026');
 
-    const form = new FormData();
-    form.append('file', blob);
-    form.append('upload_preset', UPLOAD_PRESET);
-    form.append('public_id', rawName);
-    form.append('folder', `portfolio/${selectedCategory}`);
-    form.append('tags', selectedCategory);
+      const blob = await compressImage(selectedFiles[0].file);
 
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-      method: 'POST',
-      body: form
-    });
+      const form = new FormData();
+      form.append('file', blob);
+      form.append('upload_preset', UPLOAD_PRESET);
+      form.append('public_id', names[doneCount]);
+      form.append('folder', `portfolio/${selectedCategory}`);
+      form.append('tags', selectedCategory);
 
-    if(res.ok){
-      showStatus('ok', 'UPLOADED — live in a couple minutes');
-      resetForm();
-    } else {
-      const errBody = await res.text();
-      let msg = 'UPLOAD FAILED';
-      try{ msg = 'FAILED: ' + (JSON.parse(errBody).error?.message || '').slice(0,50); }catch(e){}
-      showStatus('err', msg);
-      document.getElementById('uploadBtn').disabled = false;
-      document.getElementById('shutterLabel').textContent = 'Tap to upload';
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: form
+      });
+
+      if(!res.ok){
+        const errBody = await res.text();
+        let msg = '';
+        try{ msg = (JSON.parse(errBody).error?.message || '').slice(0,50); }catch(e){}
+        throw new Error(msg || 'upload failed');
+      }
+
+      // Success: record the name, drop the file from the queue
+      if(Array.isArray(nameCache[selectedCategory]) && !nameCache[selectedCategory].includes(names[doneCount])){
+        nameCache[selectedCategory].push(names[doneCount]);
+        nameCache[selectedCategory].sort((a,b)=>a.localeCompare(b));
+      }
+      URL.revokeObjectURL(selectedFiles[0].url);
+      selectedFiles.shift();
+      doneCount++;
     }
+
+    showStatus('ok', total > 1 ? `ALL ${total} UPLOADED \u2014 live in a couple minutes` : 'UPLOADED \u2014 live in a couple minutes');
+    showSuccess(total);
+    resetForm(true);
   }catch(err){
-    showStatus('err', 'CONNECTION FAILED');
-    document.getElementById('uploadBtn').disabled = false;
-    document.getElementById('shutterLabel').textContent = 'Tap to upload';
+    const left = selectedFiles.length;
+    renderPreview();
+    renderThumbs();
+    renderNames();
+    updateState();
+    showStatus('err', doneCount > 0
+      ? `${doneCount} UPLOADED, ${left} FAILED \u2014 tap to retry the rest`
+      : 'UPLOAD FAILED \u2014 check connection and retry');
   }
 }
 
-function resetForm(){
-  selectedFile = null;
-  selectedCategory = null;
+function resetForm(keepCategory){
+  selectedFiles.forEach(s => URL.revokeObjectURL(s.url));
+  selectedFiles = [];
+  previewIndex = 0;
+  if(!keepCategory){
+    selectedCategory = null;
+    document.getElementById('namesPanel').classList.remove('show');
+  }
   document.getElementById('fileInput').value = '';
   document.getElementById('filename').value = '';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('vfEmpty').style.display = 'block';
-  document.getElementById('viewfinder').classList.remove('has-image');
+  renderPreview();
+  renderThumbs();
   renderCategories();
+  if(keepCategory){ renderNames(); }
   updateState();
 }
 
