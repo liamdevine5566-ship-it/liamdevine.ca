@@ -79,13 +79,11 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 
 /* Shutter button */
 .shutter-row{display:flex;justify-content:center;margin:4px 0 14px}
-.shutter{width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #3a3a36, #161614 70%);border:3px solid var(--hairline);cursor:pointer;position:relative;transition:transform .12s ease, border-color .2s ease}
-.shutter::after{content:'';position:absolute;inset:8px;border-radius:50%;border:2px solid var(--tungsten);opacity:.7}
+.shutter{width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #6fa87c, #3f6b4c 72%);border:3px solid rgba(127,184,138,.45);cursor:pointer;position:relative;transition:transform .12s ease, border-color .2s ease, box-shadow .2s ease}
+.shutter::after{content:'';position:absolute;inset:8px;border-radius:50%;border:2px solid rgba(16,20,16,.55);opacity:1}
 .shutter:active:not(:disabled){transform:scale(.94)}
-.shutter:disabled{opacity:.3;cursor:default}
-.shutter:disabled::after{border-color:var(--text-dim)}
-.shutter.ready{background:radial-gradient(circle at 35% 30%, #6fa87c, #3f6b4c 72%);border-color:rgba(127,184,138,.75);box-shadow:0 0 22px rgba(127,184,138,.35)}
-.shutter.ready::after{border-color:rgba(16,20,16,.55);opacity:1}
+.shutter:disabled{opacity:.35;cursor:default}
+.shutter.ready{border-color:rgba(127,184,138,.85);box-shadow:0 0 22px rgba(127,184,138,.4)}
 .shutter-label.ready{color:var(--good)}
 /* Folder name list */
 .names-panel{margin:-8px 0 20px;display:none}
