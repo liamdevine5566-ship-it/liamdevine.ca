@@ -1,4 +1,4 @@
-<!-- app build: stable -->
+<!-- app build: manage-v1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,7 +19,7 @@
   --panel:#1a1a18;
   --hairline:rgba(245,243,239,.10);
   --text:#f5f3ef;
-  --text-dim:rgba(245,243,239,.5);
+  --text-dim:rgba(245,243,239,.68);
   --tungsten:#e8873a;
   --tungsten-dim:rgba(232,135,58,.18);
   --good:#7fb88a;
@@ -34,20 +34,20 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .brand{display:flex;align-items:center;gap:10px}
 .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--tungsten);box-shadow:0 0 8px var(--tungsten)}
 h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
-.readout{font-size:.8rem;color:var(--text-dim);letter-spacing:.05em}
+.readout{font-size:.85rem;color:var(--text-dim);letter-spacing:.05em}
 .gear{background:none;border:1px solid var(--hairline);border-radius:50%;width:38px;height:38px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem}
 
-.status-line{font-size:.8rem;color:var(--text-dim);margin:14px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
+.status-line{font-size:.85rem;color:var(--text-dim);margin:14px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
 .status-line .dot{color:var(--good)}
 .status-line.off .dot{color:var(--bad)}
 
-.section-label{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between}
+.section-label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between}
 
 .dial-wrap{position:relative;margin-bottom:22px}
 .dial-wrap::after{content:'';position:absolute;top:0;right:0;bottom:4px;width:28px;background:linear-gradient(to right, transparent, var(--chassis));pointer-events:none}
 .dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .dial::-webkit-scrollbar{display:none}
-.dial-item{flex:0 0 auto;padding:11px 18px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.92rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
+.dial-item{flex:0 0 auto;padding:11px 18px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.96rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
 .dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
 
 /* Viewfinder */
@@ -60,7 +60,7 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .bracket.tr{top:14px;right:14px;border-top:2px solid;border-right:2px solid}
 .bracket.bl{bottom:14px;left:14px;border-bottom:2px solid;border-left:2px solid}
 .bracket.br{bottom:14px;right:14px;border-bottom:2px solid;border-right:2px solid}
-.vf-empty{color:var(--text-dim);font-size:.85rem;text-align:center;padding:0 40px}
+.vf-empty{color:var(--text-dim);font-size:.9rem;text-align:center;padding:0 40px}
 .vf-empty .icon{font-size:1.8rem;display:block;margin-bottom:10px;opacity:.6}
 .vf-count{display:none;position:absolute;top:12px;right:44px;background:rgba(0,0,0,.55);border:1px solid var(--hairline);color:var(--text);font-size:.7rem;letter-spacing:.08em;padding:4px 10px;border-radius:999px;z-index:2}
 .thumbs{display:none;gap:8px;overflow-x:auto;margin:-8px 0 18px;padding-bottom:4px;scrollbar-width:none}
@@ -72,10 +72,10 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .thumb .rm{position:absolute;top:0;right:0;width:20px;height:20px;background:rgba(0,0,0,.65);color:var(--text);font-size:.8rem;line-height:20px;text-align:center;border-bottom-left-radius:4px}
 input[type=file]{display:none}
 
-label.field-label{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
-input[type=text]{width:100%;padding:13px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.9rem;background:var(--panel);color:var(--text);margin-bottom:8px}
+label.field-label{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
+input[type=text]{width:100%;padding:13px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px}
 input[type=text]:focus{outline:none;border-color:var(--tungsten)}
-.hint{font-size:.8rem;color:var(--text-dim);margin-bottom:20px}
+.hint{font-size:.85rem;color:var(--text-dim);margin-bottom:20px}
 
 /* Shutter button */
 .shutter-row{display:flex;justify-content:center;margin:4px 0 14px}
@@ -84,21 +84,23 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .shutter:active:not(:disabled){transform:scale(.94)}
 .shutter:disabled{opacity:.3;cursor:default}
 .shutter:disabled::after{border-color:var(--text-dim)}
-.shutter.ready{border-color:rgba(127,184,138,.6);box-shadow:0 0 20px rgba(127,184,138,.28)}
-.shutter.ready::after{border-color:var(--good);opacity:.9}
-
+.shutter.ready{background:radial-gradient(circle at 35% 30%, #6fa87c, #3f6b4c 72%);border-color:rgba(127,184,138,.75);box-shadow:0 0 22px rgba(127,184,138,.35)}
+.shutter.ready::after{border-color:rgba(16,20,16,.55);opacity:1}
+.shutter-label.ready{color:var(--good)}
 /* Folder name list */
 .names-panel{margin:-8px 0 20px;display:none}
 .names-panel.show{display:block}
-.names-list{max-height:150px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.78rem;color:var(--text-dim);line-height:2}
+.names-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
+#namesChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
+.names-list{max-height:150px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:2}
 .names-list .name-row.dupe{color:var(--bad)}
 input[type=text].taken{border-color:var(--bad)}
 .hint.warn{color:var(--bad)}
-.shutter-label{text-align:center;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:10px}
+.shutter-label{text-align:center;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:10px}
 
 button.text-btn{display:block;margin:14px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:11px 26px}
 
-.status{margin:0 0 18px;padding:13px;border-radius:4px;font-size:.85rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
+.status{margin:0 0 18px;padding:13px;border-radius:4px;font-size:.9rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
 .status.show{display:block}
 .status.ok{background:rgba(127,184,138,.12);color:var(--good)}
 .status.err{background:rgba(224,102,90,.12);color:var(--bad)}
@@ -122,6 +124,25 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 .done-flash.visible .done-ring svg{stroke-dashoffset:0}
 .done-msg{font-size:1rem;color:var(--text);letter-spacing:.04em}
 .done-sub{font-size:.8rem;color:var(--text-dim)}
+
+/* Mode tabs */
+.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:4px;margin-bottom:20px}
+.tab{flex:1;padding:10px;border:none;border-radius:999px;background:transparent;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s ease}
+.tab.active{background:var(--tungsten-dim);color:var(--tungsten)}
+
+/* Manage page */
+.keys-note{border:1px solid var(--hairline);border-left:3px solid var(--tungsten);border-radius:4px;background:var(--panel);padding:14px;font-size:.88rem;line-height:1.6;color:var(--text-dim);margin-bottom:18px}
+.mng-list{display:flex;flex-direction:column;gap:8px}
+.mng-empty{color:var(--text-dim);font-size:.88rem;text-align:center;padding:30px 0}
+.mng-row{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:8px 10px}
+.mng-row img{width:52px;height:52px;object-fit:cover;border-radius:3px;flex:0 0 auto;background:var(--chassis-hi)}
+.mng-name{flex:1;font-size:.84rem;color:var(--text);word-break:break-all}
+.mng-actions{display:flex;gap:6px}
+.mng-btn{border:1px solid var(--hairline);background:transparent;color:var(--text-dim);border-radius:4px;padding:8px 10px;font-family:'Space Grotesk';font-size:.78rem;cursor:pointer}
+.mng-btn.danger{color:var(--bad);border-color:rgba(224,102,90,.4)}
+.overlay-actions button.danger{background:var(--bad);border-color:var(--bad);color:#1a0e0c}
+.del-preview{margin-bottom:6px}
+.del-preview img{width:110px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline)}
 </style>
 </head>
 <body>
@@ -137,11 +158,17 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 
 <div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> <span id="connState">checking…</span></span><span id="clock"></span></div>
 
+<div class="tabs">
+<button class="tab active" id="tabUpload" onclick="switchPage('upload')">Upload</button>
+<button class="tab" id="tabManage" onclick="switchPage('manage')">Manage</button>
+</div>
+
+<div id="uploadView">
 <div class="section-label"><span>Category</span><span id="catCount" class="mono"></span></div>
 <div class="dial-wrap"><div class="dial" id="categories"></div></div>
 
 <div class="names-panel" id="namesPanel">
-<div class="section-label"><span>Already in this folder</span><span id="namesCount" class="mono"></span></div>
+<div class="section-label names-toggle" onclick="toggleNames()"><span>Already in this folder <span id="namesChevron">&#9662;</span></span><span id="namesCount" class="mono"></span></div>
 <div class="names-list mono" id="namesList"></div>
 </div>
 
@@ -166,6 +193,21 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 <div class="shutter-label" id="shutterLabel">Select category &amp; photo</div>
 
 <button class="text-btn" onclick="resetForm()">Clear</button>
+</div><!-- /uploadView -->
+
+<div id="manageView" style="display:none">
+<div class="section-label"><span>Category</span></div>
+<div class="dial-wrap"><div class="dial" id="mngCategories"></div></div>
+
+<div class="status" id="mngStatus"></div>
+
+<div class="keys-note" id="keysNote" style="display:none">
+Rename &amp; remove are locked on this device.<br/>
+Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes app) — one time only.
+</div>
+
+<div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
+</div><!-- /manageView -->
 </div>
 
 
@@ -177,10 +219,38 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 
 <div class="overlay" id="settingsOverlay">
 <h2>Connect this device</h2>
-<p>This app uploads directly to your photo library. Nothing sensitive is stored here — this connection can't move, rename, or delete anything, only add new photos.</p>
-<div class="status mono" style="display:block;background:var(--panel);color:var(--text-dim);margin-bottom:16px">Cloud: <span class="mono" style="color:var(--text)">dywzapiql</span></div>
+<p>Uploads never need keys. To unlock <span style="color:var(--text)">rename &amp; remove</span> on this device, enter your Cloudinary API key and secret (in your Notes app). They're saved only on this phone or computer — never in the site code.</p>
+<div class="status mono" style="display:block;background:var(--panel);color:var(--text-dim);margin-bottom:16px">Cloud: <span class="mono" style="color:var(--text)">dywzapiql</span> &middot; <span id="keyState"></span></div>
+<label class="field-label">API key</label>
+<input type="text" id="apiKeyField" placeholder="123456789012345" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+<label class="field-label">API secret</label>
+<input type="text" id="apiSecretField" placeholder="paste secret here" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <div class="overlay-actions">
 <button onclick="closeSettings()">Close</button>
+<button class="save" onclick="saveKeys()">Save keys</button>
+</div>
+<button class="text-btn" onclick="clearKeys()" style="margin-top:18px">Forget keys on this device</button>
+</div>
+
+<div class="overlay" id="renameOverlay">
+<h2>Rename photo</h2>
+<p>Current name: <span class="mono" id="renameFrom" style="color:var(--text)"></span></p>
+<label class="field-label">New name</label>
+<input type="text" id="renameField" placeholder="new-name" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+<div class="hint mono" id="renameHint">a&ndash;z, 0&ndash;9, dashes only</div>
+<div class="overlay-actions">
+<button onclick="closeRename()">Cancel</button>
+<button class="save" id="renameGo" onclick="doRename()">Rename</button>
+</div>
+</div>
+
+<div class="overlay" id="deleteOverlay">
+<h2>Remove photo?</h2>
+<div class="del-preview"><img id="deleteThumb"/></div>
+<p><span class="mono" id="deleteName" style="color:var(--text)"></span><br/>This takes it off the website for good. There's no undo.</p>
+<div class="overlay-actions">
+<button onclick="closeDelete()">Cancel</button>
+<button class="save danger" id="deleteGo" onclick="doDestroy()">Remove</button>
 </div>
 </div>
 
@@ -216,6 +286,42 @@ renderCategories();
 
 // ===== Folder name list (uses the same public feed as the website — no secrets) =====
 const nameCache = {};
+const resCache = {};
+
+async function fetchFolder(folder){
+  if(resCache[folder]) return resCache[folder];
+  const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json`, {cache:'no-store'});
+  if(res.status === 404){
+    resCache[folder] = [];
+  } else if(res.ok){
+    const data = await res.json();
+    resCache[folder] = (data.resources || [])
+      .map(r => ({public_id: r.public_id, version: r.version, format: r.format, name: r.public_id.split('/').pop()}))
+      .sort((a,b)=>a.name.localeCompare(b.name));
+  } else {
+    throw new Error('list error');
+  }
+  nameCache[folder] = resCache[folder].map(r=>r.name);
+  return resCache[folder];
+}
+
+function mngThumb(r){
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_120,h_120,c_fill,g_auto,f_auto,q_auto/v${r.version}/${r.public_id}.${r.format}`;
+}
+
+// Show/hide the folder list — remembers your choice
+let namesOpen = true;
+try{ namesOpen = localStorage.getItem('namesOpen') !== '0'; }catch(e){}
+function toggleNames(){
+  namesOpen = !namesOpen;
+  try{ localStorage.setItem('namesOpen', namesOpen ? '1' : '0'); }catch(e){}
+  applyNamesOpen();
+}
+function applyNamesOpen(){
+  document.getElementById('namesList').style.display = namesOpen ? 'block' : 'none';
+  document.getElementById('namesChevron').innerHTML = namesOpen ? '&#9662;' : '&#9656;';
+}
+applyNamesOpen();
 
 function sanitizeName(v){
   return v.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -229,17 +335,7 @@ async function loadNames(folder){
   list.innerHTML = '<div class="name-row">loading&hellip;</div>';
   document.getElementById('namesCount').textContent = '';
   try{
-    const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json`, {cache:'no-store'});
-    if(res.status === 404){
-      nameCache[folder] = [];
-    } else if(res.ok){
-      const data = await res.json();
-      nameCache[folder] = (data.resources || [])
-        .map(r => r.public_id.split('/').pop())
-        .sort((a,b)=>a.localeCompare(b));
-    } else {
-      throw new Error('list error');
-    }
+    await fetchFolder(folder);
   }catch(err){
     list.innerHTML = '<div class="name-row">couldn\'t load the list — check connection</div>';
     return;
@@ -405,6 +501,7 @@ function updateState(){
   }
 
   const label = document.getElementById('shutterLabel');
+  label.classList.toggle('ready', !!ready);
   if(dupe){ label.textContent = 'Name already taken'; }
   else if(ready){ label.textContent = selectedFiles.length > 1 ? 'Ready \u2014 upload ' + selectedFiles.length + ' photos' : 'Ready \u2014 tap to upload'; }
   else { label.textContent = ''; }
@@ -492,10 +589,15 @@ async function doUpload(){
         throw new Error(msg || 'upload failed');
       }
 
-      // Success: record the name, drop the file from the queue
+      // Success: record the photo, drop the file from the queue
+      const uploaded = await res.json();
       if(Array.isArray(nameCache[selectedCategory]) && !nameCache[selectedCategory].includes(names[doneCount])){
         nameCache[selectedCategory].push(names[doneCount]);
         nameCache[selectedCategory].sort((a,b)=>a.localeCompare(b));
+      }
+      if(Array.isArray(resCache[selectedCategory])){
+        resCache[selectedCategory].push({public_id: uploaded.public_id, version: uploaded.version, format: uploaded.format, name: names[doneCount]});
+        resCache[selectedCategory].sort((a,b)=>a.name.localeCompare(b.name));
       }
       URL.revokeObjectURL(selectedFiles[0].url);
       selectedFiles.shift();
@@ -534,8 +636,235 @@ function resetForm(keepCategory){
   updateState();
 }
 
-function openSettings(){ document.getElementById('settingsOverlay').classList.add('show'); }
+function openSettings(){
+  const keys = getKeys();
+  document.getElementById('apiKeyField').value = keys.key;
+  document.getElementById('apiSecretField').value = keys.secret ? '\u2022\u2022\u2022\u2022\u2022\u2022 (saved)' : '';
+  document.getElementById('keyState').textContent = keys.key && keys.secret ? 'keys saved on this device' : 'no keys on this device';
+  document.getElementById('settingsOverlay').classList.add('show');
+}
 function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+
+// ===== Device keys (stored only in this browser, never in the site code) =====
+function getKeys(){
+  try{ return {key: localStorage.getItem('cld_key') || '', secret: localStorage.getItem('cld_secret') || ''}; }
+  catch(e){ return {key:'', secret:''}; }
+}
+function hasKeys(){ const k = getKeys(); return k.key.length > 0 && k.secret.length > 0; }
+function saveKeys(){
+  const key = document.getElementById('apiKeyField').value.trim();
+  const secretRaw = document.getElementById('apiSecretField').value.trim();
+  if(!key){ alert('Enter the API key.'); return; }
+  try{
+    localStorage.setItem('cld_key', key);
+    if(secretRaw && !secretRaw.startsWith('\u2022')){ localStorage.setItem('cld_secret', secretRaw); }
+  }catch(e){ alert('This browser blocked saving. Try turning off private browsing.'); return; }
+  closeSettings();
+  renderManage();
+}
+function clearKeys(){
+  try{ localStorage.removeItem('cld_key'); localStorage.removeItem('cld_secret'); }catch(e){}
+  closeSettings();
+  renderManage();
+}
+
+// ===== Page switching: tabs + swipe =====
+let currentPage = 'upload';
+function switchPage(p){
+  currentPage = p;
+  document.getElementById('uploadView').style.display = p === 'upload' ? 'block' : 'none';
+  document.getElementById('manageView').style.display = p === 'manage' ? 'block' : 'none';
+  document.getElementById('tabUpload').classList.toggle('active', p === 'upload');
+  document.getElementById('tabManage').classList.toggle('active', p === 'manage');
+  if(p === 'manage'){ renderManage(); }
+}
+let swipeStartX = null, swipeStartY = null;
+document.addEventListener('touchstart', (e)=>{
+  if(e.target.closest('.dial, .thumbs, .names-list, .mng-list, input, .overlay')){ swipeStartX = null; return; }
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+}, {passive:true});
+document.addEventListener('touchend', (e)=>{
+  if(swipeStartX === null) return;
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  swipeStartX = null;
+  if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5){
+    if(dx < 0 && currentPage === 'upload') switchPage('manage');
+    else if(dx > 0 && currentPage === 'manage') switchPage('upload');
+  }
+}, {passive:true});
+
+// ===== Manage page =====
+let mngCategory = null;
+let targetPhoto = null;
+
+function showMngStatus(kind, msg){
+  const el = document.getElementById('mngStatus');
+  el.className = 'status show ' + kind;
+  el.textContent = msg;
+}
+function hideMngStatus(){ document.getElementById('mngStatus').className = 'status'; }
+
+function renderManage(){
+  document.getElementById('keysNote').style.display = hasKeys() ? 'none' : 'block';
+  const box = document.getElementById('mngCategories');
+  box.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const btn = document.createElement('div');
+    btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
+    btn.textContent = cat.label;
+    btn.onclick = () => { mngCategory = cat.folder; renderManage(); loadMngList(); };
+    box.appendChild(btn);
+  });
+  if(mngCategory && resCache[mngCategory]){ renderMngList(); }
+}
+
+async function loadMngList(){
+  const list = document.getElementById('mngList');
+  hideMngStatus();
+  list.innerHTML = '<div class="mng-empty">loading&hellip;</div>';
+  try{
+    await fetchFolder(mngCategory);
+  }catch(err){
+    list.innerHTML = '<div class="mng-empty">couldn\'t load — check connection</div>';
+    return;
+  }
+  renderMngList();
+}
+
+function renderMngList(){
+  const list = document.getElementById('mngList');
+  const items = resCache[mngCategory] || [];
+  if(items.length === 0){
+    list.innerHTML = '<div class="mng-empty">empty — no photos in this category</div>';
+    return;
+  }
+  list.innerHTML = '';
+  const unlocked = hasKeys();
+  items.forEach(r=>{
+    const row = document.createElement('div');
+    row.className = 'mng-row';
+    const im = document.createElement('img');
+    im.src = mngThumb(r);
+    im.loading = 'lazy';
+    row.appendChild(im);
+    const nm = document.createElement('span');
+    nm.className = 'mng-name mono';
+    nm.textContent = r.name;
+    row.appendChild(nm);
+    const actions = document.createElement('div');
+    actions.className = 'mng-actions';
+    const rn = document.createElement('button');
+    rn.className = 'mng-btn';
+    rn.textContent = 'Rename';
+    rn.disabled = !unlocked;
+    rn.onclick = ()=> openRename(r);
+    const dl = document.createElement('button');
+    dl.className = 'mng-btn danger';
+    dl.textContent = 'Remove';
+    dl.disabled = !unlocked;
+    dl.onclick = ()=> openDelete(r);
+    actions.appendChild(rn);
+    actions.appendChild(dl);
+    row.appendChild(actions);
+    list.appendChild(row);
+  });
+}
+
+// ===== Signed Cloudinary calls (SHA-1 signature computed on-device) =====
+async function sha1hex(str){
+  const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function openRename(r){
+  targetPhoto = r;
+  document.getElementById('renameFrom').textContent = r.name;
+  document.getElementById('renameField').value = r.name;
+  document.getElementById('renameHint').textContent = 'a\u2013z, 0\u20139, dashes only';
+  document.getElementById('renameHint').classList.remove('warn');
+  document.getElementById('renameOverlay').classList.add('show');
+}
+function closeRename(){ document.getElementById('renameOverlay').classList.remove('show'); }
+
+async function doRename(){
+  const r = targetPhoto;
+  const newName = sanitizeName(document.getElementById('renameField').value);
+  const hint = document.getElementById('renameHint');
+  if(!newName){ hint.textContent = 'Enter a name'; hint.classList.add('warn'); return; }
+  if(newName === r.name){ closeRename(); return; }
+  if((nameCache[mngCategory] || []).includes(newName)){
+    hint.textContent = 'That name is already taken in this folder';
+    hint.classList.add('warn');
+    return;
+  }
+  closeRename();
+  showMngStatus('busy', 'RENAMING\u2026');
+  try{
+    const {key, secret} = getKeys();
+    const toId = r.public_id.split('/').slice(0,-1).concat(newName).join('/');
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`from_public_id=${r.public_id}&invalidate=true&timestamp=${ts}&to_public_id=${toId}${secret}`);
+    const form = new FormData();
+    form.append('from_public_id', r.public_id);
+    form.append('to_public_id', toId);
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
+    const j = await res.json();
+    if(!res.ok){ throw new Error(j.error?.message || 'rename failed'); }
+    const oldName = r.name;
+    r.public_id = j.public_id;
+    r.version = j.version;
+    r.format = j.format || r.format;
+    r.name = newName;
+    resCache[mngCategory].sort((a,b)=>a.name.localeCompare(b.name));
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    renderMngList();
+    if(selectedCategory === mngCategory){ renderNames(); }
+    showMngStatus('ok', `RENAMED: ${oldName} \u2192 ${newName}`);
+  }catch(err){
+    showMngStatus('err', 'RENAME FAILED: ' + String(err.message || '').slice(0,60));
+  }
+}
+
+function openDelete(r){
+  targetPhoto = r;
+  document.getElementById('deleteName').textContent = r.name;
+  document.getElementById('deleteThumb').src = mngThumb(r);
+  document.getElementById('deleteOverlay').classList.add('show');
+}
+function closeDelete(){ document.getElementById('deleteOverlay').classList.remove('show'); }
+
+async function doDestroy(){
+  const r = targetPhoto;
+  closeDelete();
+  showMngStatus('busy', 'REMOVING\u2026');
+  try{
+    const {key, secret} = getKeys();
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`invalidate=true&public_id=${r.public_id}&timestamp=${ts}${secret}`);
+    const form = new FormData();
+    form.append('public_id', r.public_id);
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/destroy`, {method:'POST', body:form});
+    const j = await res.json();
+    if(!res.ok || j.result !== 'ok'){ throw new Error(j.error?.message || j.result || 'remove failed'); }
+    resCache[mngCategory] = resCache[mngCategory].filter(x => x.public_id !== r.public_id);
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    renderMngList();
+    if(selectedCategory === mngCategory){ renderNames(); }
+    showMngStatus('ok', `REMOVED: ${r.name}`);
+  }catch(err){
+    showMngStatus('err', 'REMOVE FAILED: ' + String(err.message || '').slice(0,60));
+  }
+}
 
 function tickClock(){
   const now = new Date();
