@@ -354,12 +354,19 @@ function populateGallery(cat, images){
 }
 
 async function loadCategoryFromCloudinary(cat){
-  const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${cat.folder}.json`;
+  const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${cat.folder}.json?v=${Date.now()}`;
   const res = await fetch(url);
   if(!res.ok) throw new Error('Cloudinary list error '+res.status);
   const data = await res.json();
+  // Sort by the order number saved from the upload app's Reorder mode;
+  // photos without one fall back to alphabetical, after the ordered ones.
+  const ordOf = (r)=>{
+    const c = r.context && (r.context.custom || r.context);
+    const n = parseInt(c && c.order, 10);
+    return isNaN(n) ? Infinity : n;
+  };
   const images = (data.resources || [])
-    .sort((a,b) => a.public_id.localeCompare(b.public_id))
+    .sort((a,b) => (ordOf(a) - ordOf(b)) || a.public_id.localeCompare(b.public_id))
     .map(r => `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_1600/v${r.version}/${r.public_id}.${r.format}`);
   populateGallery(cat, images);
 }
