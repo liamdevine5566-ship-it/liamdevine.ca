@@ -314,6 +314,12 @@ const CATEGORIES = [
 ];
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp)$/i;
 
+// Square thumbnails: crop around faces (g_auto) instead of dead-center,
+// so nobody's head gets cut off in the grid. Lightbox still uses the full image.
+function thumbUrl(src){
+  return src.replace('/upload/f_auto,q_auto,w_1600/', '/upload/f_auto,q_auto,w_1000,h_1000,c_fill,g_auto/');
+}
+
 function populateGallery(cat, images){
   const grid = document.getElementById(cat.gridId);
   const featuredBox = document.getElementById(cat.featuredId);
@@ -326,7 +332,8 @@ function populateGallery(cat, images){
     const fwrap = document.createElement('div');
     fwrap.className = 'img-wrap';
     const fimg = document.createElement('img');
-    fimg.src = images[0];
+    fimg.src = thumbUrl(images[0]);
+    fimg.dataset.full = images[0];
     fimg.alt = 'Photo by Liam Devine';
     fimg.loading = 'eager';
     fimg.decoding = 'async';
@@ -337,7 +344,8 @@ function populateGallery(cat, images){
     const wrap = document.createElement('div');
     wrap.className = 'img-wrap';
     const img = document.createElement('img');
-    img.src = src;
+    img.src = thumbUrl(src);
+    img.dataset.full = src;
     img.loading = 'lazy';
     img.decoding = 'async';
     wrap.appendChild(img);
@@ -465,10 +473,10 @@ function wireUpGalleries(){
   document.querySelectorAll('section').forEach(section=>{
     const imgs=[...section.querySelectorAll('.featured img, .grid img')];
     if(imgs.length === 0) return;
-    galleries[section.id||'default']=imgs.map(i=>i.src);
+    galleries[section.id||'default']=imgs.map(i=>i.dataset.full||i.src);
     imgs.forEach(img=>{
       img.style.cursor='pointer';
-      img.onclick=()=>openGallery(section.id||'default',img.src);
+      img.onclick=()=>openGallery(section.id||'default',img.dataset.full||img.src);
     });
   });
 }
