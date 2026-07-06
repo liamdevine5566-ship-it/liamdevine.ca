@@ -141,6 +141,15 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 .overlay-actions button.danger{background:var(--bad);border-color:var(--bad);color:#1a0e0c}
 .del-preview{margin-bottom:6px}
 .del-preview img{width:110px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline)}
+
+/* Reorder mode */
+.reorder-bar{display:flex;gap:8px;margin-bottom:12px}
+.reorder-bar .mng-btn{flex:1;padding:10px}
+.mng-btn.save-order{background:rgba(127,184,138,.15);border-color:rgba(127,184,138,.5);color:var(--good)}
+.mng-row.dragging{border-color:var(--tungsten);box-shadow:0 0 12px rgba(232,135,58,.25)}
+.grip{flex:0 0 auto;width:34px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.15rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.arrow-btns{display:flex;flex-direction:column;gap:4px}
+.arrow-btns .mng-btn{padding:6px 12px;font-size:.85rem;line-height:1}
 </style>
 </head>
 <body>
@@ -202,6 +211,12 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 <div class="keys-note" id="keysNote" style="display:none">
 Rename &amp; remove are locked on this device.<br/>
 Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes app) — one time only.
+</div>
+
+<div class="reorder-bar" id="reorderBar" style="display:none">
+<button class="mng-btn" id="reorderBtn" onclick="startReorder()">Reorder photos</button>
+<button class="mng-btn save-order" id="saveOrderBtn" onclick="saveOrder()" style="display:none">Save order</button>
+<button class="mng-btn" id="cancelOrderBtn" onclick="cancelReorder()" style="display:none">Cancel</button>
 </div>
 
 <div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
@@ -286,6 +301,10 @@ renderCategories();
 const nameCache = {};
 const resCache = {};
 
+function sortRes(arr){
+  return arr.sort((a,b)=> (a.order - b.order) || a.name.localeCompare(b.name));
+}
+
 async function fetchFolder(folder){
   if(resCache[folder]) return resCache[folder];
   const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json`, {cache:'no-store'});
@@ -293,9 +312,13 @@ async function fetchFolder(folder){
     resCache[folder] = [];
   } else if(res.ok){
     const data = await res.json();
-    resCache[folder] = (data.resources || [])
-      .map(r => ({public_id: r.public_id, version: r.version, format: r.format, name: r.public_id.split('/').pop()}))
-      .sort((a,b)=>a.name.localeCompare(b.name));
+    const ordOf = (r)=>{
+      const c = r.context && (r.context.custom || r.context);
+      const n = parseInt(c && c.order, 10);
+      return isNaN(n) ? Infinity : n;
+    };
+    resCache[folder] = sortRes((data.resources || [])
+      .map(r => ({public_id: r.public_id, version: r.version, format: r.format, name: r.public_id.split('/').pop(), order: ordOf(r)})));
   } else {
     throw new Error('list error');
   }
@@ -594,8 +617,8 @@ async function doUpload(){
         nameCache[selectedCategory].sort((a,b)=>a.localeCompare(b));
       }
       if(Array.isArray(resCache[selectedCategory])){
-        resCache[selectedCategory].push({public_id: uploaded.public_id, version: uploaded.version, format: uploaded.format, name: names[doneCount]});
-        resCache[selectedCategory].sort((a,b)=>a.name.localeCompare(b.name));
+        resCache[selectedCategory].push({public_id: uploaded.public_id, version: uploaded.version, format: uploaded.format, name: names[doneCount], order: Infinity});
+        sortRes(resCache[selectedCategory]);
       }
       URL.revokeObjectURL(selectedFiles[0].url);
       selectedFiles.shift();
@@ -712,7 +735,7 @@ function renderManage(){
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
-    btn.onclick = () => { mngCategory = cat.folder; renderManage(); loadMngList(); };
+    btn.onclick = () => { mngCategory = cat.folder; reorderMode = false; workList = []; renderManage(); loadMngList(); };
     box.appendChild(btn);
   });
   if(mngCategory && resCache[mngCategory]){ renderMngList(); }
@@ -733,16 +756,33 @@ async function loadMngList(){
 
 function renderMngList(){
   const list = document.getElementById('mngList');
-  const items = resCache[mngCategory] || [];
+  const items = reorderMode ? workList : (resCache[mngCategory] || []);
+  const bar = document.getElementById('reorderBar');
+  bar.style.display = (resCache[mngCategory] || []).length > 1 ? 'flex' : 'none';
+  document.getElementById('reorderBtn').style.display = reorderMode ? 'none' : 'block';
+  document.getElementById('reorderBtn').disabled = !hasKeys();
+  document.getElementById('saveOrderBtn').style.display = reorderMode ? 'block' : 'none';
+  document.getElementById('cancelOrderBtn').style.display = reorderMode ? 'block' : 'none';
+
   if(items.length === 0){
     list.innerHTML = '<div class="mng-empty">empty — no photos in this category</div>';
     return;
   }
   list.innerHTML = '';
   const unlocked = hasKeys();
-  items.forEach(r=>{
+  items.forEach((r, i)=>{
     const row = document.createElement('div');
     row.className = 'mng-row';
+    row.dataset.idx = i;
+
+    if(reorderMode){
+      const grip = document.createElement('span');
+      grip.className = 'grip';
+      grip.innerHTML = '&#9776;';
+      attachDrag(grip, row);
+      row.appendChild(grip);
+    }
+
     const im = document.createElement('img');
     im.src = mngThumb(r);
     im.loading = 'lazy';
@@ -751,23 +791,133 @@ function renderMngList(){
     nm.className = 'mng-name mono';
     nm.textContent = r.name;
     row.appendChild(nm);
-    const actions = document.createElement('div');
-    actions.className = 'mng-actions';
-    const rn = document.createElement('button');
-    rn.className = 'mng-btn';
-    rn.textContent = 'Rename';
-    rn.disabled = !unlocked;
-    rn.onclick = ()=> openRename(r);
-    const dl = document.createElement('button');
-    dl.className = 'mng-btn danger';
-    dl.textContent = 'Remove';
-    dl.disabled = !unlocked;
-    dl.onclick = ()=> openDelete(r);
-    actions.appendChild(rn);
-    actions.appendChild(dl);
-    row.appendChild(actions);
+
+    if(reorderMode){
+      const arrows = document.createElement('div');
+      arrows.className = 'arrow-btns';
+      const up = document.createElement('button');
+      up.className = 'mng-btn';
+      up.innerHTML = '&#9650;';
+      up.onclick = ()=> moveRow(+row.dataset.idx, -1);
+      const dn = document.createElement('button');
+      dn.className = 'mng-btn';
+      dn.innerHTML = '&#9660;';
+      dn.onclick = ()=> moveRow(+row.dataset.idx, 1);
+      arrows.appendChild(up);
+      arrows.appendChild(dn);
+      row.appendChild(arrows);
+    } else {
+      const actions = document.createElement('div');
+      actions.className = 'mng-actions';
+      const rn = document.createElement('button');
+      rn.className = 'mng-btn';
+      rn.textContent = 'Rename';
+      rn.disabled = !unlocked;
+      rn.onclick = ()=> openRename(r);
+      const dl = document.createElement('button');
+      dl.className = 'mng-btn danger';
+      dl.textContent = 'Remove';
+      dl.disabled = !unlocked;
+      dl.onclick = ()=> openDelete(r);
+      actions.appendChild(rn);
+      actions.appendChild(dl);
+      row.appendChild(actions);
+    }
     list.appendChild(row);
   });
+}
+
+// ===== Reorder mode =====
+let reorderMode = false;
+let workList = [];
+
+function startReorder(){
+  reorderMode = true;
+  workList = (resCache[mngCategory] || []).slice();
+  hideMngStatus();
+  renderMngList();
+}
+function cancelReorder(){
+  reorderMode = false;
+  workList = [];
+  renderMngList();
+}
+
+function moveRow(i, dir){
+  const j = i + dir;
+  if(j < 0 || j >= workList.length) return;
+  const [m] = workList.splice(i, 1);
+  workList.splice(j, 0, m);
+  renderMngList();
+}
+
+// Drag by the grip — moves DOM rows directly so the touch never gets dropped
+function attachDrag(grip, row){
+  grip.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    row.classList.add('dragging');
+  });
+  grip.addEventListener('pointermove', (e)=>{
+    if(!row.classList.contains('dragging')) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const over = el && el.closest('.mng-row');
+    if(!over || over === row) return;
+    const from = +row.dataset.idx;
+    const to = +over.dataset.idx;
+    const [m] = workList.splice(from, 1);
+    workList.splice(to, 0, m);
+    const list = document.getElementById('mngList');
+    if(to > from){ list.insertBefore(row, over.nextSibling); }
+    else { list.insertBefore(row, over); }
+    [...list.children].forEach((el2, idx2)=>{ el2.dataset.idx = idx2; });
+  });
+  const endDrag = ()=> row.classList.remove('dragging');
+  grip.addEventListener('pointerup', endDrag);
+  grip.addEventListener('pointercancel', endDrag);
+}
+
+async function saveOrder(){
+  const {key, secret} = getKeys();
+  const changes = [];
+  workList.forEach((r, i)=>{
+    const target = (i + 1) * 10;
+    if(r.order !== target){ changes.push({r, target}); }
+  });
+  if(changes.length === 0){ cancelReorder(); return; }
+  document.getElementById('saveOrderBtn').disabled = true;
+  try{
+    for(let i = 0; i < changes.length; i++){
+      showMngStatus('busy', `SAVING ORDER ${i+1}/${changes.length}\u2026`);
+      const {r, target} = changes[i];
+      const ts = Math.floor(Date.now()/1000);
+      const ctx = `order=${target}`;
+      const sig = await sha1hex(`command=add&context=${ctx}&public_ids=${r.public_id}&timestamp=${ts}${secret}`);
+      const form = new FormData();
+      form.append('command', 'add');
+      form.append('context', ctx);
+      form.append('public_ids[]', r.public_id);
+      form.append('timestamp', ts);
+      form.append('api_key', key);
+      form.append('signature', sig);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/context`, {method:'POST', body:form});
+      if(!res.ok){
+        const j = await res.json().catch(()=>({}));
+        throw new Error(j.error?.message || 'order save failed');
+      }
+      r.order = target;
+    }
+    resCache[mngCategory] = workList.slice();
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    reorderMode = false;
+    workList = [];
+    renderMngList();
+    if(selectedCategory === mngCategory){ renderNames(); }
+    showMngStatus('ok', 'ORDER SAVED \u2014 live in a couple minutes');
+  }catch(err){
+    showMngStatus('err', 'SAVE FAILED: ' + String(err.message || '').slice(0,60));
+  }
+  document.getElementById('saveOrderBtn').disabled = false;
 }
 
 // ===== Signed Cloudinary calls (SHA-1 signature computed on-device) =====
@@ -819,7 +969,7 @@ async function doRename(){
     r.version = j.version;
     r.format = j.format || r.format;
     r.name = newName;
-    resCache[mngCategory].sort((a,b)=>a.name.localeCompare(b.name));
+    sortRes(resCache[mngCategory]);
     nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
     renderMngList();
     if(selectedCategory === mngCategory){ renderNames(); }
