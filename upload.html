@@ -28,7 +28,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--chassis);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
 .mono{font-family:'JetBrains Mono',monospace}
-.wrap{max-width:480px;margin:0 auto;padding:18px 20px 40px;padding-top:calc(18px + env(safe-area-inset-top));min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:14px 20px 24px;padding-top:calc(18px + env(safe-area-inset-top));min-height:100vh}
 
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .brand{display:flex;align-items:center;gap:10px}
@@ -37,21 +37,21 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .readout{font-size:.85rem;color:var(--text-dim);letter-spacing:.05em}
 .gear{background:none;border:1px solid var(--hairline);border-radius:50%;width:38px;height:38px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem}
 
-.status-line{font-size:.85rem;color:var(--text-dim);margin:14px 0 18px;padding-bottom:12px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
+.status-line{font-size:.85rem;color:var(--text-dim);margin:10px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
 .status-line .dot{color:var(--good)}
 .status-line.off .dot{color:var(--bad)}
 
-.section-label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between}
+.section-label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between}
 
-.dial-wrap{position:relative;margin-bottom:22px}
+.dial-wrap{position:relative;margin-bottom:14px}
 .dial-wrap::after{content:'';position:absolute;top:0;right:0;bottom:4px;width:28px;background:linear-gradient(to right, transparent, var(--chassis));pointer-events:none}
 .dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .dial::-webkit-scrollbar{display:none}
-.dial-item{flex:0 0 auto;padding:11px 18px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.96rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
+.dial-item{flex:0 0 auto;padding:9px 16px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.96rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
 .dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
 
 /* Viewfinder */
-.viewfinder{position:relative;aspect-ratio:3/2;max-height:34vh;border-radius:4px;background:var(--panel);margin-bottom:18px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewfinder{position:relative;aspect-ratio:3/2;max-height:24vh;border-radius:4px;background:var(--panel);margin-bottom:14px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .viewfinder.has-image{aspect-ratio:auto;min-height:180px}
 .viewfinder img{width:100%;height:100%;object-fit:contain;display:block}
 .bracket{position:absolute;width:22px;height:22px;border-color:var(--tungsten);opacity:.55;transition:opacity .2s ease}
@@ -72,21 +72,21 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .thumb .rm{position:absolute;top:0;right:0;width:20px;height:20px;background:rgba(0,0,0,.65);color:var(--text);font-size:.8rem;line-height:20px;text-align:center;border-bottom-left-radius:4px}
 input[type=file]{display:none}
 
-label.field-label{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
-input[type=text]{width:100%;padding:13px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px}
+label.field-label{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+input[type=text]{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px}
 input[type=text]:focus{outline:none;border-color:var(--tungsten)}
-.hint{font-size:.85rem;color:var(--text-dim);margin-bottom:20px}
+.hint{font-size:.85rem;color:var(--text-dim);margin-bottom:12px}
 
 /* Shutter button */
-.shutter-row{display:flex;justify-content:center;margin:4px 0 14px}
-.shutter{width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #6fa87c, #3f6b4c 72%);border:3px solid rgba(127,184,138,.45);cursor:pointer;position:relative;transition:transform .12s ease, border-color .2s ease, box-shadow .2s ease}
-.shutter::after{content:'';position:absolute;inset:8px;border-radius:50%;border:2px solid rgba(16,20,16,.55);opacity:1}
+.shutter-row{display:flex;justify-content:center;margin:2px 0 8px}
+.shutter{width:62px;height:62px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #6fa87c, #3f6b4c 72%);border:3px solid rgba(127,184,138,.45);cursor:pointer;position:relative;transition:transform .12s ease, border-color .2s ease, box-shadow .2s ease}
+.shutter::after{content:'';position:absolute;inset:7px;border-radius:50%;border:2px solid rgba(16,20,16,.55);opacity:1}
 .shutter:active:not(:disabled){transform:scale(.94)}
 .shutter:disabled{opacity:.35;cursor:default}
 .shutter.ready{border-color:rgba(127,184,138,.85);box-shadow:0 0 22px rgba(127,184,138,.4)}
 .shutter-label.ready{color:var(--good)}
 /* Folder name list */
-.names-panel{margin:-8px 0 20px;display:none}
+.names-panel{margin:-4px 0 14px;display:none}
 .names-panel.show{display:block}
 .names-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
 #namesChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
@@ -94,11 +94,11 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .names-list .name-row.dupe{color:var(--bad)}
 input[type=text].taken{border-color:var(--bad)}
 .hint.warn{color:var(--bad)}
-.shutter-label{text-align:center;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:10px}
+.shutter-label{text-align:center;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:6px}
 
-button.text-btn{display:block;margin:14px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:11px 26px}
+button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:9px 22px}
 
-.status{margin:0 0 18px;padding:13px;border-radius:4px;font-size:.9rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
+.status{margin:0 0 14px;padding:11px;border-radius:4px;font-size:.9rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
 .status.show{display:block}
 .status.ok{background:rgba(127,184,138,.12);color:var(--good)}
 .status.err{background:rgba(224,102,90,.12);color:var(--bad)}
@@ -124,7 +124,7 @@ button.text-btn{display:block;margin:14px auto 0;background:none;border:1px soli
 .done-sub{font-size:.8rem;color:var(--text-dim)}
 
 /* Mode tabs */
-.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:4px;margin-bottom:20px}
+.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:4px;margin-bottom:14px}
 .tab{flex:1;padding:10px;border:none;border-radius:999px;background:transparent;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s ease}
 .tab.active{background:var(--tungsten-dim);color:var(--tungsten)}
 
