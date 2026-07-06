@@ -28,22 +28,21 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--chassis);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
 .mono{font-family:'JetBrains Mono',monospace}
-.wrap{max-width:480px;margin:0 auto;padding:14px 20px 24px;padding-top:calc(18px + env(safe-area-inset-top));min-height:100vh}
+.wrap{max-width:480px;margin:0 auto;padding:10px 20px 20px;padding-top:calc(12px + env(safe-area-inset-top));min-height:100vh}
 
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .brand{display:flex;align-items:center;gap:10px}
 .brand-dot{width:8px;height:8px;border-radius:50%;background:var(--tungsten);box-shadow:0 0 8px var(--tungsten)}
 h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
-.readout{font-size:.85rem;color:var(--text-dim);letter-spacing:.05em}
 .gear{background:none;border:1px solid var(--hairline);border-radius:50%;width:38px;height:38px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem}
 
-.status-line{font-size:.85rem;color:var(--text-dim);margin:10px 0 14px;padding-bottom:10px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
+.status-line{font-size:.82rem;color:var(--text-dim);margin:8px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
 .status-line .dot{color:var(--good)}
 .status-line.off .dot{color:var(--bad)}
 
 .section-label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between}
 
-.dial-wrap{position:relative;margin-bottom:14px}
+.dial-wrap{position:relative;margin-bottom:12px}
 .dial-wrap::after{content:'';position:absolute;top:0;right:0;bottom:4px;width:28px;background:linear-gradient(to right, transparent, var(--chassis));pointer-events:none}
 .dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .dial::-webkit-scrollbar{display:none}
@@ -51,7 +50,7 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
 
 /* Viewfinder */
-.viewfinder{position:relative;width:100%;height:clamp(150px,22vh,280px);border-radius:4px;background:var(--panel);margin-bottom:14px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewfinder{position:relative;width:100%;height:clamp(140px,19vh,230px);border-radius:4px;background:var(--panel);margin-bottom:12px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .viewfinder.has-image{height:auto;min-height:180px;max-height:38vh}
 .viewfinder img{width:100%;height:100%;object-fit:contain;display:block;max-height:38vh}
 .bracket{position:absolute;width:22px;height:22px;border-color:var(--tungsten);opacity:.55;transition:opacity .2s ease}
@@ -63,7 +62,7 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .vf-empty{color:var(--text-dim);font-size:.9rem;text-align:center;padding:0 40px}
 .vf-empty .icon{font-size:1.8rem;display:block;margin-bottom:10px;opacity:.6}
 .vf-count{display:none;position:absolute;top:12px;right:44px;background:rgba(0,0,0,.55);border:1px solid var(--hairline);color:var(--text);font-size:.7rem;letter-spacing:.08em;padding:4px 10px;border-radius:999px;z-index:2}
-.thumbs{display:none;gap:8px;overflow-x:auto;margin:-8px 0 18px;padding-bottom:4px;scrollbar-width:none}
+.thumbs{display:none;gap:8px;overflow-x:auto;margin:-6px 0 14px;padding-bottom:4px;scrollbar-width:none}
 .thumbs.show{display:flex}
 .thumbs::-webkit-scrollbar{display:none}
 .thumb{flex:0 0 auto;position:relative;width:58px;height:58px;border-radius:4px;overflow:hidden;border:1px solid var(--hairline);cursor:pointer}
@@ -75,7 +74,7 @@ input[type=file]{display:none}
 label.field-label{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
 input[type=text]{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px}
 input[type=text]:focus{outline:none;border-color:var(--tungsten)}
-.hint{font-size:.85rem;color:var(--text-dim);margin-bottom:12px}
+.hint{font-size:.85rem;color:var(--text-dim);margin-bottom:10px}
 
 /* Shutter button */
 .shutter-row{display:flex;justify-content:center;margin:2px 0 8px}
@@ -90,7 +89,7 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .names-panel.show{display:block}
 .names-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
 #namesChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
-.names-list{max-height:150px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:2}
+.names-list{max-height:118px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:2}
 .names-list .name-row.dupe{color:var(--bad)}
 input[type=text].taken{border-color:var(--bad)}
 .hint.warn{color:var(--bad)}
@@ -124,7 +123,7 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 .done-sub{font-size:.8rem;color:var(--text-dim)}
 
 /* Mode tabs */
-.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:4px;margin-bottom:14px}
+.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:4px;margin-bottom:12px}
 .tab{flex:1;padding:10px;border:none;border-radius:999px;background:transparent;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s ease}
 .tab.active{background:var(--tungsten-dim);color:var(--tungsten)}
 
@@ -146,14 +145,16 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 .reorder-bar{display:flex;gap:8px;margin-bottom:12px}
 .reorder-bar .mng-btn{flex:1;padding:10px}
 .mng-btn.save-order{background:rgba(127,184,138,.15);border-color:rgba(127,184,138,.5);color:var(--good)}
-.mng-row.dragging{border-color:var(--tungsten);box-shadow:0 0 14px rgba(232,135,58,.35);transform:scale(1.02);opacity:.92}
+.mng-row{position:relative}
+.mng-row.dragging{border-color:var(--tungsten);box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 14px rgba(232,135,58,.3);opacity:.97;z-index:5;will-change:transform}
 .grip{flex:0 0 auto;width:34px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.15rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .arrow-btns{display:flex;flex-direction:column;gap:4px}
 .arrow-btns .mng-btn{padding:6px 12px;font-size:.85rem;line-height:1}
 
 /* Bluesky share */
-.share-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
-.share-chip.selected{border-color:#5aa0e8;color:#8ec2f5;background:rgba(90,160,232,.15)}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.bsky-dot{width:30px;height:30px;border-radius:50%;border:1px solid rgba(90,160,232,.4);background:transparent;color:rgba(90,160,232,.65);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.85rem;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
+.bsky-dot.selected{background:#5aa0e8;border-color:#5aa0e8;color:#10151d;box-shadow:0 0 10px rgba(90,160,232,.55)}
 textarea{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:6px;resize:vertical;box-sizing:border-box}
 textarea:focus{outline:none;border-color:#5aa0e8}
 .bsky-meta{display:flex;justify-content:space-between;margin-bottom:8px}
@@ -168,11 +169,10 @@ textarea:focus{outline:none;border-color:#5aa0e8}
 <span class="brand-dot"></span>
 <h1>UPLOAD</h1>
 </div>
-<button class="gear" onclick="openSettings()">&#9881;</button>
+<div class="hdr-right"><button class="bsky-dot" id="bskyChip" onclick="toggleBsky()" title="Also post to Bluesky">B</button><button class="gear" onclick="openSettings()">&#9881;</button></div>
 </header>
-<div class="readout mono">liamdevine.ca &middot; portfolio feed</div>
 
-<div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> <span id="connState">checking…</span></span><span id="clock"></span></div>
+<div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> liamdevine.ca &middot; <span id="connState">checking…</span></span><span id="clock"></span></div>
 
 <div class="tabs">
 <button class="tab active" id="tabUpload" onclick="switchPage('upload')">Upload</button>
@@ -203,10 +203,6 @@ textarea:focus{outline:none;border-color:#5aa0e8}
 <input type="text" id="filename" placeholder="e.g. tree-sunset" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <div class="hint mono">a–z, 0–9, dashes only &middot; extension added automatically</div>
 
-<div class="share-row">
-<span class="field-label" style="margin:0">Also post to</span>
-<div class="dial-item share-chip" id="bskyChip" onclick="toggleBsky()">&#x1F98B; Bluesky</div>
-</div>
 <div id="bskyBox" style="display:none">
 <textarea id="bskyCaption" rows="3" placeholder="caption &amp; #tags for Bluesky" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
 <div class="hint mono bsky-meta"><span id="bskyHint">#tags become clickable</span><span id="bskyCount">0/300</span></div>
@@ -355,8 +351,8 @@ function mngThumb(r){
 }
 
 // Show/hide the folder list — remembers your choice
-let namesOpen = true;
-try{ namesOpen = localStorage.getItem('namesOpen') !== '0'; }catch(e){}
+let namesOpen = false;
+try{ namesOpen = localStorage.getItem('namesOpen') === '1'; }catch(e){}
 function toggleNames(){
   namesOpen = !namesOpen;
   try{ localStorage.setItem('namesOpen', namesOpen ? '1' : '0'); }catch(e){}
@@ -943,13 +939,44 @@ function slideRows(list, skipRow, mutate){
   });
 }
 
-// Shared drop logic: move the dragged row to whatever row is under the finger
-function dragRowTo(row, x, y){
-  const el = document.elementFromPoint(x, y);
+// ===== iOS-style drag =====
+// The lifted row follows the finger with a transform. When it crosses the
+// midpoint of a neighbor, the neighbor slides out of the way (FLIP) and the
+// list order updates live. On release the row springs into its slot.
+let dragState = null; // {row, lastY, offset}
+
+function beginDrag(row, clientY){
+  dragState = {row, lastY: clientY, offset: 0};
+  row.classList.add('dragging');
+  row.style.transition = 'transform .15s ease';
+  row.style.transform = 'scale(1.03)';
+  if(navigator.vibrate){ navigator.vibrate(20); }
+}
+
+function moveDrag(row, clientX, clientY){
+  const st = dragState;
+  if(!st || st.row !== row) return;
+  st.offset += clientY - st.lastY;
+  st.lastY = clientY;
+  row.style.transition = 'none';
+  row.style.transform = `translateY(${st.offset}px) scale(1.03)`;
+
+  // What row is the finger over? (ignore the lifted row itself)
+  row.style.pointerEvents = 'none';
+  const el = document.elementFromPoint(clientX, clientY);
+  row.style.pointerEvents = '';
   const over = el && el.closest('.mng-row');
-  if(!over || over === row) return;
+  if(!over || over === row || over.parentNode !== row.parentNode) return;
+
   const from = +row.dataset.idx;
   const to = +over.dataset.idx;
+  const rect = over.getBoundingClientRect();
+  const mid = rect.top + rect.height / 2;
+  const crossed = to > from ? clientY > mid : clientY < mid;
+  if(!crossed) return;
+
+  // Reorder live: neighbors slide, lifted row keeps its on-screen spot
+  const visualTop = row.getBoundingClientRect().top;
   const [m] = workList.splice(from, 1);
   workList.splice(to, 0, m);
   const list = document.getElementById('mngList');
@@ -958,6 +985,21 @@ function dragRowTo(row, x, y){
     else { list.insertBefore(row, over); }
   });
   [...list.children].forEach((el2, idx2)=>{ el2.dataset.idx = idx2; });
+  row.style.transform = 'none';
+  const naturalTop = row.getBoundingClientRect().top;
+  st.offset = visualTop - naturalTop;
+  row.style.transform = `translateY(${st.offset}px) scale(1.03)`;
+}
+
+function endDrag(row){
+  if(!dragState || dragState.row !== row){ row.classList.remove('dragging'); return; }
+  dragState = null;
+  row.style.transition = 'transform .24s cubic-bezier(.2,.9,.3,1.1)';
+  row.style.transform = '';
+  setTimeout(()=>{
+    row.classList.remove('dragging');
+    row.style.transition = '';
+  }, 260);
 }
 
 // Grip: instant drag (mouse or touch)
@@ -965,15 +1007,14 @@ function attachDrag(grip, row){
   grip.addEventListener('pointerdown', (e)=>{
     e.preventDefault();
     grip.setPointerCapture(e.pointerId);
-    row.classList.add('dragging');
+    beginDrag(row, e.clientY);
   });
   grip.addEventListener('pointermove', (e)=>{
-    if(!row.classList.contains('dragging')) return;
-    dragRowTo(row, e.clientX, e.clientY);
+    moveDrag(row, e.clientX, e.clientY);
   });
-  const endDrag = ()=> row.classList.remove('dragging');
-  grip.addEventListener('pointerup', endDrag);
-  grip.addEventListener('pointercancel', endDrag);
+  const end = ()=> endDrag(row);
+  grip.addEventListener('pointerup', end);
+  grip.addEventListener('pointercancel', end);
 }
 
 // Whole row: press and hold a beat, then drag anywhere.
@@ -987,9 +1028,8 @@ function attachRowDrag(row){
     active = false;
     timer = setTimeout(()=>{
       active = true;
-      row.classList.add('dragging');
-      if(navigator.vibrate){ navigator.vibrate(20); }
-    }, 220);
+      beginDrag(row, sy);
+    }, 200);
   }, {passive:true});
   row.addEventListener('touchmove', (e)=>{
     const t = e.touches[0];
@@ -998,12 +1038,12 @@ function attachRowDrag(row){
       return;
     }
     e.preventDefault();
-    dragRowTo(row, t.clientX, t.clientY);
+    moveDrag(row, t.clientX, t.clientY);
   }, {passive:false});
   const end = ()=>{
     clearTimeout(timer);
+    if(active){ endDrag(row); }
     active = false;
-    row.classList.remove('dragging');
   };
   row.addEventListener('touchend', end);
   row.addEventListener('touchcancel', end);
