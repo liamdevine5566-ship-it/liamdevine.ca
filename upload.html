@@ -51,9 +51,9 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
 
 /* Viewfinder */
-.viewfinder{position:relative;aspect-ratio:3/2;max-height:24vh;border-radius:4px;background:var(--panel);margin-bottom:14px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.viewfinder.has-image{aspect-ratio:auto;min-height:180px}
-.viewfinder img{width:100%;height:100%;object-fit:contain;display:block}
+.viewfinder{position:relative;width:100%;height:clamp(150px,22vh,280px);border-radius:4px;background:var(--panel);margin-bottom:14px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewfinder.has-image{height:auto;min-height:180px;max-height:38vh}
+.viewfinder img{width:100%;height:100%;object-fit:contain;display:block;max-height:38vh}
 .bracket{position:absolute;width:22px;height:22px;border-color:var(--tungsten);opacity:.55;transition:opacity .2s ease}
 .viewfinder:hover .bracket{opacity:.9}
 .bracket.tl{top:14px;left:14px;border-top:2px solid;border-left:2px solid}
@@ -146,7 +146,7 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 .reorder-bar{display:flex;gap:8px;margin-bottom:12px}
 .reorder-bar .mng-btn{flex:1;padding:10px}
 .mng-btn.save-order{background:rgba(127,184,138,.15);border-color:rgba(127,184,138,.5);color:var(--good)}
-.mng-row.dragging{border-color:var(--tungsten);box-shadow:0 0 12px rgba(232,135,58,.25)}
+.mng-row.dragging{border-color:var(--tungsten);box-shadow:0 0 14px rgba(232,135,58,.35);transform:scale(1.02);opacity:.92}
 .grip{flex:0 0 auto;width:34px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.15rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .arrow-btns{display:flex;flex-direction:column;gap:4px}
 .arrow-btns .mng-btn{padding:6px 12px;font-size:.85rem;line-height:1}
@@ -776,6 +776,7 @@ function renderMngList(){
     row.dataset.idx = i;
 
     if(reorderMode){
+      attachRowDrag(row);
       const grip = document.createElement('span');
       grip.className = 'grip';
       grip.innerHTML = '&#9776;';
@@ -851,7 +852,22 @@ function moveRow(i, dir){
   renderMngList();
 }
 
-// Drag by the grip — moves DOM rows directly so the touch never gets dropped
+// Shared drop logic: move the dragged row to whatever row is under the finger
+function dragRowTo(row, x, y){
+  const el = document.elementFromPoint(x, y);
+  const over = el && el.closest('.mng-row');
+  if(!over || over === row) return;
+  const from = +row.dataset.idx;
+  const to = +over.dataset.idx;
+  const [m] = workList.splice(from, 1);
+  workList.splice(to, 0, m);
+  const list = document.getElementById('mngList');
+  if(to > from){ list.insertBefore(row, over.nextSibling); }
+  else { list.insertBefore(row, over); }
+  [...list.children].forEach((el2, idx2)=>{ el2.dataset.idx = idx2; });
+}
+
+// Grip: instant drag (mouse or touch)
 function attachDrag(grip, row){
   grip.addEventListener('pointerdown', (e)=>{
     e.preventDefault();
@@ -860,21 +876,44 @@ function attachDrag(grip, row){
   });
   grip.addEventListener('pointermove', (e)=>{
     if(!row.classList.contains('dragging')) return;
-    const el = document.elementFromPoint(e.clientX, e.clientY);
-    const over = el && el.closest('.mng-row');
-    if(!over || over === row) return;
-    const from = +row.dataset.idx;
-    const to = +over.dataset.idx;
-    const [m] = workList.splice(from, 1);
-    workList.splice(to, 0, m);
-    const list = document.getElementById('mngList');
-    if(to > from){ list.insertBefore(row, over.nextSibling); }
-    else { list.insertBefore(row, over); }
-    [...list.children].forEach((el2, idx2)=>{ el2.dataset.idx = idx2; });
+    dragRowTo(row, e.clientX, e.clientY);
   });
   const endDrag = ()=> row.classList.remove('dragging');
   grip.addEventListener('pointerup', endDrag);
   grip.addEventListener('pointercancel', endDrag);
+}
+
+// Whole row: press and hold a beat, then drag anywhere.
+// A quick flick still scrolls the list normally.
+function attachRowDrag(row){
+  let timer = null, active = false, sx = 0, sy = 0;
+  row.addEventListener('touchstart', (e)=>{
+    if(e.target.closest('.arrow-btns, .grip')) return;
+    const t = e.touches[0];
+    sx = t.clientX; sy = t.clientY;
+    active = false;
+    timer = setTimeout(()=>{
+      active = true;
+      row.classList.add('dragging');
+      if(navigator.vibrate){ navigator.vibrate(20); }
+    }, 220);
+  }, {passive:true});
+  row.addEventListener('touchmove', (e)=>{
+    const t = e.touches[0];
+    if(!active){
+      if(Math.abs(t.clientY - sy) > 10 || Math.abs(t.clientX - sx) > 10){ clearTimeout(timer); }
+      return;
+    }
+    e.preventDefault();
+    dragRowTo(row, t.clientX, t.clientY);
+  }, {passive:false});
+  const end = ()=>{
+    clearTimeout(timer);
+    active = false;
+    row.classList.remove('dragging');
+  };
+  row.addEventListener('touchend', end);
+  row.addEventListener('touchcancel', end);
 }
 
 async function saveOrder(){
@@ -892,15 +931,15 @@ async function saveOrder(){
       const {r, target} = changes[i];
       const ts = Math.floor(Date.now()/1000);
       const ctx = `order=${target}`;
-      const sig = await sha1hex(`command=add&context=${ctx}&public_ids=${r.public_id}&timestamp=${ts}${secret}`);
+      const sig = await sha1hex(`context=${ctx}&public_id=${r.public_id}&timestamp=${ts}&type=upload${secret}`);
       const form = new FormData();
-      form.append('command', 'add');
+      form.append('public_id', r.public_id);
+      form.append('type', 'upload');
       form.append('context', ctx);
-      form.append('public_ids[]', r.public_id);
       form.append('timestamp', ts);
       form.append('api_key', key);
       form.append('signature', sig);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/context`, {method:'POST', body:form});
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
       if(!res.ok){
         const j = await res.json().catch(()=>({}));
         throw new Error(j.error?.message || 'order save failed');
