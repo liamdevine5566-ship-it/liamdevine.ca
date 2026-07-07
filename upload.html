@@ -153,7 +153,7 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 
 /* Bluesky share */
 .hdr-right{display:flex;align-items:center;gap:10px}
-.bsky-dot{width:30px;height:30px;border-radius:50%;border:1px solid rgba(90,160,232,.4);background:transparent;color:rgba(90,160,232,.65);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.85rem;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
+.bsky-dot{width:30px;height:30px;border-radius:50%;border:1px solid var(--hairline);background:transparent;color:var(--text-dim);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.85rem;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
 .bsky-dot.selected{background:#5aa0e8;border-color:#5aa0e8;color:#10151d;box-shadow:0 0 10px rgba(90,160,232,.55)}
 textarea{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:6px;resize:vertical;box-sizing:border-box}
 textarea:focus{outline:none;border-color:#5aa0e8}
@@ -1201,14 +1201,13 @@ function getBsky(){
 }
 function hasBsky(){ const b = getBsky(); return b.handle.length > 0 && b.pass.length > 0; }
 
+// Bluesky publishing always starts OFF when the app opens.
+// The B in the header only toggles it — the gear is the only way into settings.
 let bskyOn = false;
-try{ bskyOn = localStorage.getItem('bsky_on') === '1'; }catch(e){}
 let captionTouched = false;
 
 function toggleBsky(){
   bskyOn = !bskyOn;
-  try{ localStorage.setItem('bsky_on', bskyOn ? '1' : '0'); }catch(e){}
-  if(bskyOn && !hasBsky()){ openSettings(); }
   applyBskyUI();
   updateState();
 }
