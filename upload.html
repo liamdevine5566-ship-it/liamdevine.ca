@@ -90,6 +90,9 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .names-panel.show{display:block}
 .names-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
 #namesChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
+#keysChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
+#keysSummary.ok{color:var(--good)}
+.text-btn.armed{color:var(--bad);border-color:rgba(224,102,90,.5)}
 #mngRefresh{color:var(--tungsten);cursor:pointer}
 .names-list{max-height:118px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:2}
 .names-list .name-row.dupe{color:var(--bad)}
@@ -251,7 +254,9 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 <div class="vis-list" id="visList"></div>
 <p style="margin-top:6px"><span style="color:var(--text)">Hidden</span> — photos kept safe, shown nowhere &middot; <span style="color:var(--tungsten)">App</span> — build &amp; manage privately here &middot; <span style="color:var(--good)">Site</span> — live on liamdevine.ca</p>
 
-<div class="section-label" style="margin-top:18px"><span>Device keys</span></div>
+<div class="section-label names-toggle" style="margin-top:18px" onclick="toggleKeysPanel()"><span>Device keys <span id="keysChevron">&#9656;</span></span><span class="mono" id="keysSummary"></span></div>
+
+<div id="keysPanel" style="display:none">
 <p>Uploads never need keys. To unlock <span style="color:var(--text)">rename, remove &amp; visibility</span> on this device, enter your Cloudinary API key and secret (in your Notes app). They're saved only on this phone or computer — never in the site code.</p>
 <div class="status mono" style="display:block;background:var(--panel);color:var(--text-dim);margin-bottom:16px">Cloud: <span class="mono" style="color:var(--text)">dywzapiql</span> &middot; <span id="keyState"></span></div>
 <label class="field-label">API key</label>
@@ -259,10 +264,14 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 <label class="field-label">API secret</label>
 <input type="text" id="apiSecretField" placeholder="paste secret here" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <div class="overlay-actions">
-<button onclick="closeSettings()">Close</button>
 <button class="save" onclick="saveKeys()">Save keys</button>
 </div>
-<button class="text-btn" onclick="clearKeys()" style="margin-top:18px">Forget keys on this device</button>
+<button class="text-btn" id="forgetBtn" onclick="clearKeys()" style="margin-top:14px">Forget keys on this device</button>
+</div>
+
+<div class="overlay-actions" style="margin-top:20px">
+<button onclick="closeSettings()">Close</button>
+</div>
 </div>
 
 <div class="overlay" id="renameOverlay">
@@ -719,10 +728,34 @@ function openSettings(){
   document.getElementById('apiKeyField').value = keys.key;
   document.getElementById('apiSecretField').value = keys.secret ? '\u2022\u2022\u2022\u2022\u2022\u2022 (saved)' : '';
   document.getElementById('keyState').textContent = keys.key && keys.secret ? 'keys saved' : 'no keys';
+  keysPanelOpen = false;   // keys stay tucked away every time Settings opens
+  disarmForget();
+  applyKeysPanel();
+  refreshKeysSummary();
   renderVisList();
   document.getElementById('settingsOverlay').classList.add('show');
 }
 function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+
+// ===== Collapsible device-keys panel =====
+// The keys are one-time setup; the manager is the daily control.
+// Keeping the credentials folded away avoids accidental taps on them.
+let keysPanelOpen = false;
+function toggleKeysPanel(){
+  keysPanelOpen = !keysPanelOpen;
+  if(!keysPanelOpen){ disarmForget(); }
+  applyKeysPanel();
+}
+function applyKeysPanel(){
+  document.getElementById('keysPanel').style.display = keysPanelOpen ? 'block' : 'none';
+  document.getElementById('keysChevron').innerHTML = keysPanelOpen ? '&#9662;' : '&#9656;';
+}
+function refreshKeysSummary(){
+  const el = document.getElementById('keysSummary');
+  const ok = hasKeys();
+  el.textContent = ok ? 'saved \u2713' : 'not set';
+  el.classList.toggle('ok', ok);
+}
 
 // ===== Portfolio Manager =====
 // Tap Hidden / App / Site per category. Applies in the app instantly;
@@ -822,15 +855,40 @@ function saveKeys(){
     if(secretRaw && !secretRaw.startsWith('\u2022')){ localStorage.setItem('cld_secret', secretRaw); }
   }catch(e){ alert('This browser blocked saving. Try turning off private browsing.'); return; }
   document.getElementById('keyState').textContent = hasKeys() ? 'keys saved' : 'no keys';
+  refreshKeysSummary();
+  keysPanelOpen = false;
+  applyKeysPanel();
   renderVisList();
   renderManage();
 }
+
+// Forget keys needs a deliberate double-tap — one stray touch can't wipe them.
+let forgetArmed = false, forgetTimer = null;
+function disarmForget(){
+  forgetArmed = false;
+  clearTimeout(forgetTimer);
+  const btn = document.getElementById('forgetBtn');
+  btn.textContent = 'Forget keys on this device';
+  btn.classList.remove('armed');
+}
 function clearKeys(){
+  if(!forgetArmed){
+    forgetArmed = true;
+    const btn = document.getElementById('forgetBtn');
+    btn.textContent = 'Tap again to forget keys';
+    btn.classList.add('armed');
+    forgetTimer = setTimeout(disarmForget, 3000);
+    return;
+  }
+  disarmForget();
   try{
     localStorage.removeItem('cld_key'); localStorage.removeItem('cld_secret');
   }catch(e){}
+  document.getElementById('apiKeyField').value = '';
+  document.getElementById('apiSecretField').value = '';
+  document.getElementById('keyState').textContent = 'no keys';
+  refreshKeysSummary();
   renderVisList();
-  closeSettings();
   renderManage();
 }
 
