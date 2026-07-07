@@ -1,4 +1,4 @@
-<!-- site build: stable v4 -->
+<!-- site build: stable v5 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -138,6 +138,29 @@ footer a{color:#f6f2eb;text-decoration:none}
 <meta content="Making the Ordinary Extraordinary" name="twitter:description"/>
 <link href="images/favicon.png" rel="icon"/>
 <link href="images/apple-touch-icon.png" rel="apple-touch-icon"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": "https://liamdevine.ca/#business",
+  "name": "Liam Devine Photography",
+  "description": "Portrait, family, pet and fine art photography in London, Ontario. Studio and on-location sessions across Southwestern Ontario.",
+  "url": "https://liamdevine.ca/",
+  "image": "https://liamdevine.ca/images/portraits/hijab.jpg",
+  "telephone": "+1-647-529-9924",
+  "email": "liamdevinephotography@gmail.com",
+  "priceRange": "$245 - $425",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "London",
+    "addressRegion": "ON",
+    "addressCountry": "CA"
+  },
+  "areaServed": "Southwestern Ontario",
+  "sameAs": ["https://instagram.com/liamdevinephotography"],
+  "knowsAbout": ["portrait photography", "family photography", "pet photography", "fine art photography", "headshots"]
+}
+</script>
 </head>
 <body>
 <nav id="navbar"><div class="nav-logo"><img src="images/logo1.jpg"/></div><div class="mobile-brand">LIAM DEVINE</div><div class="menu-toggle" onclick="toggleMenu()">☰</div><div class="nav-links" id="navLinks">
@@ -320,6 +343,13 @@ function thumbUrl(src){
   return src.replace('/upload/f_auto,q_auto,w_1600/', '/upload/f_auto,q_auto,w_1000,h_1000,c_fill,g_auto/');
 }
 
+// Turn a filename like "tree-sunset-01" into readable alt text for
+// screen readers and Google Images: "Tree sunset 01 — Liam Devine Photography"
+function humanAlt(name){
+  const words = name.replace(/[-_]+/g, ' ').trim();
+  return (words.charAt(0).toUpperCase() + words.slice(1)) + ' \u2014 Liam Devine Photography';
+}
+
 function populateGallery(cat, images){
   const grid = document.getElementById(cat.gridId);
   const featuredBox = document.getElementById(cat.featuredId);
@@ -332,20 +362,21 @@ function populateGallery(cat, images){
     const fwrap = document.createElement('div');
     fwrap.className = 'img-wrap';
     const fimg = document.createElement('img');
-    fimg.src = thumbUrl(images[0]);
-    fimg.dataset.full = images[0];
-    fimg.alt = 'Photo by Liam Devine';
+    fimg.src = thumbUrl(images[0].src);
+    fimg.dataset.full = images[0].src;
+    fimg.alt = images[0].alt;
     fimg.loading = 'eager';
     fimg.decoding = 'async';
     fwrap.appendChild(fimg);
     featuredBox.appendChild(fwrap);
   }
-  images.forEach(src => {
+  images.forEach(item => {
     const wrap = document.createElement('div');
     wrap.className = 'img-wrap';
     const img = document.createElement('img');
-    img.src = thumbUrl(src);
-    img.dataset.full = src;
+    img.src = thumbUrl(item.src);
+    img.dataset.full = item.src;
+    img.alt = item.alt;
     img.loading = 'lazy';
     img.decoding = 'async';
     wrap.appendChild(img);
@@ -367,7 +398,10 @@ async function loadCategoryFromCloudinary(cat){
   };
   const images = (data.resources || [])
     .sort((a,b) => (ordOf(a) - ordOf(b)) || a.public_id.localeCompare(b.public_id))
-    .map(r => `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_1600/v${r.version}/${r.public_id}.${r.format}`);
+    .map(r => ({
+      src: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_1600/v${r.version}/${r.public_id}.${r.format}`,
+      alt: humanAlt(r.public_id.split('/').pop())
+    }));
   populateGallery(cat, images);
 }
 
@@ -379,7 +413,7 @@ async function loadCategoryFallback(cat){
   const images = files
     .filter(f => f.type === 'file' && IMAGE_EXT.test(f.name))
     .sort((a,b) => a.name.localeCompare(b.name))
-    .map(f => f.download_url);
+    .map(f => ({src: f.download_url, alt: humanAlt(f.name.replace(/\.[^.]+$/, ''))}));
   populateGallery(cat, images);
 }
 
@@ -388,7 +422,7 @@ async function loadCategoryFromJsdelivr(cat, allFiles){
   const images = allFiles
     .filter(p => p.startsWith(prefix) && IMAGE_EXT.test(p))
     .sort((a,b)=>a.localeCompare(b))
-    .map(p => `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}${p}`);
+    .map(p => ({src: `https://cdn.jsdelivr.net/gh/${REPO_OWNER}/${REPO_NAME}@${BRANCH}${p}`, alt: humanAlt(p.split('/').pop().replace(/\.[^.]+$/, ''))}));
   populateGallery(cat, images);
 }
 
@@ -488,6 +522,17 @@ function wireUpGalleries(){
   });
 }
 
+// Quietly fetch the images either side of the current one so
+// swiping through the lightbox never shows a blank beat.
+function preloadNeighbors(){
+  if(currentGallery.length < 2) return;
+  [1, -1].forEach(d=>{
+    const i = (currentIndex + d + currentGallery.length) % currentGallery.length;
+    const im = new Image();
+    im.src = currentGallery[i];
+  });
+}
+
 function openGallery(gallery,src){
   savedScrollY = window.scrollY;
   document.body.style.position='fixed';
@@ -498,14 +543,17 @@ function openGallery(gallery,src){
   document.getElementById('lightbox').style.display='flex';
   document.getElementById('lightbox-img').src=src;
   history.pushState({ldLightbox:true}, '');
+  preloadNeighbors();
 }
 function nextImage(){
   currentIndex=(currentIndex+1)%currentGallery.length;
   document.getElementById('lightbox-img').src=currentGallery[currentIndex];
+  preloadNeighbors();
 }
 function prevImage(){
   currentIndex=(currentIndex-1+currentGallery.length)%currentGallery.length;
   document.getElementById('lightbox-img').src=currentGallery[currentIndex];
+  preloadNeighbors();
 }
 document.addEventListener('keydown',e=>{
   if(document.getElementById('lightbox').style.display==='flex'){
