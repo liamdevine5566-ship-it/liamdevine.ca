@@ -74,6 +74,7 @@ input[type=file]{display:none}
 label.field-label{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
 input[type=text]{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px}
 input[type=text]:focus{outline:none;border-color:var(--tungsten)}
+#filename,#renameField{text-transform:lowercase}
 .hint{font-size:.85rem;color:var(--text-dim);margin-bottom:10px}
 
 /* Shutter button */
@@ -150,16 +151,6 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 .grip{flex:0 0 auto;width:34px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.15rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .arrow-btns{display:flex;flex-direction:column;gap:4px}
 .arrow-btns .mng-btn{padding:6px 12px;font-size:.85rem;line-height:1}
-
-/* Bluesky share */
-.hdr-right{display:flex;align-items:center;gap:10px}
-.bsky-dot{width:30px;height:30px;border-radius:50%;border:1px solid var(--hairline);background:transparent;color:var(--text-dim);font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:.85rem;line-height:1;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s ease}
-.bsky-dot.selected{background:#5aa0e8;border-color:#5aa0e8;color:#10151d;box-shadow:0 0 10px rgba(90,160,232,.55)}
-textarea{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:6px;resize:vertical;box-sizing:border-box}
-textarea:focus{outline:none;border-color:#5aa0e8}
-.bsky-meta{display:flex;justify-content:space-between;margin-bottom:8px}
-#bskyCount.over{color:var(--bad)}
-#bskyDefaultBtn{margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -169,7 +160,7 @@ textarea:focus{outline:none;border-color:#5aa0e8}
 <span class="brand-dot"></span>
 <h1>UPLOAD</h1>
 </div>
-<div class="hdr-right"><button class="bsky-dot" id="bskyChip" onclick="toggleBsky()" title="Also post to Bluesky">B</button><button class="gear" onclick="openSettings()">&#9881;</button></div>
+<button class="gear" onclick="openSettings()">&#9881;</button>
 </header>
 
 <div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> liamdevine.ca &middot; <span id="connState">checking…</span></span><span id="clock"></span></div>
@@ -202,12 +193,6 @@ textarea:focus{outline:none;border-color:#5aa0e8}
 <label class="field-label">File name</label>
 <input type="text" id="filename" placeholder="e.g. tree-sunset" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <div class="hint mono">a–z, 0–9, dashes only &middot; extension added automatically</div>
-
-<div id="bskyBox" style="display:none">
-<textarea id="bskyCaption" rows="3" placeholder="caption &amp; #tags for Bluesky" autocapitalize="sentences" autocomplete="off" spellcheck="true"></textarea>
-<div class="hint mono bsky-meta"><span id="bskyHint">#tags become clickable</span><span id="bskyCount">0/300</span></div>
-<button class="mng-btn" id="bskyDefaultBtn" onclick="saveBskyDefault()">Save as this category's default caption</button>
-</div>
 
 <div class="shutter-row">
 <button class="shutter" id="uploadBtn" disabled onclick="doUpload()"></button>
@@ -253,11 +238,6 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 <input type="text" id="apiKeyField" placeholder="123456789012345" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <label class="field-label">API secret</label>
 <input type="text" id="apiSecretField" placeholder="paste secret here" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
-<label class="field-label">Bluesky handle</label>
-<input type="text" id="bskyHandleField" placeholder="liamdevine.bsky.social" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
-<label class="field-label">Bluesky app password</label>
-<input type="text" id="bskyPassField" placeholder="xxxx-xxxx-xxxx-xxxx" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
-<p style="margin-top:0">App password comes from the Bluesky app: Settings &rarr; Privacy and Security &rarr; App Passwords &rarr; Add. Never your real password.</p>
 <div class="overlay-actions">
 <button onclick="closeSettings()">Close</button>
 <button class="save" onclick="saveKeys()">Save keys</button>
@@ -310,7 +290,7 @@ function renderCategories(){
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (selectedCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
-    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); loadNames(cat.folder); prefillCaption(); updateState(); };
+    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); loadNames(cat.folder); updateState(); };
     box.appendChild(btn);
   });
   document.getElementById('catCount').textContent = selectedCategory ? '1/1' : `0/${CATEGORIES.length}`;
@@ -428,7 +408,6 @@ document.getElementById('fileInput').addEventListener('change', (e)=>{
   renderPreview();
   renderThumbs();
   renderNames();
-  updateCaptionCount();
   updateState();
 });
 
@@ -505,14 +484,11 @@ function plannedNames(){
   }
   return names;
 }
+// Note: we deliberately never rewrite field.value here. iOS voice dictation
+// re-inserts its phrase if JS changes the value or cursor while it's still
+// committing text — that's what caused dictated names to appear twice.
+// Lowercase is handled visually by CSS and for real by sanitizeName().
 document.getElementById('filename').addEventListener('input', ()=>{
-  const field = document.getElementById('filename');
-  const lower = field.value.toLowerCase();
-  if(field.value !== lower){
-    const pos = field.selectionStart;
-    field.value = lower;
-    field.setSelectionRange(pos, pos);
-  }
   renderNames();
   updateState();
 });
@@ -532,9 +508,7 @@ function updateState(){
     hint.innerHTML = 'a\u2013z, 0\u20139, dashes only \u00b7 extension added automatically';
   }
 
-  const capLen = bskyOn ? [...document.getElementById('bskyCaption').value].length : 0;
-  const capOk = capLen <= 300;
-  const ready = selectedCategory && selectedFiles.length > 0 && nameOk && !dupe && capOk;
+  const ready = selectedCategory && selectedFiles.length > 0 && nameOk && !dupe;
   const btn = document.getElementById('uploadBtn');
   btn.disabled = !ready;
   btn.classList.toggle('ready', !!ready);
@@ -547,8 +521,7 @@ function updateState(){
   const label = document.getElementById('shutterLabel');
   label.classList.toggle('ready', !!ready);
   if(dupe){ label.textContent = 'Name already taken'; }
-  else if(!capOk){ label.textContent = 'Bluesky caption too long'; }
-  else if(ready){ label.textContent = (selectedFiles.length > 1 ? 'Ready \u2014 upload ' + selectedFiles.length + ' photos' : 'Ready \u2014 tap to upload') + (bskyOn ? ' + post' : ''); }
+  else if(ready){ label.textContent = selectedFiles.length > 1 ? 'Ready \u2014 upload ' + selectedFiles.length + ' photos' : 'Ready \u2014 tap to upload'; }
   else { label.textContent = ''; }
 }
 
@@ -605,8 +578,6 @@ async function doUpload(){
   btn.classList.remove('ready');
 
   const total = selectedFiles.length;
-  const bskyFiles = bskyOn ? selectedFiles.slice(0,4).map(s=>s.file) : [];
-  const bskyText = document.getElementById('bskyCaption').value.trim();
   let doneCount = 0;
 
   try{
@@ -651,25 +622,7 @@ async function doUpload(){
       doneCount++;
     }
 
-    if(bskyOn && bskyFiles.length > 0){
-      if(!hasBsky()){
-        showStatus('err', 'SITE OK \u2014 no Bluesky login saved (tap the gear)');
-        resetForm(true);
-        return;
-      }
-      try{
-        label.textContent = 'Posting to Bluesky\u2026';
-        showStatus('busy', 'POSTING TO BLUESKY\u2026');
-        await postToBluesky(bskyFiles, bskyText);
-      }catch(err){
-        showStatus('err', 'SITE OK \u2014 BLUESKY FAILED: ' + String(err.message || '').slice(0,60));
-        resetForm(true);
-        return;
-      }
-    }
-
     showStatus('ok', total > 1 ? `ALL ${total} UPLOADED \u2014 live in a couple minutes` : 'UPLOADED \u2014 live in a couple minutes');
-    document.querySelector('.done-sub').textContent = (bskyOn && bskyFiles.length > 0) ? 'on the site in a couple minutes \u2014 and posted to Bluesky' : 'live on the site in a couple minutes';
     showSuccess(total);
     resetForm(true);
   }catch(err){
@@ -694,10 +647,6 @@ function resetForm(keepCategory){
   }
   document.getElementById('fileInput').value = '';
   document.getElementById('filename').value = '';
-  captionTouched = false;
-  document.getElementById('bskyCaption').value = '';
-  if(keepCategory){ prefillCaption(); }
-  updateCaptionCount();
   renderPreview();
   renderThumbs();
   renderCategories();
@@ -707,15 +656,9 @@ function resetForm(keepCategory){
 
 function openSettings(){
   const keys = getKeys();
-  const b = getBsky();
   document.getElementById('apiKeyField').value = keys.key;
   document.getElementById('apiSecretField').value = keys.secret ? '\u2022\u2022\u2022\u2022\u2022\u2022 (saved)' : '';
-  document.getElementById('bskyHandleField').value = b.handle;
-  document.getElementById('bskyPassField').value = b.pass ? '\u2022\u2022\u2022\u2022\u2022\u2022 (saved)' : '';
-  const bits = [];
-  bits.push(keys.key && keys.secret ? 'keys saved' : 'no keys');
-  bits.push(b.handle && b.pass ? 'Bluesky saved' : 'no Bluesky');
-  document.getElementById('keyState').textContent = bits.join(' \u00b7 ');
+  document.getElementById('keyState').textContent = keys.key && keys.secret ? 'keys saved' : 'no keys';
   document.getElementById('settingsOverlay').classList.add('show');
 }
 function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
@@ -729,26 +672,29 @@ function hasKeys(){ const k = getKeys(); return k.key.length > 0 && k.secret.len
 function saveKeys(){
   const key = document.getElementById('apiKeyField').value.trim();
   const secretRaw = document.getElementById('apiSecretField').value.trim();
-  const bHandle = document.getElementById('bskyHandleField').value.trim().replace(/^@/,'');
-  const bPassRaw = document.getElementById('bskyPassField').value.trim();
   try{
     if(key){ localStorage.setItem('cld_key', key); }
     if(secretRaw && !secretRaw.startsWith('\u2022')){ localStorage.setItem('cld_secret', secretRaw); }
-    if(bHandle){ localStorage.setItem('bsky_handle', bHandle); }
-    if(bPassRaw && !bPassRaw.startsWith('\u2022')){ localStorage.setItem('bsky_pass', bPassRaw); }
   }catch(e){ alert('This browser blocked saving. Try turning off private browsing.'); return; }
   closeSettings();
   renderManage();
-  applyBskyUI();
 }
 function clearKeys(){
   try{
     localStorage.removeItem('cld_key'); localStorage.removeItem('cld_secret');
-    localStorage.removeItem('bsky_handle'); localStorage.removeItem('bsky_pass');
   }catch(e){}
   closeSettings();
   renderManage();
 }
+
+// One-time cleanup: the Bluesky feature was removed — wipe any credentials
+// and caption templates it saved on this device.
+try{
+  localStorage.removeItem('bsky_handle');
+  localStorage.removeItem('bsky_pass');
+  localStorage.removeItem('bsky_on');
+  Object.keys(localStorage).filter(k=>k.indexOf('bsky_tpl_')===0).forEach(k=>localStorage.removeItem(k));
+}catch(e){}
 
 // ===== Page switching: tabs + swipe =====
 let currentPage = 'upload';
@@ -1186,142 +1132,6 @@ async function doDestroy(){
   }
 }
 
-// ===== Bluesky =====
-const BSKY_DEFAULT_TAGS = {
-  'portraits': '#portrait #portraitphotography #photography',
-  'family': '#familyphotography #familyportrait #photography',
-  'pets': '#petphotography #petportrait #photography',
-  'fine-art': '#fineartphotography #photography',
-  'showcase': '#motorsport #motorsportphotography #photography'
-};
-
-function getBsky(){
-  try{ return {handle:(localStorage.getItem('bsky_handle')||'').replace(/^@/,''), pass: localStorage.getItem('bsky_pass')||''}; }
-  catch(e){ return {handle:'', pass:''}; }
-}
-function hasBsky(){ const b = getBsky(); return b.handle.length > 0 && b.pass.length > 0; }
-
-// Bluesky publishing always starts OFF when the app opens.
-// The B in the header only toggles it — the gear is the only way into settings.
-let bskyOn = false;
-let captionTouched = false;
-
-function toggleBsky(){
-  bskyOn = !bskyOn;
-  applyBskyUI();
-  updateState();
-}
-
-function categoryTags(folder){
-  try{
-    const custom = localStorage.getItem('bsky_tpl_' + folder);
-    if(custom) return custom;
-  }catch(e){}
-  return BSKY_DEFAULT_TAGS[folder] || '#photography';
-}
-
-function prefillCaption(){
-  if(!bskyOn || captionTouched) return;
-  const box = document.getElementById('bskyCaption');
-  box.value = selectedCategory ? categoryTags(selectedCategory) + ' ' : '';
-  updateCaptionCount();
-}
-
-function applyBskyUI(){
-  document.getElementById('bskyChip').classList.toggle('selected', bskyOn);
-  document.getElementById('bskyBox').style.display = bskyOn ? 'block' : 'none';
-  if(bskyOn){ prefillCaption(); }
-}
-
-function updateCaptionCount(){
-  const len = [...document.getElementById('bskyCaption').value].length;
-  const el = document.getElementById('bskyCount');
-  el.textContent = len + '/300';
-  el.classList.toggle('over', len > 300);
-  const many = selectedFiles.length > 4;
-  document.getElementById('bskyHint').textContent = many ? 'Bluesky takes the first 4 photos' : '#tags become clickable';
-}
-
-document.getElementById('bskyCaption').addEventListener('input', ()=>{
-  captionTouched = true;
-  updateCaptionCount();
-  updateState();
-});
-
-function saveBskyDefault(){
-  if(!selectedCategory){ showStatus('err', 'Pick a category first.'); return; }
-  const tags = document.getElementById('bskyCaption').value.trim();
-  try{ localStorage.setItem('bsky_tpl_' + selectedCategory, tags); }catch(e){}
-  showStatus('ok', 'SAVED as default for this category');
-}
-
-function tagFacets(text){
-  const enc = new TextEncoder();
-  const facets = [];
-  const re = /#([A-Za-z0-9_]+)/g;
-  let m;
-  while((m = re.exec(text))){
-    const byteStart = enc.encode(text.slice(0, m.index)).length;
-    const byteEnd = byteStart + enc.encode(m[0]).length;
-    facets.push({index:{byteStart, byteEnd}, features:[{$type:'app.bsky.richtext.facet#tag', tag:m[1]}]});
-  }
-  return facets;
-}
-
-async function bskyCompress(file){
-  const tries = [[1600,.85],[1600,.75],[1200,.75],[1000,.6]];
-  for(const [dim,q] of tries){
-    const blob = await compressImage(file, dim, q);
-    if(blob.size <= 950000) return blob;
-  }
-  throw new Error('image too large for Bluesky');
-}
-
-async function postToBluesky(files, text){
-  const {handle, pass} = getBsky();
-  const sess = await fetch('https://bsky.social/xrpc/com.atproto.server.createSession', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({identifier: handle, password: pass})
-  });
-  if(!sess.ok){
-    const j = await sess.json().catch(()=>({}));
-    throw new Error(j.message || 'Bluesky login failed — check handle & app password');
-  }
-  const {accessJwt, did} = await sess.json();
-
-  const images = [];
-  for(const f of files.slice(0,4)){
-    const blob = await bskyCompress(f);
-    const up = await fetch('https://bsky.social/xrpc/com.atproto.repo.uploadBlob', {
-      method:'POST',
-      headers:{'Content-Type':'image/jpeg', 'Authorization':'Bearer ' + accessJwt},
-      body: blob
-    });
-    if(!up.ok){ throw new Error('Bluesky image upload failed'); }
-    const uj = await up.json();
-    images.push({image: uj.blob, alt: 'Photograph by Liam Devine'});
-  }
-
-  const record = {
-    $type: 'app.bsky.feed.post',
-    text: text,
-    createdAt: new Date().toISOString(),
-    langs: ['en'],
-    embed: {$type:'app.bsky.embed.images', images},
-    facets: tagFacets(text)
-  };
-  const cr = await fetch('https://bsky.social/xrpc/com.atproto.repo.createRecord', {
-    method:'POST',
-    headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + accessJwt},
-    body: JSON.stringify({repo: did, collection:'app.bsky.feed.post', record})
-  });
-  if(!cr.ok){
-    const j = await cr.json().catch(()=>({}));
-    throw new Error(j.message || 'Bluesky post failed');
-  }
-}
-
 function tickClock(){
   const now = new Date();
   document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
@@ -1342,7 +1152,6 @@ function updateConnState(){
   }
 }
 updateConnState();
-applyBskyUI();
 window.addEventListener('online', updateConnState);
 window.addEventListener('offline', updateConnState);
 </script>
