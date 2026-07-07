@@ -1,4 +1,4 @@
-<!-- app build: manage-v1 -->
+<!-- app build: portfolio-v1 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -106,7 +106,7 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .status.err{background:rgba(224,102,90,.12);color:var(--bad)}
 .status.busy{background:var(--panel);color:var(--text-dim)}
 
-.overlay{position:fixed;inset:0;background:var(--chassis);z-index:50;display:none;padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top))}
+.overlay{position:fixed;inset:0;background:var(--chassis);z-index:50;display:none;padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top));padding-bottom:40px;overflow-y:auto}
 .overlay.show{display:block}
 .overlay h2{font-size:1.1rem;font-weight:500;margin-top:0}
 .overlay p{font-size:.85rem;line-height:1.5;color:var(--text-dim)}
@@ -114,6 +114,17 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .overlay-actions{display:flex;gap:10px}
 .overlay-actions button{flex:1;padding:13px;border-radius:4px;font-family:'Space Grotesk';font-size:.85rem;cursor:pointer;border:1px solid var(--hairline);background:transparent;color:var(--text)}
 .overlay-actions button.save{background:var(--tungsten);color:#161412;border-color:var(--tungsten);font-weight:500}
+
+/* Portfolio Manager */
+.vis-list{display:flex;flex-direction:column;gap:6px}
+.vis-list.locked{opacity:.45;pointer-events:none}
+.vis-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:7px 8px 7px 12px}
+.vis-row .lbl{font-size:.86rem;color:var(--text)}
+.vis-seg{display:flex;gap:4px;flex:0 0 auto}
+.vis-seg button{border:1px solid var(--hairline);background:transparent;color:var(--text-dim);border-radius:999px;padding:7px 11px;font-family:'Space Grotesk';font-size:.72rem;letter-spacing:.04em;cursor:pointer;transition:all .15s ease}
+.vis-seg button.on-hidden{border-color:var(--text-dim);color:var(--text);background:rgba(245,243,239,.08)}
+.vis-seg button.on-app{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
+.vis-seg button.on-site{border-color:rgba(127,184,138,.6);color:var(--good);background:rgba(127,184,138,.14)}
 
 /* Upload success confirmation */
 .done-flash{position:fixed;inset:0;background:rgba(10,14,11,.94);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;transition:opacity .25s ease}
@@ -234,8 +245,14 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 </div>
 
 <div class="overlay" id="settingsOverlay">
-<h2>Connect this device</h2>
-<p>Uploads never need keys. To unlock <span style="color:var(--text)">rename &amp; remove</span> on this device, enter your Cloudinary API key and secret (in your Notes app). They're saved only on this phone or computer — never in the site code.</p>
+<h2>Settings</h2>
+
+<div class="section-label"><span>Portfolio Manager</span><span class="mono" id="visState"></span></div>
+<div class="vis-list" id="visList"></div>
+<p style="margin-top:6px"><span style="color:var(--text)">Hidden</span> — photos kept safe, shown nowhere &middot; <span style="color:var(--tungsten)">App</span> — build &amp; manage privately here &middot; <span style="color:var(--good)">Site</span> — live on liamdevine.ca</p>
+
+<div class="section-label" style="margin-top:18px"><span>Device keys</span></div>
+<p>Uploads never need keys. To unlock <span style="color:var(--text)">rename, remove &amp; visibility</span> on this device, enter your Cloudinary API key and secret (in your Notes app). They're saved only on this phone or computer — never in the site code.</p>
 <div class="status mono" style="display:block;background:var(--panel);color:var(--text-dim);margin-bottom:16px">Cloud: <span class="mono" style="color:var(--text)">dywzapiql</span> &middot; <span id="keyState"></span></div>
 <label class="field-label">API key</label>
 <input type="text" id="apiKeyField" placeholder="123456789012345" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
@@ -274,13 +291,44 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 const CLOUD_NAME = 'dywzapiql';
 const UPLOAD_PRESET = 'liam_uploads';
 
-const CATEGORIES = [
+// ===== PORTFOLIO MANAGER =====
+// Master list — every category always exists, nothing is ever deleted.
+// Each has a visibility state: 'hidden' (photos kept, shown nowhere),
+// 'app' (build & manage privately here), 'site' (live on liamdevine.ca).
+// The states live in a tiny config file on Cloudinary so the website and
+// every device stay in sync. Custom categories later = new entries here.
+const ALL_CATEGORIES = [
   {label:'Portraits', folder:'portraits'},
   {label:'Family', folder:'family'},
   {label:'Pets', folder:'pets'},
   {label:'Fine Art', folder:'fine-art'},
-  {label:'Speed & Motion', folder:'showcase'}
+  {label:'Speed & Motion', folder:'showcase'},
+  {label:'Wildlife', folder:'wildlife'},
+  {label:'Landscapes', folder:'landscapes'},
+  {label:'Street Photography', folder:'street'},
+  {label:'Travel', folder:'travel'}
 ];
+const DEFAULT_VIS = {portraits:'site',family:'site',pets:'site','fine-art':'site',showcase:'site',wildlife:'hidden',landscapes:'hidden',street:'hidden',travel:'hidden'};
+const CONFIG_URL = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/portfolio-config.json`;
+let catVis = Object.assign({}, DEFAULT_VIS);
+
+function visibleCats(){
+  return ALL_CATEGORIES.filter(c => catVis[c.folder] !== 'hidden');
+}
+
+async function loadConfig(){
+  try{
+    const res = await fetch(CONFIG_URL + '?v=' + Date.now(), {cache:'no-store'});
+    if(res.ok){
+      const cfg = await res.json();
+      (cfg.categories || []).forEach(c => { if(c.folder in catVis) catVis[c.folder] = c.visibility; });
+    }
+  }catch(e){ /* offline or no config yet — defaults stand */ }
+  if(selectedCategory && catVis[selectedCategory] === 'hidden'){ selectedCategory = null; }
+  if(mngCategory && catVis[mngCategory] === 'hidden'){ mngCategory = null; }
+  renderCategories();
+  if(currentPage === 'manage'){ renderManage(); }
+}
 
 let selectedCategory = null;
 let selectedFiles = [];   // [{file, url}]
@@ -289,16 +337,18 @@ let previewIndex = 0;
 function renderCategories(){
   const box = document.getElementById('categories');
   box.innerHTML = '';
-  CATEGORIES.forEach(cat=>{
+  const cats = visibleCats();
+  cats.forEach(cat=>{
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (selectedCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
     btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); loadNames(cat.folder); updateState(); };
     box.appendChild(btn);
   });
-  document.getElementById('catCount').textContent = selectedCategory ? '1/1' : `0/${CATEGORIES.length}`;
+  document.getElementById('catCount').textContent = selectedCategory ? '1/1' : `0/${cats.length}`;
 }
 renderCategories();
+loadConfig();
 
 // ===== Folder name list (uses the same public feed as the website — no secrets) =====
 const nameCache = {};
@@ -669,9 +719,94 @@ function openSettings(){
   document.getElementById('apiKeyField').value = keys.key;
   document.getElementById('apiSecretField').value = keys.secret ? '\u2022\u2022\u2022\u2022\u2022\u2022 (saved)' : '';
   document.getElementById('keyState').textContent = keys.key && keys.secret ? 'keys saved' : 'no keys';
+  renderVisList();
   document.getElementById('settingsOverlay').classList.add('show');
 }
 function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+
+// ===== Portfolio Manager =====
+// Tap Hidden / App / Site per category. Applies in the app instantly;
+// the shared config saves to Cloudinary a moment later (needs device keys),
+// and the website picks it up on its next load.
+const VIS_STATES = [
+  {v:'hidden', label:'Hidden'},
+  {v:'app',    label:'App'},
+  {v:'site',   label:'Site'}
+];
+let visSaveTimer = null;
+
+function renderVisList(){
+  const box = document.getElementById('visList');
+  const unlocked = hasKeys();
+  box.classList.toggle('locked', !unlocked);
+  document.getElementById('visState').textContent = unlocked ? '' : 'enter keys below to unlock';
+  box.innerHTML = '';
+  ALL_CATEGORIES.forEach(cat=>{
+    const row = document.createElement('div');
+    row.className = 'vis-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = cat.label;
+    row.appendChild(lbl);
+    const seg = document.createElement('div');
+    seg.className = 'vis-seg';
+    VIS_STATES.forEach(s=>{
+      const b = document.createElement('button');
+      b.textContent = s.label;
+      if(catVis[cat.folder] === s.v){ b.className = 'on-' + s.v; }
+      b.onclick = ()=> setVis(cat.folder, s.v);
+      seg.appendChild(b);
+    });
+    row.appendChild(seg);
+    box.appendChild(row);
+  });
+}
+
+function setVis(folder, v){
+  if(catVis[folder] === v) return;
+  catVis[folder] = v;
+  if(v === 'hidden'){
+    if(selectedCategory === folder){ selectedCategory = null; document.getElementById('namesPanel').classList.remove('show'); updateState(); }
+    if(mngCategory === folder){ mngCategory = null; }
+  }
+  renderVisList();
+  renderCategories();
+  if(currentPage === 'manage'){ renderManage(); if(!mngCategory){ document.getElementById('mngList').innerHTML = '<div class="mng-empty">Pick a category above</div>'; document.getElementById('reorderBar').style.display='none'; document.getElementById('mngRefresh').style.display='none'; } }
+  document.getElementById('visState').textContent = 'saving\u2026';
+  clearTimeout(visSaveTimer);
+  visSaveTimer = setTimeout(saveConfig, 900);
+}
+
+async function saveConfig(){
+  const {key, secret} = getKeys();
+  const state = document.getElementById('visState');
+  try{
+    const json = JSON.stringify({
+      version: 1,
+      updated: new Date().toISOString(),
+      categories: ALL_CATEGORIES.map(c => ({label:c.label, folder:c.folder, visibility:catVis[c.folder]}))
+    });
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`invalidate=true&overwrite=true&public_id=portfolio-config.json&timestamp=${ts}${secret}`);
+    const form = new FormData();
+    form.append('file', new Blob([json], {type:'application/json'}));
+    form.append('public_id', 'portfolio-config.json');
+    form.append('overwrite', 'true');
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:'POST', body:form});
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'save failed');
+    }
+    state.textContent = 'saved \u2014 site updates in a couple minutes';
+    setTimeout(()=>{ if(state.textContent.indexOf('saved') === 0) state.textContent = ''; }, 4000);
+  }catch(err){
+    state.textContent = 'SAVE FAILED \u2014 check keys & connection';
+  }
+}
 
 // ===== Device keys (stored only in this browser, never in the site code) =====
 function getKeys(){
@@ -686,13 +821,15 @@ function saveKeys(){
     if(key){ localStorage.setItem('cld_key', key); }
     if(secretRaw && !secretRaw.startsWith('\u2022')){ localStorage.setItem('cld_secret', secretRaw); }
   }catch(e){ alert('This browser blocked saving. Try turning off private browsing.'); return; }
-  closeSettings();
+  document.getElementById('keyState').textContent = hasKeys() ? 'keys saved' : 'no keys';
+  renderVisList();
   renderManage();
 }
 function clearKeys(){
   try{
     localStorage.removeItem('cld_key'); localStorage.removeItem('cld_secret');
   }catch(e){}
+  renderVisList();
   closeSettings();
   renderManage();
 }
@@ -748,7 +885,7 @@ function renderManage(){
   document.getElementById('keysNote').style.display = hasKeys() ? 'none' : 'block';
   const box = document.getElementById('mngCategories');
   box.innerHTML = '';
-  CATEGORIES.forEach(cat=>{
+  visibleCats().forEach(cat=>{
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
