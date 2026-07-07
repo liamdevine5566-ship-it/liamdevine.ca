@@ -90,13 +90,15 @@ input[type=text]:focus{outline:none;border-color:var(--tungsten)}
 .names-panel.show{display:block}
 .names-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
 #namesChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
+#mngRefresh{color:var(--tungsten);cursor:pointer}
 .names-list{max-height:118px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:2}
 .names-list .name-row.dupe{color:var(--bad)}
 input[type=text].taken{border-color:var(--bad)}
 .hint.warn{color:var(--bad)}
 .shutter-label{text-align:center;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:6px}
 
-button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:9px 22px}
+button.text-btn,a.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:9px 22px}
+a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color:rgba(127,184,138,.4)}
 
 .status{margin:0 0 14px;padding:11px;border-radius:4px;font-size:.9rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
 .status.show{display:block}
@@ -200,10 +202,11 @@ button.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid
 <div class="shutter-label" id="shutterLabel">Select category &amp; photo</div>
 
 <button class="text-btn" onclick="resetForm()">Clear</button>
+<a class="text-btn" id="viewSiteBtn" href="https://liamdevine.ca/" target="_blank" rel="noopener" style="display:none">View on site &#8599;</a>
 </div><!-- /uploadView -->
 
 <div id="manageView" style="display:none">
-<div class="section-label"><span>Category</span></div>
+<div class="section-label"><span>Category</span><span class="names-toggle mono" id="mngRefresh" onclick="refreshMng()" style="display:none">&#8635; refresh</span></div>
 <div class="dial-wrap"><div class="dial" id="mngCategories"></div></div>
 
 <div class="status" id="mngStatus"></div>
@@ -574,6 +577,7 @@ async function doUpload(){
 
   const btn = document.getElementById('uploadBtn');
   const label = document.getElementById('shutterLabel');
+  document.getElementById('viewSiteBtn').style.display = 'none';
   btn.disabled = true;
   btn.classList.remove('ready');
 
@@ -623,6 +627,11 @@ async function doUpload(){
     }
 
     showStatus('ok', total > 1 ? `ALL ${total} UPLOADED \u2014 live in a couple minutes` : 'UPLOADED \u2014 live in a couple minutes');
+    // Deep-link straight to the gallery section the photos went into
+    const sectionIds = {'portraits':'portraits','family':'family','pets':'pets','fine-art':'personal','showcase':'showcase'};
+    const vs = document.getElementById('viewSiteBtn');
+    vs.href = 'https://liamdevine.ca/#' + (sectionIds[selectedCategory] || '');
+    vs.style.display = 'block';
     showSuccess(total);
     resetForm(true);
   }catch(err){
@@ -644,6 +653,7 @@ function resetForm(keepCategory){
   if(!keepCategory){
     selectedCategory = null;
     document.getElementById('namesPanel').classList.remove('show');
+    document.getElementById('viewSiteBtn').style.display = 'none';
   }
   document.getElementById('fileInput').value = '';
   document.getElementById('filename').value = '';
@@ -749,6 +759,7 @@ function renderManage(){
 }
 
 async function loadMngList(){
+  document.getElementById('mngRefresh').style.display = mngCategory ? 'inline' : 'none';
   const list = document.getElementById('mngList');
   hideMngStatus();
   list.innerHTML = '<div class="mng-empty">loading&hellip;</div>';
@@ -759,6 +770,16 @@ async function loadMngList(){
     return;
   }
   renderMngList();
+}
+
+// Home-screen apps stay open for days — this refetches the folder fresh
+// from Cloudinary in case photos were added or changed from another device.
+async function refreshMng(){
+  if(!mngCategory || reorderMode) return;
+  delete resCache[mngCategory];
+  delete nameCache[mngCategory];
+  await loadMngList();
+  if(selectedCategory === mngCategory){ renderNames(); }
 }
 
 function renderMngList(){
