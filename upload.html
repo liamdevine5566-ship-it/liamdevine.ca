@@ -286,6 +286,18 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 </div>
 </div>
 
+<div class="overlay" id="moveOverlay">
+<h2>Move photo</h2>
+<p><span class="mono" id="moveName" style="color:var(--text)"></span><br/>Pick its new category. It keeps its name and order settles at the end of the new gallery.</p>
+<label class="field-label">Move to</label>
+<div class="dial" id="moveDial" style="flex-wrap:wrap;overflow:visible;margin-bottom:14px"></div>
+<div class="hint mono" id="moveHint"></div>
+<div class="overlay-actions">
+<button onclick="closeMove()">Cancel</button>
+<button class="save" id="moveGo" onclick="doMove()">Move</button>
+</div>
+</div>
+
 <div class="overlay" id="deleteOverlay">
 <h2>Remove photo?</h2>
 <div class="del-preview"><img id="deleteThumb"/></div>
@@ -1038,12 +1050,18 @@ function renderMngList(){
       rn.textContent = 'Rename';
       rn.disabled = !unlocked;
       rn.onclick = ()=> openRename(r);
+      const mv = document.createElement('button');
+      mv.className = 'mng-btn';
+      mv.textContent = 'Move';
+      mv.disabled = !unlocked;
+      mv.onclick = ()=> openMove(r);
       const dl = document.createElement('button');
       dl.className = 'mng-btn danger';
       dl.textContent = 'Remove';
       dl.disabled = !unlocked;
       dl.onclick = ()=> openDelete(r);
       actions.appendChild(rn);
+      actions.appendChild(mv);
       actions.appendChild(dl);
       row.appendChild(actions);
     }
@@ -1310,6 +1328,106 @@ async function doRename(){
     showMngStatus('ok', `RENAMED: ${oldName} \u2192 ${newName}`);
   }catch(err){
     showMngStatus('err', 'RENAME FAILED: ' + String(err.message || '').slice(0,60));
+  }
+}
+
+// ===== Move photo between categories =====
+// A move is two signed calls: rename shifts it into the new folder, then
+// explicit swaps its category tag and gives it an order number one step past
+// the end of the destination gallery. Nothing is re-uploaded; the photo,
+// its name and its quality are untouched.
+let moveDest = null;
+
+function openMove(r){
+  const dests = visibleCats().filter(c => c.folder !== mngCategory);
+  if(dests.length === 0){ showMngStatus('err', 'No other categories are visible \u2014 turn one on in Settings first'); return; }
+  targetPhoto = r;
+  moveDest = null;
+  document.getElementById('moveName').textContent = r.name;
+  document.getElementById('moveHint').textContent = '';
+  const dial = document.getElementById('moveDial');
+  dial.innerHTML = '';
+  dests.forEach(cat=>{
+    const chip = document.createElement('div');
+    chip.className = 'dial-item';
+    chip.textContent = cat.label;
+    chip.onclick = ()=>{
+      moveDest = cat.folder;
+      [...dial.children].forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+      document.getElementById('moveHint').textContent = '';
+    };
+    dial.appendChild(chip);
+  });
+  document.getElementById('moveOverlay').classList.add('show');
+}
+function closeMove(){ document.getElementById('moveOverlay').classList.remove('show'); }
+
+async function doMove(){
+  const r = targetPhoto;
+  if(!moveDest){ document.getElementById('moveHint').textContent = 'Pick a category first'; return; }
+  const destLabel = (ALL_CATEGORIES.find(c=>c.folder===moveDest) || {}).label || moveDest;
+  closeMove();
+  showMngStatus('busy', 'MOVING\u2026');
+  try{
+    const {key, secret} = getKeys();
+
+    // Know the destination before touching anything: name clashes and order
+    await fetchFolder(moveDest);
+    if((nameCache[moveDest] || []).includes(r.name)){
+      showMngStatus('err', `"${r.name}" already exists in ${destLabel} \u2014 rename it first`);
+      return;
+    }
+    const destOrders = (resCache[moveDest] || []).map(x=>x.order).filter(isFinite);
+    const hasOrders = destOrders.length > 0;
+    const endOrder = hasOrders ? Math.max(...destOrders) + 10 : null;
+
+    // 1) Rename into the destination folder
+    const parts = r.public_id.split('/');
+    const toId = (parts.length > 1 ? parts.slice(0,-2).concat(moveDest) : [moveDest]).concat(r.name).join('/');
+    let ts = Math.floor(Date.now()/1000);
+    let sig = await sha1hex(`from_public_id=${r.public_id}&invalidate=true&timestamp=${ts}&to_public_id=${toId}${secret}`);
+    let form = new FormData();
+    form.append('from_public_id', r.public_id);
+    form.append('to_public_id', toId);
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const rn = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
+    const rj = await rn.json();
+    if(!rn.ok){ throw new Error(rj.error?.message || 'move failed'); }
+
+    // 2) Swap the category tag (and set order, if the destination uses ordering)
+    ts = Math.floor(Date.now()/1000);
+    const ctxPart = hasOrders ? `context=order=${endOrder}&` : '';
+    sig = await sha1hex(`${ctxPart}invalidate=true&public_id=${rj.public_id}&tags=${moveDest}&timestamp=${ts}&type=upload${secret}`);
+    form = new FormData();
+    if(hasOrders){ form.append('context', `order=${endOrder}`); }
+    form.append('invalidate', 'true');
+    form.append('public_id', rj.public_id);
+    form.append('tags', moveDest);
+    form.append('timestamp', ts);
+    form.append('type', 'upload');
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const ex = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+    if(!ex.ok){
+      const j = await ex.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'tag update failed');
+    }
+
+    // Update both caches so everything on screen matches Cloudinary
+    resCache[mngCategory] = (resCache[mngCategory] || []).filter(x => x.public_id !== r.public_id);
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    resCache[moveDest].push({public_id: rj.public_id, version: rj.version, format: rj.format || r.format, name: r.name, order: hasOrders ? endOrder : Infinity});
+    sortRes(resCache[moveDest]);
+    nameCache[moveDest] = resCache[moveDest].map(x=>x.name);
+    renderMngList();
+    if(selectedCategory === mngCategory || selectedCategory === moveDest){ renderNames(); }
+    showMngStatus('ok', `MOVED: ${r.name} \u2192 ${destLabel}`);
+  }catch(err){
+    showMngStatus('err', 'MOVE FAILED: ' + String(err.message || '').slice(0,60));
   }
 }
 
