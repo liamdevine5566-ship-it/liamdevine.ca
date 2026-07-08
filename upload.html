@@ -672,7 +672,7 @@ async function doUpload(){
       form.append('folder', `portfolio/${selectedCategory}`);
       form.append('tags', selectedCategory);
 
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+      const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
         method: 'POST',
         body: form
       });
@@ -843,7 +843,7 @@ async function saveConfig(){
     form.append('timestamp', ts);
     form.append('api_key', key);
     form.append('signature', sig);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:'POST', body:form});
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:'POST', body:form});
     if(!res.ok){
       const j = await res.json().catch(()=>({}));
       throw new Error(j.error?.message || 'save failed');
@@ -1258,7 +1258,7 @@ async function saveOrder(){
       form.append('timestamp', ts);
       form.append('api_key', key);
       form.append('signature', sig);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+      const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
       if(!res.ok){
         const j = await res.json().catch(()=>({}));
         throw new Error(j.error?.message || 'order save failed');
@@ -1282,6 +1282,22 @@ async function saveOrder(){
 async function sha1hex(str){
   const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(str));
   return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// Safari reports any network-level failure as the cryptic "Load failed".
+// Retry once automatically (covers Wi-Fi/VPN blips), and if it still can't
+// get through, say something a human can act on.
+async function cloudFetch(url, options){
+  try{
+    return await fetch(url, options);
+  }catch(err){
+    await new Promise(r => setTimeout(r, 700));
+    try{
+      return await fetch(url, options);
+    }catch(err2){
+      throw new Error("can't reach Cloudinary \u2014 check Wi-Fi, VPN or Safari content blockers");
+    }
+  }
 }
 
 function openRename(r){
@@ -1319,7 +1335,7 @@ async function doRename(){
     form.append('timestamp', ts);
     form.append('api_key', key);
     form.append('signature', sig);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
     const j = await res.json();
     if(!res.ok){ throw new Error(j.error?.message || 'rename failed'); }
     const oldName = r.name;
@@ -1400,7 +1416,7 @@ async function doMove(){
     form.append('timestamp', ts);
     form.append('api_key', key);
     form.append('signature', sig);
-    const rn = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
+    const rn = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
     const rj = await rn.json();
     if(!rn.ok){ throw new Error(rj.error?.message || 'move failed'); }
 
@@ -1417,7 +1433,7 @@ async function doMove(){
     form.append('type', 'upload');
     form.append('api_key', key);
     form.append('signature', sig);
-    const ex = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+    const ex = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
     if(!ex.ok){
       const j = await ex.json().catch(()=>({}));
       throw new Error(j.error?.message || 'tag update failed');
@@ -1459,7 +1475,7 @@ async function doDestroy(){
     form.append('timestamp', ts);
     form.append('api_key', key);
     form.append('signature', sig);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/destroy`, {method:'POST', body:form});
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/destroy`, {method:'POST', body:form});
     const j = await res.json();
     if(!res.ok || j.result !== 'ok'){ throw new Error(j.error?.message || j.result || 'remove failed'); }
     resCache[mngCategory] = resCache[mngCategory].filter(x => x.public_id !== r.public_id);
