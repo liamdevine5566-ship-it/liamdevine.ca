@@ -119,6 +119,18 @@ footer a{color:#f6f2eb;text-decoration:none}
 .price-card:hover li{color:rgba(255,255,255,.75);border-bottom-color:rgba(255,255,255,.15)}
 .price-card:hover .book-btn{background:#fff;color:#2f2f2f}
 #backToTop{position:fixed;right:24px;bottom:24px;display:none;padding:10px 14px;border:none;border-radius:999px;cursor:pointer;background:#2f2f2f;color:#fff}
+/* Fine Art print inquiry */
+.print-inquiry{max-width:620px;margin:80px auto 0;text-align:center}
+.print-inquiry h3{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(1.4rem,2.4vw,1.9rem);letter-spacing:.02em;margin:0 0 20px}
+.print-inquiry p{font-family:'Jost',Georgia,serif;font-weight:300;font-size:.95rem;color:#555;line-height:1.75;margin:0 0 10px}
+.pi-points{margin:26px 0 36px}
+.pi-points strong{font-weight:500;color:#2f2f2f}
+.pi-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.pi-btn{font-family:'Jost',Georgia,serif;font-size:.8rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;padding:13px 28px;border-radius:2px;border:1px solid #2f2f2f;color:#2f2f2f;transition:background .25s ease,color .25s ease,transform .25s ease}
+.pi-btn:hover{background:#2f2f2f;color:#fff;transform:translateY(-2px)}
+.pi-btn.primary{background:#2f2f2f;color:#fff}
+.pi-btn.primary:hover{background:#4a4a4a}
+.lb-order{display:none;position:absolute;bottom:22px;left:26px;font-family:'Jost',Georgia,serif;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;border:1px solid rgba(255,255,255,.65);padding:10px 18px;border-radius:2px;cursor:pointer;z-index:2;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 </style>
 <meta content="Portrait, fine art and pet photography by Liam Devine. Based in London, Ontario and available throughout Southwestern Ontario." name="description"/>
 <meta content="London Ontario photographer, portrait photographer, family photographer, pet photographer, fine art photography" name="keywords"/>
@@ -204,7 +216,22 @@ footer a{color:#f6f2eb;text-decoration:none}
 </div>
 </section>
 
-<section class="alt personal fade-section" id="personal"><div class="wrap"><h2>Fine Art</h2><div class="featured" id="fine-art-featured"></div><div class="grid" id="fine-art-grid"><div class="gallery-msg">Loading photos…</div></div></div></section>
+<section class="alt personal fade-section" id="personal"><div class="wrap"><h2>Fine Art</h2><div class="featured" id="fine-art-featured"></div><div class="grid" id="fine-art-grid"><div class="gallery-msg">Loading photos…</div></div>
+<div class="print-inquiry">
+<h3>Bring These Moments Into Your Space</h3>
+<p>All images in the Fine Art collection are available as archival-quality gallery prints. Each piece is produced individually — often as a one-of-one edition — and priced per print.</p>
+<div class="pi-points">
+<p><strong>Custom Sizes</strong> — from standard 8×10 prints to large-format statement pieces.</p>
+<p><strong>Premium Finishes</strong> — fine art paper, canvas gallery wraps, and professionally framed options.</p>
+<p><strong>Made to Order</strong> — every print is produced specifically for each customer.</p>
+<p><strong>Canada-Wide Shipping</strong> — securely packaged and shipped directly to your door.</p>
+</div>
+<div class="pi-actions">
+<a class="pi-btn primary" href="#contact" onclick="orderPrint()">Order a Print</a>
+<a class="pi-btn" href="#contact" onclick="askFineArt()">Ask a Question</a>
+</div>
+</div>
+</div></section>
 
 <section class="fade-section" id="showcase">
 <div class="wrap">
@@ -343,7 +370,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 
 <section class="fade-section" id="about"><div class="wrap about"><img src="images/site/liamdevine.jpg"/><div><h2>About Liam</h2><p>I’m Liam Devine, a photographer based in London, Ontario. I photograph people, families, pets and the landscapes that catch my eye along the way. My approach is simple: create honest images that feel natural, timeless and authentic.</p></div></div></section>
 
-<section class="alt" id="contact"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p><a href="tel:+16475299924">647-529-9924</a></p><p><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input name="access_key" type="hidden" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"/><input name="name" placeholder="Your Name"/><input name="email" placeholder="Email"/><textarea name="message" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
+<section class="alt" id="contact"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p><a href="tel:+16475299924">647-529-9924</a></p><p><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input name="access_key" type="hidden" value="9cf13dd6-8c4a-4651-8a69-7c2700d99e47"/><input name="subject" type="hidden" id="contactSubject" value=""/><input name="name" placeholder="Your Name"/><input name="email" placeholder="Email"/><textarea name="message" id="contactMessage" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
 
 <footer>
 <h3>Liam Devine Photography</h3>
@@ -354,7 +381,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 </footer>
 <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-<div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">×</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"/><span class="lightbox-watermark">© Liam Devine Photography</span><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
+<div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">×</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"/><span class="lb-order" id="lbOrder" onclick="orderFromLightbox()">Order This Print</span><span class="lightbox-watermark">© Liam Devine Photography</span><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
 
 <script>
 // ===== AUTO-LOADING PHOTO GALLERIES =====
@@ -545,6 +572,40 @@ async function loadAllCategories(){
   }
 }
 
+// ===== Fine Art print inquiries =====
+// No cart, no checkout: an inquiry pre-fills the contact form so every
+// order starts as a conversation. Pricing is quoted per piece.
+function printTemplate(photo){
+  return 'Hello Liam,\n\n'
+    + 'I\u2019m interested in purchasing one of your Fine Art prints.\n\n'
+    + 'Photo: ' + (photo || '') + '\n'
+    + 'Size: \n'
+    + 'Finish (paper / canvas / framed): \n'
+    + 'Framed: Yes / No\n\n'
+    + 'Please include pricing and availability.\n\n'
+    + 'Additional questions: \n\n'
+    + 'Thank you.';
+}
+function prefillContact(subject, message){
+  document.getElementById('contactSubject').value = subject;
+  document.getElementById('contactMessage').value = message;
+}
+function orderPrint(){
+  prefillContact('Fine Art Print Inquiry', printTemplate(''));
+}
+function askFineArt(){
+  prefillContact('Fine Art Question', '');
+}
+function orderFromLightbox(){
+  const src = currentGallery[currentIndex];
+  prefillContact('Fine Art Print Inquiry', printTemplate(photoNames[src] || ''));
+  closeLightbox();
+  setTimeout(()=>{
+    const c = document.getElementById('contact');
+    if(c) c.scrollIntoView({behavior:'smooth'});
+  }, 220);
+}
+
 function toggleMenu(){
   document.getElementById('navLinks').classList.toggle('open');
 }
@@ -597,7 +658,16 @@ window.addEventListener('popstate', ()=>{
   }
 });
 
-let galleries={},currentGallery=[],currentIndex=0,savedScrollY=0;
+let galleries={},currentGallery=[],currentIndex=0,savedScrollY=0,currentGalleryId='';
+const photoNames={};
+
+function displayName(src){
+  try{
+    const f = src.split('/').pop().split('?')[0];
+    const base = f.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ').trim();
+    return base.charAt(0).toUpperCase() + base.slice(1);
+  }catch(e){ return ''; }
+}
 
 function wireUpGalleries(){
   galleries = {};
@@ -606,8 +676,10 @@ function wireUpGalleries(){
     if(imgs.length === 0) return;
     galleries[section.id||'default']=imgs.map(i=>i.dataset.full||i.src);
     imgs.forEach(img=>{
+      const full = img.dataset.full||img.src;
+      photoNames[full] = displayName(full);
       img.style.cursor='pointer';
-      img.onclick=()=>openGallery(section.id||'default',img.dataset.full||img.src);
+      img.onclick=()=>openGallery(section.id||'default',full);
     });
   });
 }
@@ -625,6 +697,8 @@ function preloadNeighbors(){
 
 function openGallery(gallery,src){
   resetZoom();
+  currentGalleryId = gallery;
+  document.getElementById('lbOrder').style.display = (gallery === 'personal') ? 'block' : 'none';
   savedScrollY = window.scrollY;
   document.body.style.position='fixed';
   document.body.style.top = -savedScrollY+'px';
@@ -888,4 +962,5 @@ loadVisibility()
   .then(vis => { applyVisibility(vis); return loadAllCategories(); })
   .then(wireUpGalleries);
 </script>
+<script data-goatcounter="https://liamdevine.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body></html>
