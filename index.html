@@ -548,6 +548,17 @@ async function loadAllCategories(){
 function toggleMenu(){
   document.getElementById('navLinks').classList.toggle('open');
 }
+// Tapping anywhere outside the open menu closes it — like a native iOS
+// dropdown. The dismissing tap only closes the menu; it doesn't open
+// photos or trigger anything underneath.
+document.addEventListener('click', (e)=>{
+  const links = document.getElementById('navLinks');
+  if(!links.classList.contains('open')) return;
+  if(e.target.closest('#navLinks') || e.target.closest('.menu-toggle')) return;
+  links.classList.remove('open');
+  e.preventDefault();
+  e.stopPropagation();
+}, true);
 const logoImg = document.querySelector('.nav-logo img');
 if(logoImg){
   logoImg.addEventListener('touchstart',()=>{
