@@ -181,7 +181,7 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 <button class="gear" onclick="openSettings()">&#9881;</button>
 </header>
 
-<div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> liamdevine.ca &middot; <span id="connState">checking…</span></span><span id="clock"></span></div>
+<div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> liamdevine.ca &middot; <span id="connState">checking…</span><span id="siteViews"></span></span><span id="clock"></span></div>
 
 <div class="tabs">
 <button class="tab active" id="tabUpload" onclick="switchPage('upload')">Upload</button>
@@ -1494,6 +1494,22 @@ function tickClock(){
 }
 tickClock();
 setInterval(tickClock, 30000);
+
+// ===== Site view counter (GoatCounter) =====
+// Reads the public total for liamdevine.ca — shown on the status line.
+async function loadSiteViews(){
+  try{
+    const res = await fetch('https://liamdevine.goatcounter.com/counter/TOTAL.json', {cache:'no-store'});
+    if(!res.ok) return;
+    const j = await res.json();
+    const n = parseInt(String(j.count).replace(/[^\d]/g,''), 10);
+    if(!isNaN(n)){
+      document.getElementById('siteViews').textContent = ' \u00b7 ' + n.toLocaleString() + ' views';
+    }
+  }catch(e){ /* offline or counter not public yet — just omit it */ }
+}
+loadSiteViews();
+setInterval(loadSiteViews, 300000);
 
 // Simple connectivity indicator
 function updateConnState(){
