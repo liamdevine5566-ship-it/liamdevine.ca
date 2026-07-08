@@ -45,7 +45,7 @@ h2{text-align:center;margin-bottom:60px}
 .about{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
 .contact{display:grid;grid-template-columns:1fr 1fr;gap:40px}
 input,textarea{width:100%;padding:12px;margin:8px 0}
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999}
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);justify-content:center;align-items:center;z-index:9999;touch-action:none}
 .lightbox-watermark{position:absolute;bottom:26px;right:30px;font-family:'Jost',Georgia,serif;font-weight:400;font-size:.85rem;letter-spacing:.03em;color:rgba(255,255,255,.75);text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none;user-select:none}
 .lightbox img{max-width:95vw;max-height:95vh;width:auto !important;height:auto !important;object-fit:contain}
 .close{position:absolute;top:20px;right:30px;color:white;font-size:42px;cursor:pointer;z-index:2}
@@ -164,11 +164,15 @@ footer a{color:#f6f2eb;text-decoration:none}
 </head>
 <body>
 <nav id="navbar"><div class="nav-logo"><img src="images/logo1.jpg"/></div><div class="mobile-brand">LIAM DEVINE</div><div class="menu-toggle" onclick="toggleMenu()">☰</div><div class="nav-links" id="navLinks">
-<a href="#portraits">PORTRAITS</a>
-<a href="#family">FAMILY</a>
-<a href="#pets">PETS</a>
-<a href="#personal">FINE ART</a>
-<a href="#showcase">SPEED &amp; MOTION</a>
+<a href="#portraits" data-cat="portraits">PORTRAITS</a>
+<a href="#family" data-cat="family">FAMILY</a>
+<a href="#pets" data-cat="pets">PETS</a>
+<a href="#personal" data-cat="fine-art">FINE ART</a>
+<a href="#showcase" data-cat="showcase">SPEED &amp; MOTION</a>
+<a href="#wildlife" data-cat="wildlife">WILDLIFE</a>
+<a href="#landscapes" data-cat="landscapes">LANDSCAPES</a>
+<a href="#street" data-cat="street">STREET</a>
+<a href="#travel" data-cat="travel">TRAVEL</a>
 <a href="#pricing">PRICING</a>
 <a href="#about">ABOUT</a>
 <a href="#contact">CONTACT</a>
@@ -207,6 +211,38 @@ footer a{color:#f6f2eb;text-decoration:none}
 <h2>Speed &amp; Motion</h2>
 <div class="featured" id="showcase-featured"></div>
 <div class="grid" id="showcase-grid"><div class="gallery-msg">Loading photos…</div></div>
+</div>
+</section>
+
+<section class="alt fade-section" id="wildlife">
+<div class="wrap">
+<h2>Wildlife</h2>
+<div class="featured" id="wildlife-featured"></div>
+<div class="grid" id="wildlife-grid"><div class="gallery-msg">Loading photos…</div></div>
+</div>
+</section>
+
+<section class="fade-section" id="landscapes">
+<div class="wrap">
+<h2>Landscapes</h2>
+<div class="featured" id="landscapes-featured"></div>
+<div class="grid" id="landscapes-grid"><div class="gallery-msg">Loading photos…</div></div>
+</div>
+</section>
+
+<section class="alt fade-section" id="street">
+<div class="wrap">
+<h2>Street Photography</h2>
+<div class="featured" id="street-featured"></div>
+<div class="grid" id="street-grid"><div class="gallery-msg">Loading photos…</div></div>
+</div>
+</section>
+
+<section class="fade-section" id="travel">
+<div class="wrap">
+<h2>Travel</h2>
+<div class="featured" id="travel-featured"></div>
+<div class="grid" id="travel-grid"><div class="gallery-msg">Loading photos…</div></div>
 </div>
 </section>
 
@@ -328,13 +364,54 @@ const CLOUD_NAME = 'dywzapiql';
 const REPO_OWNER = 'liamdevine5566-ship-it';
 const REPO_NAME = 'liamdevine.ca';
 const BRANCH = 'main';
-const CATEGORIES = [
-  {folder:'portraits', gridId:'portraits-grid', featuredId:'portraits-featured'},
-  {folder:'family',    gridId:'family-grid',    featuredId:'family-featured'},
-  {folder:'pets',      gridId:'pets-grid',       featuredId:'pets-featured'},
-  {folder:'fine-art',  gridId:'fine-art-grid',   featuredId:'fine-art-featured'},
-  {folder:'showcase',  gridId:'showcase-grid',   featuredId:'showcase-featured'}
-];
+
+// ===== PORTFOLIO MANAGER =====
+// Every category always exists; the upload app decides which are live on the
+// site by writing a tiny config file to Cloudinary. Categories not set to
+// 'site' are hidden here — their photos, names and order stay untouched.
+// If the config can't be read, the original five categories show as always.
+const ALL_FOLDERS = ['portraits','family','pets','fine-art','showcase','wildlife','landscapes','street','travel'];
+const SECTION_ID = {'fine-art':'personal'}; // legacy section id
+const DEFAULT_VIS = {portraits:'site',family:'site',pets:'site','fine-art':'site',showcase:'site',wildlife:'hidden',landscapes:'hidden',street:'hidden',travel:'hidden'};
+let CATEGORIES = [];
+
+async function loadVisibility(){
+  try{
+    const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/portfolio-config.json?v=${Date.now()}`, {cache:'no-store'});
+    if(!res.ok) throw new Error('no config');
+    const cfg = await res.json();
+    const vis = Object.assign({}, DEFAULT_VIS);
+    (cfg.categories || []).forEach(c => { if(c.folder in vis) vis[c.folder] = c.visibility; });
+    return vis;
+  }catch(err){
+    return DEFAULT_VIS;
+  }
+}
+
+function applyVisibility(vis){
+  ALL_FOLDERS.forEach(f => {
+    const live = vis[f] === 'site';
+    const sec = document.getElementById(SECTION_ID[f] || f);
+    if(sec) sec.style.display = live ? '' : 'none';
+    document.querySelectorAll(`[data-cat="${f}"]`).forEach(a => { a.style.display = live ? '' : 'none'; });
+  });
+  CATEGORIES = ALL_FOLDERS.filter(f => vis[f] === 'site')
+    .map(f => ({folder:f, gridId:f+'-grid', featuredId:f+'-featured'}));
+  restripe();
+}
+
+// Re-alternate the ivory/stone backgrounds over whichever sections are
+// visible, so hiding a category never leaves two same-colour bands touching.
+function restripe(){
+  const order = ['portraits','family','pets','personal','showcase','wildlife','landscapes','street','travel','pricing','about','contact'];
+  let i = 0;
+  order.forEach(id => {
+    const s = document.getElementById(id);
+    if(!s || s.style.display === 'none') return;
+    s.classList.toggle('alt', i % 2 === 1);
+    i++;
+  });
+}
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp)$/i;
 
 // Square thumbnails: crop around faces (g_auto) instead of dead-center,
@@ -387,6 +464,7 @@ function populateGallery(cat, images){
 async function loadCategoryFromCloudinary(cat){
   const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${cat.folder}.json?v=${Date.now()}`;
   const res = await fetch(url);
+  if(res.status === 404){ populateGallery(cat, []); return; } // no photos tagged yet
   if(!res.ok) throw new Error('Cloudinary list error '+res.status);
   const data = await res.json();
   // Sort by the order number saved from the upload app's Reorder mode;
@@ -492,6 +570,7 @@ function closeLightbox(){
 }
 
 function actuallyCloseLightbox(){
+  resetZoom();
   document.body.style.position='';
   document.body.style.top='';
   document.body.style.width='';
@@ -507,7 +586,7 @@ window.addEventListener('popstate', ()=>{
   }
 });
 
-let galleries={},currentGallery=[],currentIndex=0,startX=0,savedScrollY=0;
+let galleries={},currentGallery=[],currentIndex=0,savedScrollY=0;
 
 function wireUpGalleries(){
   galleries = {};
@@ -534,6 +613,7 @@ function preloadNeighbors(){
 }
 
 function openGallery(gallery,src){
+  resetZoom();
   savedScrollY = window.scrollY;
   document.body.style.position='fixed';
   document.body.style.top = -savedScrollY+'px';
@@ -546,11 +626,15 @@ function openGallery(gallery,src){
   preloadNeighbors();
 }
 function nextImage(){
+  if(isZoomed()){ resetZoomAnimated(); return; } // zoom out first, navigate second
+  resetZoom();
   currentIndex=(currentIndex+1)%currentGallery.length;
   document.getElementById('lightbox-img').src=currentGallery[currentIndex];
   preloadNeighbors();
 }
 function prevImage(){
+  if(isZoomed()){ resetZoomAnimated(); return; }
+  resetZoom();
   currentIndex=(currentIndex-1+currentGallery.length)%currentGallery.length;
   document.getElementById('lightbox-img').src=currentGallery[currentIndex];
   preloadNeighbors();
@@ -563,35 +647,163 @@ document.addEventListener('keydown',e=>{
   }
 });
 const lb=document.getElementById('lightbox');
-let startY=0,dragging=false;
-lb.addEventListener('touchstart',e=>{
-  startX=e.changedTouches[0].clientX;
-  startY=e.changedTouches[0].clientY;
-  dragging=false;
+
+// ===== Photos-app gestures: pinch to zoom, pan when zoomed, =====
+// ===== swipe to navigate / close ONLY at normal (1x) scale  =====
+const ZOOM_MAX = 4;
+let zScale = 1, zX = 0, zY = 0;   // committed zoom state
+let gesture = null;               // the one active gesture: 'pinch' | 'pan' | 'swipe'
+let lastTapT = 0, lastTouchT = 0, tapTimer = null;
+
+const isZoomed = () => zScale > 1.01;
+const tDist = (a,b) => Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY);
+const tMid  = (a,b) => ({x:(a.clientX+b.clientX)/2, y:(a.clientY+b.clientY)/2});
+
+function applyZoom(animate){
+  lbImg.style.transition = animate ? 'transform .25s ease' : 'none';
+  lbImg.style.transform = `translate(${zX}px, ${zY}px) scale(${zScale})`;
+}
+function clampPan(){
+  const w = lbImg.offsetWidth * zScale, h = lbImg.offsetHeight * zScale;
+  const mx = Math.max(0, (w - window.innerWidth)/2);
+  const my = Math.max(0, (h - window.innerHeight)/2);
+  zX = Math.min(mx, Math.max(-mx, zX));
+  zY = Math.min(my, Math.max(-my, zY));
+}
+function resetZoom(){
+  zScale = 1; zX = 0; zY = 0;
+  lbImg.style.transition=''; lbImg.style.transform='';
+}
+function resetZoomAnimated(){
+  zScale = 1; zX = 0; zY = 0;
+  lbImg.style.transition='transform .25s ease';
+  lbImg.style.transform='translate(0px, 0px) scale(1)';
+  setTimeout(()=>{ lbImg.style.transition=''; lbImg.style.transform=''; }, 260);
+}
+function tapClose(){
+  lbImg.style.transition='transform .2s ease, opacity .2s ease';
+  lbImg.style.transform='scale(0.85)';
+  lbImg.style.opacity='0';
+  setTimeout(()=>{
+    closeLightbox();
+    lbImg.style.transition='';
+    lbImg.style.transform='';
+    lbImg.style.opacity='';
+  },180);
+}
+
+// Stop Safari's own page-zoom while the lightbox handles the pinch
+['gesturestart','gesturechange','gestureend'].forEach(ev=>{
+  lb.addEventListener(ev, e=> e.preventDefault());
 });
-lb.addEventListener('touchmove',e=>{
-  const curX=e.changedTouches[0].clientX;
-  const curY=e.changedTouches[0].clientY;
-  const dX=curX-startX;
-  const dY=curY-startY;
-  if(Math.abs(dY) > Math.abs(dX) && dY > 10){
-    dragging=true;
-    const progress=Math.min(dY/160,1);
+
+lb.addEventListener('touchstart', e=>{
+  lastTouchT = Date.now();
+  if(e.touches.length === 2){
+    // PINCH takes priority over everything — cancel pending swipe/tap
+    clearTimeout(tapTimer);
+    lbImg.style.opacity='';
+    lb.style.background='';
+    gesture = {type:'pinch', d0:tDist(e.touches[0],e.touches[1]), m0:tMid(e.touches[0],e.touches[1]), s0:zScale, x0:zX, y0:zY};
     lbImg.style.transition='none';
-    lbImg.style.transform=`translateY(${dY}px) scale(${1-progress*0.3})`;
-    lbImg.style.opacity=`${1-progress*0.6}`;
-    document.getElementById('lightbox').style.background=`rgba(0,0,0,${0.92-progress*0.6})`;
+    e.preventDefault();
+  } else if(e.touches.length === 1){
+    const t = e.touches[0];
+    gesture = isZoomed()
+      ? {type:'pan',   sx:t.clientX, sy:t.clientY, x0:zX, y0:zY, moved:false, t0:Date.now()}
+      : {type:'swipe', sx:t.clientX, sy:t.clientY, drag:false, t0:Date.now()};
   }
-});
-lb.addEventListener('touchend',e=>{
-  const endX=e.changedTouches[0].clientX;
-  const endY=e.changedTouches[0].clientY;
-  const deltaX=endX-startX;
-  const deltaY=endY-startY;
-  if(dragging){
+}, {passive:false});
+
+lb.addEventListener('touchmove', e=>{
+  if(!gesture) return;
+
+  if(gesture.type==='pinch' && e.touches.length>=2){
+    e.preventDefault();
+    const d = tDist(e.touches[0], e.touches[1]);
+    const m = tMid(e.touches[0], e.touches[1]);
+    const s = Math.min(ZOOM_MAX, Math.max(1, gesture.s0 * d / gesture.d0));
+    // keep the point between the fingers pinned under the fingers
+    const cx = m.x - window.innerWidth/2,  cy = m.y - window.innerHeight/2;
+    const c0x = gesture.m0.x - window.innerWidth/2, c0y = gesture.m0.y - window.innerHeight/2;
+    zX = cx - (c0x - gesture.x0) * (s/gesture.s0);
+    zY = cy - (c0y - gesture.y0) * (s/gesture.s0);
+    zScale = s;
+    clampPan();
+    applyZoom(false);
+    return;
+  }
+
+  if(gesture.type==='pan' && e.touches.length===1){
+    e.preventDefault(); // zoomed: one finger pans, never navigates
+    const t = e.touches[0];
+    zX = gesture.x0 + (t.clientX - gesture.sx);
+    zY = gesture.y0 + (t.clientY - gesture.sy);
+    if(Math.abs(t.clientX-gesture.sx) > 6 || Math.abs(t.clientY-gesture.sy) > 6){ gesture.moved = true; }
+    clampPan();
+    applyZoom(false);
+    return;
+  }
+
+  if(gesture.type==='swipe' && e.touches.length===1){
+    const t = e.touches[0];
+    const dX = t.clientX - gesture.sx, dY = t.clientY - gesture.sy;
+    if(Math.abs(dY) > Math.abs(dX) && dY > 10){
+      gesture.drag = true;
+      e.preventDefault();
+      const progress = Math.min(dY/160, 1);
+      lbImg.style.transition='none';
+      lbImg.style.transform=`translateY(${dY}px) scale(${1-progress*0.3})`;
+      lbImg.style.opacity=`${1-progress*0.6}`;
+      lb.style.background=`rgba(0,0,0,${0.92-progress*0.6})`;
+    }
+  }
+}, {passive:false});
+
+lb.addEventListener('touchend', e=>{
+  if(!gesture) return;
+  const g = gesture;
+
+  if(g.type==='pinch'){
+    if(e.touches.length >= 2) return;
+    if(e.touches.length === 1){
+      // one finger lifted mid-pinch: hand over to panning
+      if(zScale <= 1.02){ resetZoomAnimated(); gesture=null; return; }
+      const t = e.touches[0];
+      gesture = {type:'pan', sx:t.clientX, sy:t.clientY, x0:zX, y0:zY, moved:true, t0:Date.now()};
+      return;
+    }
+    if(zScale <= 1.02){ resetZoomAnimated(); }
+    else { clampPan(); applyZoom(true); }
+    gesture = null;
+    return;
+  }
+
+  if(g.type==='pan'){
+    if(e.touches.length > 0) return;
+    const dur = Date.now() - g.t0;
+    if(!g.moved && dur < 250){
+      e.preventDefault();
+      const now = Date.now();
+      if(now - lastTapT < 320){ lastTapT = 0; resetZoomAnimated(); } // double-tap: zoom out
+      else { lastTapT = now; }
+    } else {
+      clampPan(); applyZoom(true);
+    }
+    gesture = null;
+    return;
+  }
+
+  // ---- swipe path (only reachable at 1x) ----
+  const t = e.changedTouches[0];
+  const dX = t.clientX - g.sx, dY = t.clientY - g.sy;
+  const dur = Date.now() - g.t0;
+  gesture = null;
+
+  if(g.drag){
     lbImg.style.transition='transform .25s ease, opacity .25s ease';
-    document.getElementById('lightbox').style.transition='background .25s ease';
-    if(deltaY > 55){
+    lb.style.transition='background .25s ease';
+    if(dY > 55){
       lbImg.style.transform='translateY(300px) scale(0.7)';
       lbImg.style.opacity='0';
       setTimeout(()=>{
@@ -599,20 +811,40 @@ lb.addEventListener('touchend',e=>{
         lbImg.style.transition='';
         lbImg.style.transform='';
         lbImg.style.opacity='';
-        document.getElementById('lightbox').style.background='';
-        document.getElementById('lightbox').style.transition='';
+        lb.style.background='';
+        lb.style.transition='';
       },220);
     }else{
       lbImg.style.transform='';
       lbImg.style.opacity='';
-      document.getElementById('lightbox').style.background='';
+      lb.style.background='';
     }
-    dragging=false;
     return;
   }
-  if(startX-endX>50) nextImage();
-  if(endX-startX>50) prevImage();
-});
+
+  // tap on the image: double-tap zooms in at the tap point, single tap closes
+  if(Math.abs(dX) < 10 && Math.abs(dY) < 10 && dur < 250 && e.target === lbImg){
+    e.preventDefault(); // suppress the synthetic click that would double-fire
+    const now = Date.now();
+    if(now - lastTapT < 320){
+      lastTapT = 0;
+      clearTimeout(tapTimer);
+      zScale = 2.5;
+      zX = -(t.clientX - window.innerWidth/2)  * (zScale - 1);
+      zY = -(t.clientY - window.innerHeight/2) * (zScale - 1);
+      clampPan();
+      applyZoom(true);
+    } else {
+      lastTapT = now;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(tapClose, 300); // wait a beat for a possible second tap
+    }
+    return;
+  }
+
+  if(dX < -50) nextImage();
+  if(dX > 50) prevImage();
+}, {passive:false});
 window.addEventListener('scroll',()=>{const n=document.getElementById('navbar');if(window.scrollY>75)n.classList.add('shrink');else n.classList.remove('shrink');});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.15});
 document.querySelectorAll('.fade-section').forEach(s=>io.observe(s));
@@ -631,15 +863,8 @@ document.getElementById('lightbox').addEventListener('click',e=>{
 });
 const lbImg = document.getElementById('lightbox-img');
 lbImg.addEventListener('click',()=>{
-  lbImg.style.transition='transform .2s ease, opacity .2s ease';
-  lbImg.style.transform='scale(0.85)';
-  lbImg.style.opacity='0';
-  setTimeout(()=>{
-    closeLightbox();
-    lbImg.style.transition='';
-    lbImg.style.transform='';
-    lbImg.style.opacity='';
-  },180);
+  if(Date.now() - lastTouchT < 600) return; // touch taps are handled in touchend
+  tapClose();
 });
 
 // Load every category, then wire up the lightbox once all photos are in place
@@ -648,6 +873,8 @@ lbImg.addEventListener('click',()=>{
 // tapped require two taps instead of one.
 document.addEventListener('touchstart', function(){}, true);
 
-loadAllCategories().then(wireUpGalleries);
+loadVisibility()
+  .then(vis => { applyVisibility(vis); return loadAllCategories(); })
+  .then(wireUpGalleries);
 </script>
 </body></html>
