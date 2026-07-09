@@ -645,12 +645,18 @@ function closeLightbox(){
 
 function actuallyCloseLightbox(){
   resetZoom();
+  // Put the page back to its exact spot INSTANTLY — the site's global
+  // smooth-scrolling must not animate this jump, or the visitor sees the
+  // page "run down" from the top after closing a photo.
+  const html = document.documentElement;
+  html.style.scrollBehavior = 'auto';
   document.body.style.position='';
   document.body.style.top='';
   document.body.style.width='';
-  window.scrollTo(0, savedScrollY);
+  window.scrollTo({top: savedScrollY, left: 0, behavior: 'auto'});
   requestAnimationFrame(()=>{
     document.getElementById('lightbox').style.display='none';
+    html.style.scrollBehavior = '';
   });
 }
 
