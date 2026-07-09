@@ -560,14 +560,21 @@ function plannedNames(){
   }
   return names;
 }
-// Note: we deliberately never rewrite field.value here. iOS voice dictation
-// re-inserts its phrase if JS changes the value or cursor while it's still
-// committing text — that's what caused dictated names to appear twice.
-// Lowercase is handled visually by CSS and for real by sanitizeName().
-document.getElementById('filename').addEventListener('input', ()=>{
-  renderNames();
-  updateState();
-});
+// Typing must feel native. iOS dictation misbehaves (doubled words, jumpy
+// cursor) when the page re-renders on every keystroke while it's still
+// composing. So: the field itself is left completely alone, and the
+// duplicate-check / shutter-state UI catches up after a short pause in
+// typing — never during dictation.
+let nameUiTimer = null, nameComposing = false;
+const nameField = document.getElementById('filename');
+nameField.addEventListener('compositionstart', ()=>{ nameComposing = true; });
+nameField.addEventListener('compositionend', ()=>{ nameComposing = false; scheduleNameUI(); });
+nameField.addEventListener('input', scheduleNameUI);
+function scheduleNameUI(){
+  clearTimeout(nameUiTimer);
+  if(nameComposing) return;
+  nameUiTimer = setTimeout(()=>{ renderNames(); updateState(); }, 250);
+}
 
 function updateState(){
   const field = document.getElementById('filename');
@@ -1404,36 +1411,42 @@ async function doMove(){
     const hasOrders = destOrders.length > 0;
     const endOrder = hasOrders ? Math.max(...destOrders) + 10 : null;
 
-    // 1) Rename into the destination folder
+    // 1) Rename into the destination folder.
+    // If a previous attempt half-completed (file re-filed but tag not yet
+    // swapped), the photo is already in the destination folder — skip the
+    // rename and just finish step 2. Makes retrying a failed move safe.
     const parts = r.public_id.split('/');
     const toId = (parts.length > 1 ? parts.slice(0,-2).concat(moveDest) : [moveDest]).concat(r.name).join('/');
-    let ts = Math.floor(Date.now()/1000);
-    let sig = await sha1hex(`from_public_id=${r.public_id}&invalidate=true&timestamp=${ts}&to_public_id=${toId}${secret}`);
-    let form = new FormData();
-    form.append('from_public_id', r.public_id);
-    form.append('to_public_id', toId);
-    form.append('invalidate', 'true');
-    form.append('timestamp', ts);
-    form.append('api_key', key);
-    form.append('signature', sig);
-    const rn = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
-    const rj = await rn.json();
-    if(!rn.ok){ throw new Error(rj.error?.message || 'move failed'); }
+    let rj = {public_id: r.public_id, version: r.version, format: r.format};
+    if(toId !== r.public_id){
+      let ts = Math.floor(Date.now()/1000);
+      let sig = await sha1hex(`from_public_id=${r.public_id}&invalidate=true&timestamp=${ts}&to_public_id=${toId}${secret}`);
+      let form = new FormData();
+      form.append('from_public_id', r.public_id);
+      form.append('to_public_id', toId);
+      form.append('invalidate', 'true');
+      form.append('timestamp', ts);
+      form.append('api_key', key);
+      form.append('signature', sig);
+      const rn = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form});
+      rj = await rn.json();
+      if(!rn.ok){ throw new Error(rj.error?.message || 'move failed'); }
+    }
 
     // 2) Swap the category tag (and set order, if the destination uses ordering)
-    ts = Math.floor(Date.now()/1000);
+    const ts2 = Math.floor(Date.now()/1000);
     const ctxPart = hasOrders ? `context=order=${endOrder}&` : '';
-    sig = await sha1hex(`${ctxPart}invalidate=true&public_id=${rj.public_id}&tags=${moveDest}&timestamp=${ts}&type=upload${secret}`);
-    form = new FormData();
-    if(hasOrders){ form.append('context', `order=${endOrder}`); }
-    form.append('invalidate', 'true');
-    form.append('public_id', rj.public_id);
-    form.append('tags', moveDest);
-    form.append('timestamp', ts);
-    form.append('type', 'upload');
-    form.append('api_key', key);
-    form.append('signature', sig);
-    const ex = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+    const sig2 = await sha1hex(`${ctxPart}invalidate=true&public_id=${rj.public_id}&tags=${moveDest}&timestamp=${ts2}&type=upload${secret}`);
+    const form2 = new FormData();
+    if(hasOrders){ form2.append('context', `order=${endOrder}`); }
+    form2.append('invalidate', 'true');
+    form2.append('public_id', rj.public_id);
+    form2.append('tags', moveDest);
+    form2.append('timestamp', ts2);
+    form2.append('type', 'upload');
+    form2.append('api_key', key);
+    form2.append('signature', sig2);
+    const ex = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form2});
     if(!ex.ok){
       const j = await ex.json().catch(()=>({}));
       throw new Error(j.error?.message || 'tag update failed');
