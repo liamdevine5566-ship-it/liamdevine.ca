@@ -148,7 +148,7 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .keys-note{border:1px solid var(--hairline);border-left:3px solid var(--tungsten);border-radius:4px;background:var(--panel);padding:14px;font-size:.88rem;line-height:1.6;color:var(--text-dim);margin-bottom:18px}
 .mng-list{display:flex;flex-direction:column;gap:8px}
 .mng-empty{color:var(--text-dim);font-size:.88rem;text-align:center;padding:30px 0}
-.mng-row{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:8px 10px}
+.mng-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:8px 10px}
 .mng-row img{width:52px;height:52px;object-fit:cover;border-radius:3px;flex:0 0 auto;background:var(--chassis-hi)}
 .mng-name{font-size:.84rem;color:var(--text);word-break:break-all}
 .mng-row > .mng-name{flex:1}
@@ -160,15 +160,10 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .del-preview{margin-bottom:6px}
 .del-preview img{width:110px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline)}
 
-/* Reorder mode */
-.reorder-bar{display:flex;gap:8px;margin-bottom:12px}
-.reorder-bar .mng-btn{flex:1;padding:10px}
-.mng-btn.save-order{background:rgba(127,184,138,.15);border-color:rgba(127,184,138,.5);color:var(--good)}
+/* Drag to reorder */
 .mng-row{position:relative}
 .mng-row.dragging{border-color:var(--tungsten);box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 14px rgba(232,135,58,.3);opacity:.97;z-index:5;will-change:transform}
-.grip{flex:0 0 auto;width:34px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.15rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
-.arrow-btns{display:flex;flex-direction:column;gap:4px}
-.arrow-btns .mng-btn{padding:6px 12px;font-size:.85rem;line-height:1}
+.grip{flex:0 0 auto;width:24px;height:52px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.05rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 </style>
 </head>
 <body>
@@ -230,12 +225,6 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 <div class="keys-note" id="keysNote" style="display:none">
 Rename &amp; remove are locked on this device.<br/>
 Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes app) — one time only.
-</div>
-
-<div class="reorder-bar" id="reorderBar" style="display:none">
-<button class="mng-btn" id="reorderBtn" onclick="startReorder()">Reorder photos</button>
-<button class="mng-btn save-order" id="saveOrderBtn" onclick="saveOrder()" style="display:none">Save order</button>
-<button class="mng-btn" id="cancelOrderBtn" onclick="cancelReorder()" style="display:none">Cancel</button>
 </div>
 
 <div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
@@ -825,7 +814,7 @@ function setVis(folder, v){
   }
   renderVisList();
   renderCategories();
-  if(currentPage === 'manage'){ renderManage(); if(!mngCategory){ document.getElementById('mngList').innerHTML = '<div class="mng-empty">Pick a category above</div>'; document.getElementById('reorderBar').style.display='none'; document.getElementById('mngRefresh').style.display='none'; } }
+  if(currentPage === 'manage'){ renderManage(); if(!mngCategory){ document.getElementById('mngList').innerHTML = '<div class="mng-empty">Pick a category above</div>'; document.getElementById('mngRefresh').style.display='none'; } }
   document.getElementById('visState').textContent = 'saving\u2026';
   clearTimeout(visSaveTimer);
   visSaveTimer = setTimeout(saveConfig, 900);
@@ -968,7 +957,7 @@ function renderManage(){
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
-    btn.onclick = () => { mngCategory = cat.folder; reorderMode = false; workList = []; renderManage(); loadMngList(); };
+    btn.onclick = () => { mngCategory = cat.folder; renderManage(); loadMngList(); };
     box.appendChild(btn);
   });
   if(mngCategory && resCache[mngCategory]){ renderMngList(); }
@@ -991,7 +980,7 @@ async function loadMngList(){
 // Home-screen apps stay open for days — this refetches the folder fresh
 // from Cloudinary in case photos were added or changed from another device.
 async function refreshMng(){
-  if(!mngCategory || reorderMode) return;
+  if(!mngCategory) return;
   delete resCache[mngCategory];
   delete nameCache[mngCategory];
   await loadMngList();
@@ -1000,14 +989,7 @@ async function refreshMng(){
 
 function renderMngList(){
   const list = document.getElementById('mngList');
-  const items = reorderMode ? workList : (resCache[mngCategory] || []);
-  const bar = document.getElementById('reorderBar');
-  bar.style.display = (resCache[mngCategory] || []).length > 1 ? 'flex' : 'none';
-  document.getElementById('reorderBtn').style.display = reorderMode ? 'none' : 'block';
-  document.getElementById('reorderBtn').disabled = !hasKeys();
-  document.getElementById('saveOrderBtn').style.display = reorderMode ? 'block' : 'none';
-  document.getElementById('cancelOrderBtn').style.display = reorderMode ? 'block' : 'none';
-
+  const items = resCache[mngCategory] || [];
   if(items.length === 0){
     list.innerHTML = '<div class="mng-empty">empty — no photos in this category</div>';
     return;
@@ -1019,7 +1001,7 @@ function renderMngList(){
     row.className = 'mng-row';
     row.dataset.idx = i;
 
-    if(reorderMode){
+    if(unlocked && items.length > 1){
       attachRowDrag(row);
       const grip = document.createElement('span');
       grip.className = 'grip';
@@ -1032,85 +1014,37 @@ function renderMngList(){
     im.src = mngThumb(r);
     im.loading = 'lazy';
     row.appendChild(im);
+
+    const body = document.createElement('div');
+    body.className = 'mng-body';
     const nm = document.createElement('span');
     nm.className = 'mng-name mono';
     nm.textContent = r.name;
-
-    if(reorderMode){
-      row.appendChild(nm);
-      const arrows = document.createElement('div');
-      arrows.className = 'arrow-btns';
-      const up = document.createElement('button');
-      up.className = 'mng-btn';
-      up.innerHTML = '&#9650;';
-      up.onclick = ()=> moveRow(+row.dataset.idx, -1);
-      const dn = document.createElement('button');
-      dn.className = 'mng-btn';
-      dn.innerHTML = '&#9660;';
-      dn.onclick = ()=> moveRow(+row.dataset.idx, 1);
-      arrows.appendChild(up);
-      arrows.appendChild(dn);
-      row.appendChild(arrows);
-    } else {
-      const body = document.createElement('div');
-      body.className = 'mng-body';
-      body.appendChild(nm);
-      const actions = document.createElement('div');
-      actions.className = 'mng-actions';
-      const rn = document.createElement('button');
-      rn.className = 'mng-btn';
-      rn.textContent = 'Rename';
-      rn.disabled = !unlocked;
-      rn.onclick = ()=> openRename(r);
-      const mv = document.createElement('button');
-      mv.className = 'mng-btn';
-      mv.textContent = 'Move to\u2026';
-      mv.disabled = !unlocked;
-      mv.onclick = ()=> openMove(r);
-      const dl = document.createElement('button');
-      dl.className = 'mng-btn danger';
-      dl.textContent = 'Remove';
-      dl.disabled = !unlocked;
-      dl.onclick = ()=> openDelete(r);
-      actions.appendChild(rn);
-      actions.appendChild(mv);
-      actions.appendChild(dl);
-      body.appendChild(actions);
-      row.appendChild(body);
-    }
+    body.appendChild(nm);
+    const actions = document.createElement('div');
+    actions.className = 'mng-actions';
+    const rn = document.createElement('button');
+    rn.className = 'mng-btn';
+    rn.textContent = 'Rename';
+    rn.disabled = !unlocked;
+    rn.onclick = ()=> openRename(r);
+    const mv = document.createElement('button');
+    mv.className = 'mng-btn';
+    mv.textContent = 'Move to\u2026';
+    mv.disabled = !unlocked;
+    mv.onclick = ()=> openMove(r);
+    const dl = document.createElement('button');
+    dl.className = 'mng-btn danger';
+    dl.textContent = 'Remove';
+    dl.disabled = !unlocked;
+    dl.onclick = ()=> openDelete(r);
+    actions.appendChild(rn);
+    actions.appendChild(mv);
+    actions.appendChild(dl);
+    body.appendChild(actions);
+    row.appendChild(body);
     list.appendChild(row);
   });
-}
-
-// ===== Reorder mode =====
-let reorderMode = false;
-let workList = [];
-
-function startReorder(){
-  reorderMode = true;
-  workList = (resCache[mngCategory] || []).slice();
-  hideMngStatus();
-  renderMngList();
-}
-function cancelReorder(){
-  reorderMode = false;
-  workList = [];
-  renderMngList();
-}
-
-function moveRow(i, dir){
-  const j = i + dir;
-  if(j < 0 || j >= workList.length) return;
-  const [m] = workList.splice(i, 1);
-  workList.splice(j, 0, m);
-  const list = document.getElementById('mngList');
-  const row = list.children[i];
-  const target = list.children[j];
-  slideRows(list, null, ()=>{
-    if(dir > 0){ list.insertBefore(row, target.nextSibling); }
-    else { list.insertBefore(row, target); }
-  });
-  [...list.children].forEach((el2, idx2)=>{ el2.dataset.idx = idx2; });
 }
 
 // Animate rows sliding into their new spots (skips the row being dragged)
@@ -1132,29 +1066,31 @@ function slideRows(list, skipRow, mutate){
   });
 }
 
-// ===== iOS-style drag =====
-// The lifted row follows the finger with a transform. When it crosses the
-// midpoint of a neighbor, the neighbor slides out of the way (FLIP) and the
-// list order updates live. On release the row springs into its slot.
-let dragState = null; // {row, lastY, offset}
+// ===== iOS-style drag, always available =====
+// Grab the ☰ grip for an instant drag, or press-and-hold anywhere on the
+// row (thumbnail included). The lifted row follows the finger; neighbors
+// slide out of the way. Near the top or bottom of the screen the page
+// auto-scrolls under the drag, so one continuous drag can carry a photo
+// from the very bottom of a long list to the very top.
+// The new order saves itself shortly after the last drop — no Save button.
+let dragState = null; // {row, lastY, offset, clientX, clientY, raf}
+let orderDirty = false;
 
-function beginDrag(row, clientY){
-  dragState = {row, lastY: clientY, offset: 0};
+function beginDrag(row, clientX, clientY){
+  clearTimeout(orderSaveTimer); // don't save mid-rearrange
+  dragState = {row, lastY: clientY, offset: 0, clientX, clientY, raf: 0};
   row.classList.add('dragging');
   row.style.transition = 'transform .15s ease';
   row.style.transform = 'scale(1.03)';
   if(navigator.vibrate){ navigator.vibrate(20); }
+  dragState.raf = requestAnimationFrame(autoScrollLoop);
 }
 
-function moveDrag(row, clientX, clientY){
+// Move the lifted row to its new slot when the pointer crosses a
+// neighbour's midpoint. Works from finger moves AND from auto-scroll.
+function trySwapAt(row, clientX, clientY){
   const st = dragState;
   if(!st || st.row !== row) return;
-  st.offset += clientY - st.lastY;
-  st.lastY = clientY;
-  row.style.transition = 'none';
-  row.style.transform = `translateY(${st.offset}px) scale(1.03)`;
-
-  // What row is the finger over? (ignore the lifted row itself)
   row.style.pointerEvents = 'none';
   const el = document.elementFromPoint(clientX, clientY);
   row.style.pointerEvents = '';
@@ -1168,10 +1104,11 @@ function moveDrag(row, clientX, clientY){
   const crossed = to > from ? clientY > mid : clientY < mid;
   if(!crossed) return;
 
-  // Reorder live: neighbors slide, lifted row keeps its on-screen spot
+  const items = resCache[mngCategory];
   const visualTop = row.getBoundingClientRect().top;
-  const [m] = workList.splice(from, 1);
-  workList.splice(to, 0, m);
+  const [m] = items.splice(from, 1);
+  items.splice(to, 0, m);
+  orderDirty = true;
   const list = document.getElementById('mngList');
   slideRows(list, row, ()=>{
     if(to > from){ list.insertBefore(row, over.nextSibling); }
@@ -1184,8 +1121,47 @@ function moveDrag(row, clientX, clientY){
   row.style.transform = `translateY(${st.offset}px) scale(1.03)`;
 }
 
+function moveDrag(row, clientX, clientY){
+  const st = dragState;
+  if(!st || st.row !== row) return;
+  st.offset += clientY - st.lastY;
+  st.lastY = clientY;
+  st.clientX = clientX;
+  st.clientY = clientY;
+  row.style.transition = 'none';
+  row.style.transform = `translateY(${st.offset}px) scale(1.03)`;
+  trySwapAt(row, clientX, clientY);
+}
+
+// While dragging near the screen edges, glide the page underneath the
+// held photo — like moving an app icon between Home Screen pages.
+function autoScrollLoop(){
+  const st = dragState;
+  if(!st) return;
+  const EDGE = 130, MAXV = 13;
+  const y = st.clientY;
+  let v = 0;
+  if(y < EDGE){ v = -Math.ceil(((EDGE - y) / EDGE) * MAXV); }
+  else if(y > window.innerHeight - EDGE){ v = Math.ceil(((y - (window.innerHeight - EDGE)) / EDGE) * MAXV); }
+  if(v){
+    const before = window.scrollY;
+    window.scrollBy(0, v);
+    const moved = window.scrollY - before;
+    if(moved){
+      // keep the lifted row pinned under the finger as the page moves
+      st.offset += moved;
+      st.lastY = st.clientY;
+      st.row.style.transition = 'none';
+      st.row.style.transform = `translateY(${st.offset}px) scale(1.03)`;
+      trySwapAt(st.row, st.clientX, st.clientY);
+    }
+  }
+  st.raf = requestAnimationFrame(autoScrollLoop);
+}
+
 function endDrag(row){
   if(!dragState || dragState.row !== row){ row.classList.remove('dragging'); return; }
+  cancelAnimationFrame(dragState.raf);
   dragState = null;
   row.style.transition = 'transform .24s cubic-bezier(.2,.9,.3,1.1)';
   row.style.transform = '';
@@ -1193,6 +1169,7 @@ function endDrag(row){
     row.classList.remove('dragging');
     row.style.transition = '';
   }, 260);
+  if(orderDirty){ scheduleOrderSave(); }
 }
 
 // Grip: instant drag (mouse or touch)
@@ -1200,7 +1177,7 @@ function attachDrag(grip, row){
   grip.addEventListener('pointerdown', (e)=>{
     e.preventDefault();
     grip.setPointerCapture(e.pointerId);
-    beginDrag(row, e.clientY);
+    beginDrag(row, e.clientX, e.clientY);
   });
   grip.addEventListener('pointermove', (e)=>{
     moveDrag(row, e.clientX, e.clientY);
@@ -1211,17 +1188,17 @@ function attachDrag(grip, row){
 }
 
 // Whole row: press and hold a beat, then drag anywhere.
-// A quick flick still scrolls the list normally.
+// A quick flick still scrolls the list normally; buttons stay buttons.
 function attachRowDrag(row){
   let timer = null, active = false, sx = 0, sy = 0;
   row.addEventListener('touchstart', (e)=>{
-    if(e.target.closest('.arrow-btns, .grip')) return;
+    if(e.target.closest('.mng-btn, .grip')) return;
     const t = e.touches[0];
     sx = t.clientX; sy = t.clientY;
     active = false;
     timer = setTimeout(()=>{
       active = true;
-      beginDrag(row, sy);
+      beginDrag(row, sx, sy);
     }, 200);
   }, {passive:true});
   row.addEventListener('touchmove', (e)=>{
@@ -1242,15 +1219,29 @@ function attachRowDrag(row){
   row.addEventListener('touchcancel', end);
 }
 
+// ===== Auto-save the order =====
+// Waits a moment after the last drop, so shuffling several photos in a row
+// still results in a single save. Retries itself if the network drops.
+let orderSaveTimer = null;
+let orderSaving = false;
+
+function scheduleOrderSave(){
+  clearTimeout(orderSaveTimer);
+  orderSaveTimer = setTimeout(saveOrder, 1500);
+}
+
 async function saveOrder(){
+  if(dragState){ scheduleOrderSave(); return; }   // still rearranging
+  if(orderSaving){ return; }                       // a save will re-check after
   const {key, secret} = getKeys();
+  const items = resCache[mngCategory] || [];
   const changes = [];
-  workList.forEach((r, i)=>{
+  items.forEach((r, i)=>{
     const target = (i + 1) * 10;
     if(r.order !== target){ changes.push({r, target}); }
   });
-  if(changes.length === 0){ cancelReorder(); return; }
-  document.getElementById('saveOrderBtn').disabled = true;
+  if(changes.length === 0){ orderDirty = false; return; }
+  orderSaving = true;
   try{
     for(let i = 0; i < changes.length; i++){
       showMngStatus('busy', `SAVING ORDER ${i+1}/${changes.length}\u2026`);
@@ -1272,17 +1263,16 @@ async function saveOrder(){
       }
       r.order = target;
     }
-    resCache[mngCategory] = workList.slice();
-    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
-    reorderMode = false;
-    workList = [];
-    renderMngList();
+    orderDirty = false;
+    nameCache[mngCategory] = (resCache[mngCategory] || []).map(x=>x.name);
     if(selectedCategory === mngCategory){ renderNames(); }
-    showMngStatus('ok', 'ORDER SAVED \u2014 refresh the site in a couple minutes');
+    showMngStatus('ok', 'ORDER SAVED \u2014 live in a couple minutes');
   }catch(err){
-    showMngStatus('err', 'SAVE FAILED: ' + String(err.message || '').slice(0,60));
+    showMngStatus('err', 'ORDER NOT SAVED \u2014 retrying\u2026');
+    orderSaveTimer = setTimeout(saveOrder, 4000);
   }
-  document.getElementById('saveOrderBtn').disabled = false;
+  orderSaving = false;
+  if(orderDirty){ scheduleOrderSave(); }   // user kept rearranging during the save
 }
 
 // ===== Signed Cloudinary calls (SHA-1 signature computed on-device) =====
