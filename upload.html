@@ -1077,138 +1077,137 @@ function slideRows(list, skipRow, mutate){
   });
 }
 
-// ===== iOS-style drag =====
-// Two handles only: the ☰ grip (right) or the thumbnail (left). The lifted
-// row follows the finger but is CLAMPED to the list — it can never travel
-// above the first row or below the last. Neighbours slide out of the way
-// based on the lifted row's own centre, which stays smooth during fast
-// pulls and edge auto-scroll.
-let dragState = null; // {row, grabDY, top, min, max, clientX, clientY, raf}
-
-function rowsBounds(list){
-  const rows = [...list.children];
-  return {
-    min: rows[0].getBoundingClientRect().top,
-    max: rows[rows.length-1].getBoundingClientRect().top
-  };
-}
+// ===== Drag to reorder (sortable-style) =====
+// The key to smoothness: nothing in the list actually reorders while you
+// drag. The lifted photo glides under your finger; the other rows simply
+// slide aside via transforms to open a gap. The real reorder happens once,
+// on drop. Two handles only: the ☰ grip (right) or the thumbnail (left).
+// The lifted row is clamped so it can never leave the list's bounds.
+let dragState = null;
 
 function beginDrag(row, clientX, clientY){
   const list = document.getElementById('mngList');
+  const rows = [...list.children];
+  const fromIndex = rows.indexOf(row);
+  if(fromIndex < 0) return;
+  // Resting positions in PAGE coords so auto-scroll can't invalidate them
+  const slots = rows.map(r => r.getBoundingClientRect().top + window.scrollY);
+  const rowH = rows.length > 1 ? (slots[1] - slots[0]) : row.offsetHeight;
   const rect = row.getBoundingClientRect();
-  const b = rowsBounds(list);
   dragState = {
-    row,
-    grabDY: clientY - rect.top,
-    top: rect.top,
-    min: b.min, max: b.max,
-    clientX, clientY, raf: 0
+    row, rows, fromIndex, slots, rowH,
+    grabDY: clientY - rect.top,        // grip point within the row (viewport)
+    minTop: slots[0],
+    maxTop: slots[slots.length - 1],
+    targetIndex: fromIndex,
+    clientY, raf: 0, marked: false
   };
   row.classList.add('dragging');
+  row.style.transition = 'none';
   row.style.transform = 'scale(1.03)';
-  if(navigator.vibrate){ navigator.vibrate(18); }
+  if(navigator.vibrate){ navigator.vibrate(16); }
   dragState.raf = requestAnimationFrame(autoScrollLoop);
 }
 
-// Paint the lifted row at st.top (its desired on-screen top).
-function paintDrag(){
+// Paint the lifted row so its top sits at desiredTopPage (page coords).
+function paintLifted(desiredTopPage){
   const st = dragState;
-  if(!st) return;
-  const row = st.row;
-  const prevTy = parseFloat(row.dataset._ty || 0);
-  const naturalTop = row.getBoundingClientRect().top - prevTy;
-  const ty = st.top - naturalTop;
-  row.dataset._ty = ty;
-  row.style.transition = 'none';
-  row.style.transform = `translateY(${ty}px) scale(1.03)`;
+  const ty = desiredTopPage - st.slots[st.fromIndex];
+  st.row.style.transition = 'none';
+  st.row.style.transform = `translateY(${ty}px) scale(1.03)`;
 }
 
-// Swap with whichever neighbour the lifted row's centre has passed.
-function swapByCentre(){
+// Slide the OTHER rows to open a gap at targetIndex. Pure visual transforms.
+function applyShifts(){
   const st = dragState;
-  if(!st) return;
-  const row = st.row;
-  const list = document.getElementById('mngList');
-  const centre = st.top + row.offsetHeight/2;
-  const rows = [...list.children];
-  const from = rows.indexOf(row);
-  let to = from;
-  for(let i=0;i<rows.length;i++){
-    if(rows[i]===row) continue;
-    const rc = rows[i].getBoundingClientRect();
-    const mid = rc.top + rc.height/2;
-    if(i>from && centre>mid) to = i;
-    else if(i<from && centre<mid){ to = i; break; }
-  }
-  if(to === from) return;
-  const items = resCache[mngCategory];
-  const [m] = items.splice(from, 1);
-  items.splice(to, 0, m);
-  markOrderDirty();
-  slideRows(list, row, ()=>{
-    if(to > from){ list.insertBefore(row, rows[to].nextSibling); }
-    else { list.insertBefore(row, rows[to]); }
+  st.rows.forEach((r, j)=>{
+    if(r === st.row) return;
+    let shift = 0;
+    if(st.fromIndex < st.targetIndex && j > st.fromIndex && j <= st.targetIndex) shift = -st.rowH;
+    else if(st.fromIndex > st.targetIndex && j >= st.targetIndex && j < st.fromIndex) shift = st.rowH;
+    r.style.transition = 'transform .18s cubic-bezier(.2,.8,.2,1)';
+    r.style.transform = shift ? `translateY(${shift}px)` : '';
   });
-  [...list.children].forEach((el2, idx2)=>{ el2.dataset.idx = idx2; });
-  const b = rowsBounds(list);
-  st.min = b.min; st.max = b.max;
+}
+
+function updateTarget(centerPage){
+  const st = dragState;
+  let t = st.fromIndex;
+  const n = st.slots.length;
+  // moving down: pass a slot once our centre clears its centre
+  while(t < n - 1 && centerPage > st.slots[t + 1] + st.rowH / 2) t++;
+  while(t > 0 && centerPage < st.slots[t - 1] + st.rowH / 2) t--;
+  if(t !== st.targetIndex){
+    st.targetIndex = t;
+    applyShifts();
+    if(!st.marked && t !== st.fromIndex){ markOrderDirty(); st.marked = true; }
+  }
 }
 
 function moveDrag(clientX, clientY){
   const st = dragState;
   if(!st) return;
-  st.clientX = clientX; st.clientY = clientY;
-  let top = clientY - st.grabDY;
-  top = Math.max(st.min, Math.min(st.max, top)); // hard clamp inside list
-  st.top = top;
-  paintDrag();
-  swapByCentre();
+  st.clientX = clientX;
+  st.clientY = clientY;
+  let top = clientY + window.scrollY - st.grabDY;
+  top = Math.max(st.minTop, Math.min(st.maxTop, top)); // hard clamp to list
+  paintLifted(top);
+  updateTarget(top + st.rowH / 2);
 }
 
-// Glide the page near the top/bottom edge, but only while list extends that
-// way, and keep the row clamped so it never leaves the frame.
+// Glide the page when the finger nears an edge — only while the list
+// actually extends that way. Row stays clamped, so it never leaves frame.
 function autoScrollLoop(){
   const st = dragState;
   if(!st) return;
-  const EDGE = 110, MAXV = 12;
+  const EDGE = 100, MAXV = 11;
   const list = document.getElementById('mngList');
   const lb = list.getBoundingClientRect();
   const y = st.clientY;
   let v = 0;
-  if(y < EDGE && lb.top < 0){ v = -Math.ceil(((EDGE - y)/EDGE) * MAXV); }
+  if(y < EDGE && lb.top < 0){ v = -Math.ceil(((EDGE - y) / EDGE) * MAXV); }
   else if(y > window.innerHeight - EDGE && lb.bottom > window.innerHeight){
-    v = Math.ceil(((y - (window.innerHeight - EDGE))/EDGE) * MAXV);
+    v = Math.ceil(((y - (window.innerHeight - EDGE)) / EDGE) * MAXV);
   }
   if(v){
     const before = window.scrollY;
     window.scrollBy(0, v);
-    if(window.scrollY !== before){
-      const b = rowsBounds(list);
-      st.min = b.min; st.max = b.max;
-      let top = st.clientY - st.grabDY;
-      top = Math.max(st.min, Math.min(st.max, top));
-      st.top = top;
-      paintDrag();
-      swapByCentre();
-    }
+    if(window.scrollY !== before){ moveDrag(st.clientX || 0, st.clientY); }
   }
   st.raf = requestAnimationFrame(autoScrollLoop);
 }
 
 function endDrag(row){
-  if(!dragState || dragState.row !== row){ row.classList.remove('dragging'); return; }
-  cancelAnimationFrame(dragState.raf);
+  const st = dragState;
+  if(!st || st.row !== row){ if(row){ row.classList.remove('dragging'); row.style.transform=''; row.style.transition=''; } return; }
+  cancelAnimationFrame(st.raf);
   dragState = null;
-  delete row.dataset._ty;
-  row.style.transition = 'transform .22s cubic-bezier(.2,.9,.3,1.1)';
-  row.style.transform = '';
-  setTimeout(()=>{
-    row.classList.remove('dragging');
-    row.style.transition = '';
-  }, 240);
+  const {rows, fromIndex, targetIndex, slots, rowH} = st;
+
+  const finish = ()=>{
+    rows.forEach(r=>{ r.style.transition=''; r.style.transform=''; r.classList.remove('dragging'); });
+    if(targetIndex !== fromIndex){
+      const items = resCache[mngCategory];
+      const [m] = items.splice(fromIndex, 1);
+      items.splice(targetIndex, 0, m);
+      renderMngList();
+    }
+  };
+
+  if(targetIndex === fromIndex){
+    // settle back into place
+    row.style.transition = 'transform .2s cubic-bezier(.2,.9,.3,1.1)';
+    row.style.transform = '';
+    setTimeout(finish, 200);
+  } else {
+    // drop into the open gap, then commit the reorder
+    row.style.transition = 'transform .2s cubic-bezier(.2,.9,.3,1.1)';
+    row.style.transform = `translateY(${(targetIndex - fromIndex) * rowH}px) scale(1)`;
+    setTimeout(finish, 200);
+  }
 }
 
-// Grip (right): instant pointer drag, mouse or touch
+// Grip (right): instant pointer drag — mouse or touch
 function attachDrag(grip, row){
   grip.addEventListener('pointerdown', (e)=>{
     e.preventDefault();
@@ -1223,14 +1222,14 @@ function attachDrag(grip, row){
   grip.addEventListener('pointercancel', end);
 }
 
-// Thumbnail (left): touch = press-and-hold then drag (a flick still scrolls);
-// mouse = press and drag immediately.
+// Thumbnail (left): touch = brief press-and-hold then drag (a flick still
+// scrolls); mouse = press and drag immediately.
 function attachThumbDrag(img, row){
   let timer = null, active = false, sx = 0, sy = 0;
   img.addEventListener('touchstart', (e)=>{
     const t = e.touches[0];
     sx = t.clientX; sy = t.clientY; active = false;
-    timer = setTimeout(()=>{ active = true; beginDrag(row, sx, sy); }, 180);
+    timer = setTimeout(()=>{ active = true; beginDrag(row, sx, sy); }, 170);
   }, {passive:true});
   img.addEventListener('touchmove', (e)=>{
     const t = e.touches[0];
