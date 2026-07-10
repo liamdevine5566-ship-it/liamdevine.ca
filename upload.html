@@ -1134,9 +1134,19 @@ function updateTarget(centerPage){
   const st = dragState;
   let t = st.fromIndex;
   const n = st.slots.length;
-  // moving down: pass a slot once our centre clears its centre
-  while(t < n - 1 && centerPage > st.slots[t + 1] + st.rowH / 2) t++;
-  while(t > 0 && centerPage < st.slots[t - 1] + st.rowH / 2) t--;
+  // Moving down: pass a slot once our centre clears its centre. For the
+  // final slot, a lighter threshold (35% into it) so the last position is
+  // actually reachable — the clamp otherwise pins us just short of it.
+  while(t < n - 1){
+    const nextIsLast = (t + 1 === n - 1);
+    const line = st.slots[t + 1] + (nextIsLast ? st.rowH * 0.35 : st.rowH / 2);
+    if(centerPage > line) t++; else break;
+  }
+  while(t > 0){
+    const prevIsFirst = (t - 1 === 0);
+    const line = st.slots[t - 1] + (prevIsFirst ? st.rowH * 0.65 : st.rowH / 2);
+    if(centerPage < line) t--; else break;
+  }
   if(t !== st.targetIndex){
     st.targetIndex = t;
     applyShifts();
@@ -1155,18 +1165,19 @@ function moveDrag(clientX, clientY){
   updateTarget(top + st.rowH / 2);
 }
 
-// Glide the page when the finger nears an edge — only while the list
-// actually extends that way. Row stays clamped, so it never leaves frame.
+// Glide the page when the finger nears an edge — mirrored both ways.
+// Up-scroll works whenever there's page above (scrollY>0); down-scroll
+// whenever there's page below. Row stays clamped, so it never leaves frame.
 function autoScrollLoop(){
   const st = dragState;
   if(!st) return;
-  const EDGE = 100, MAXV = 11;
-  const list = document.getElementById('mngList');
-  const lb = list.getBoundingClientRect();
+  const EDGE = 110, MAXV = 12;
   const y = st.clientY;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   let v = 0;
-  if(y < EDGE && lb.top < 0){ v = -Math.ceil(((EDGE - y) / EDGE) * MAXV); }
-  else if(y > window.innerHeight - EDGE && lb.bottom > window.innerHeight){
+  if(y < EDGE && window.scrollY > 0){
+    v = -Math.ceil(((EDGE - y) / EDGE) * MAXV);
+  } else if(y > window.innerHeight - EDGE && window.scrollY < maxScroll){
     v = Math.ceil(((y - (window.innerHeight - EDGE)) / EDGE) * MAXV);
   }
   if(v){
