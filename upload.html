@@ -161,6 +161,9 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .del-preview img{width:110px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline)}
 
 /* Drag to reorder */
+.order-bar{display:flex;gap:8px;margin-bottom:12px}
+.order-bar .mng-btn{flex:1;padding:11px}
+.mng-btn.save-order{background:rgba(127,184,138,.15);border-color:rgba(127,184,138,.5);color:var(--good)}
 .mng-row{position:relative}
 .mng-row.dragging{border-color:var(--tungsten);box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 14px rgba(232,135,58,.3);opacity:.97;z-index:5;will-change:transform}
 .grip{flex:0 0 auto;width:24px;height:52px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.05rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
@@ -225,6 +228,11 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 <div class="keys-note" id="keysNote" style="display:none">
 Rename &amp; remove are locked on this device.<br/>
 Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes app) — one time only.
+</div>
+
+<div class="order-bar" id="orderSaveBar" style="display:none">
+<button class="mng-btn save-order" id="saveOrderBtn" onclick="saveOrder()">Save order</button>
+<button class="mng-btn" onclick="cancelOrderEdit()">Cancel</button>
 </div>
 
 <div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
@@ -957,7 +965,7 @@ function renderManage(){
     const btn = document.createElement('div');
     btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
-    btn.onclick = () => { mngCategory = cat.folder; renderManage(); loadMngList(); };
+    btn.onclick = () => { resetOrderEdit(); mngCategory = cat.folder; renderManage(); loadMngList(); };
     box.appendChild(btn);
   });
   if(mngCategory && resCache[mngCategory]){ renderMngList(); }
@@ -981,6 +989,7 @@ async function loadMngList(){
 // from Cloudinary in case photos were added or changed from another device.
 async function refreshMng(){
   if(!mngCategory) return;
+  resetOrderEdit();
   delete resCache[mngCategory];
   delete nameCache[mngCategory];
   await loadMngList();
@@ -1003,11 +1012,6 @@ function renderMngList(){
 
     if(unlocked && items.length > 1){
       attachRowDrag(row);
-      const grip = document.createElement('span');
-      grip.className = 'grip';
-      grip.innerHTML = '&#9776;';
-      attachDrag(grip, row);
-      row.appendChild(grip);
     }
 
     const im = document.createElement('img');
@@ -1043,6 +1047,13 @@ function renderMngList(){
     actions.appendChild(dl);
     body.appendChild(actions);
     row.appendChild(body);
+    if(unlocked && items.length > 1){
+      const grip = document.createElement('span');
+      grip.className = 'grip';
+      grip.innerHTML = '&#9776;';
+      attachDrag(grip, row);
+      row.appendChild(grip);
+    }
     list.appendChild(row);
   });
 }
@@ -1074,10 +1085,8 @@ function slideRows(list, skipRow, mutate){
 // from the very bottom of a long list to the very top.
 // The new order saves itself shortly after the last drop — no Save button.
 let dragState = null; // {row, lastY, offset, clientX, clientY, raf}
-let orderDirty = false;
 
 function beginDrag(row, clientX, clientY){
-  clearTimeout(orderSaveTimer); // don't save mid-rearrange
   dragState = {row, lastY: clientY, offset: 0, clientX, clientY, raf: 0};
   row.classList.add('dragging');
   row.style.transition = 'transform .15s ease';
@@ -1108,7 +1117,7 @@ function trySwapAt(row, clientX, clientY){
   const visualTop = row.getBoundingClientRect().top;
   const [m] = items.splice(from, 1);
   items.splice(to, 0, m);
-  orderDirty = true;
+  markOrderDirty();
   const list = document.getElementById('mngList');
   slideRows(list, row, ()=>{
     if(to > from){ list.insertBefore(row, over.nextSibling); }
@@ -1169,7 +1178,6 @@ function endDrag(row){
     row.classList.remove('dragging');
     row.style.transition = '';
   }, 260);
-  if(orderDirty){ scheduleOrderSave(); }
 }
 
 // Grip: instant drag (mouse or touch)
@@ -1219,20 +1227,49 @@ function attachRowDrag(row){
   row.addEventListener('touchcancel', end);
 }
 
-// ===== Auto-save the order =====
-// Waits a moment after the last drop, so shuffling several photos in a row
-// still results in a single save. Retries itself if the network drops.
-let orderSaveTimer = null;
+// ===== Saving the order =====
+// Dragging marks the order as edited and shows Save order / Cancel above
+// the list. Nothing is written to Cloudinary until Save is tapped.
+// Cancel puts everything back the way it was last saved.
+let orderDirty = false;
 let orderSaving = false;
+let orderSnapshot = null;   // the order as last saved
+let orderCat = null;        // which category the snapshot belongs to
 
-function scheduleOrderSave(){
-  clearTimeout(orderSaveTimer);
-  orderSaveTimer = setTimeout(saveOrder, 1500);
+function markOrderDirty(){
+  if(!orderDirty){
+    orderSnapshot = (resCache[mngCategory] || []).slice();
+    orderCat = mngCategory;
+    orderDirty = true;
+  }
+  updateSaveBar();
+}
+
+function updateSaveBar(){
+  document.getElementById('orderSaveBar').style.display = orderDirty ? 'flex' : 'none';
+}
+
+function cancelOrderEdit(){
+  if(orderDirty && orderSnapshot && orderCat && resCache[orderCat]){
+    resCache[orderCat] = orderSnapshot.slice();
+  }
+  orderDirty = false; orderSnapshot = null; orderCat = null;
+  updateSaveBar();
+  hideMngStatus();
+  renderMngList();
+}
+
+// Discard unsaved dragging when leaving the category (switch / refresh)
+function resetOrderEdit(){
+  if(orderDirty && orderSnapshot && orderCat && resCache[orderCat]){
+    resCache[orderCat] = orderSnapshot.slice();
+  }
+  orderDirty = false; orderSnapshot = null; orderCat = null;
+  updateSaveBar();
 }
 
 async function saveOrder(){
-  if(dragState){ scheduleOrderSave(); return; }   // still rearranging
-  if(orderSaving){ return; }                       // a save will re-check after
+  if(orderSaving || dragState) return;
   const {key, secret} = getKeys();
   const items = resCache[mngCategory] || [];
   const changes = [];
@@ -1240,8 +1277,13 @@ async function saveOrder(){
     const target = (i + 1) * 10;
     if(r.order !== target){ changes.push({r, target}); }
   });
-  if(changes.length === 0){ orderDirty = false; return; }
+  if(changes.length === 0){
+    orderDirty = false; orderSnapshot = null; orderCat = null;
+    updateSaveBar();
+    return;
+  }
   orderSaving = true;
+  document.getElementById('saveOrderBtn').disabled = true;
   try{
     for(let i = 0; i < changes.length; i++){
       showMngStatus('busy', `SAVING ORDER ${i+1}/${changes.length}\u2026`);
@@ -1263,16 +1305,16 @@ async function saveOrder(){
       }
       r.order = target;
     }
-    orderDirty = false;
+    orderDirty = false; orderSnapshot = null; orderCat = null;
+    updateSaveBar();
     nameCache[mngCategory] = (resCache[mngCategory] || []).map(x=>x.name);
     if(selectedCategory === mngCategory){ renderNames(); }
     showMngStatus('ok', 'ORDER SAVED \u2014 live in a couple minutes');
   }catch(err){
-    showMngStatus('err', 'ORDER NOT SAVED \u2014 retrying\u2026');
-    orderSaveTimer = setTimeout(saveOrder, 4000);
+    showMngStatus('err', 'ORDER NOT SAVED \u2014 tap Save order to retry');
   }
   orderSaving = false;
-  if(orderDirty){ scheduleOrderSave(); }   // user kept rearranging during the save
+  document.getElementById('saveOrderBtn').disabled = false;
 }
 
 // ===== Signed Cloudinary calls (SHA-1 signature computed on-device) =====
