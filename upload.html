@@ -706,7 +706,7 @@ async function doUpload(){
 
     showStatus('ok', total > 1 ? `ALL ${total} UPLOADED \u2014 live in a couple minutes` : 'UPLOADED \u2014 live in a couple minutes');
     // Deep-link straight to the gallery section the photos went into
-    const sectionIds = {'portraits':'portraits','family':'family','pets':'pets','fine-art':'personal','showcase':'showcase'};
+    const sectionIds = {'portraits':'portraits','family':'family','pets':'pets','fine-art':'personal','showcase':'showcase','wildlife':'wildlife','landscapes':'landscapes','street':'street','travel':'travel'};
     const vs = document.getElementById('viewSiteBtn');
     vs.href = 'https://liamdevine.ca/#' + (sectionIds[selectedCategory] || '');
     vs.style.display = 'block';
