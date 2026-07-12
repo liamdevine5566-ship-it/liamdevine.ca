@@ -47,7 +47,7 @@ h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
 .dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .dial::-webkit-scrollbar{display:none}
 .dial-item{flex:0 0 auto;padding:9px 16px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.96rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
-.dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
+.dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:rgba(232,135,58,.28);box-shadow:inset 0 0 0 1px var(--tungsten)}
 
 /* Viewfinder */
 .viewfinder{position:relative;width:100%;height:clamp(140px,19vh,230px);border-radius:4px;background:var(--panel);margin-bottom:12px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -146,20 +146,33 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 
 /* Manage page */
 .keys-note{border:1px solid var(--hairline);border-left:3px solid var(--tungsten);border-radius:4px;background:var(--panel);padding:14px;font-size:.88rem;line-height:1.6;color:var(--text-dim);margin-bottom:18px}
-.mng-list{display:flex;flex-direction:column;gap:8px}
+.mng-list{display:flex;flex-direction:column;gap:7px}
 .mng-empty{color:var(--text-dim);font-size:.88rem;text-align:center;padding:30px 0}
-.mng-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:8px 10px}
+.mng-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:7px 9px}
 .mng-row img{width:52px;height:52px;object-fit:cover;border-radius:3px;flex:0 0 auto;background:var(--chassis-hi);touch-action:none;cursor:grab}
 .mng-row.dragging img,.grip:active{cursor:grabbing}
 .mng-name{font-size:.84rem;color:var(--text);word-break:break-all}
 .mng-row > .mng-name{flex:1}
 .mng-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .mng-actions{display:flex;gap:6px}
-.mng-btn{border:1px solid var(--hairline);background:transparent;color:var(--text-dim);border-radius:4px;padding:8px 10px;font-family:'Space Grotesk';font-size:.78rem;cursor:pointer}
+.mng-btn{border:1px solid var(--hairline);background:transparent;color:var(--text-dim);border-radius:4px;padding:9px 8px;font-family:'Space Grotesk';font-size:.78rem;cursor:pointer}
 .mng-btn.danger{color:var(--bad);border-color:rgba(224,102,90,.4)}
 .overlay-actions button.danger{background:var(--bad);border-color:var(--bad);color:#1a0e0c}
 .del-preview{margin-bottom:6px}
 .del-preview img{width:110px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline)}
+/* Shared photo header for Rename / Category / Remove overlays */
+.ov-photo{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:16px}
+.ov-photo img{width:104px;height:104px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline);background:var(--chassis-hi)}
+.ov-photo .ov-name{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--text);word-break:break-all;text-align:center}
+.ov-current{text-align:center;font-size:.82rem;color:var(--text-dim);margin:-8px 0 4px}
+/* Category picker: full-width tappable rows with a radio dot */
+.cat-list{display:flex;flex-direction:column;gap:8px;margin:6px 0 4px}
+.cat-row{display:flex;align-items:center;gap:12px;padding:14px 14px;border:1px solid var(--hairline);border-radius:6px;background:var(--panel);cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.cat-row .radio{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--text-dim);position:relative;transition:border-color .15s ease}
+.cat-row .lbl{font-size:1rem;color:var(--text)}
+.cat-row.sel{border-color:var(--tungsten);background:rgba(232,135,58,.14)}
+.cat-row.sel .radio{border-color:var(--tungsten)}
+.cat-row.sel .radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--tungsten)}
 
 /* Drag to reorder */
 .order-bar{display:flex;gap:8px;margin-bottom:12px}
@@ -276,7 +289,7 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 
 <div class="overlay" id="renameOverlay">
 <h2>Rename photo</h2>
-<p>Current name: <span class="mono" id="renameFrom" style="color:var(--text)"></span></p>
+<div class="ov-photo"><img id="renameThumb"/><span class="ov-name" id="renameFrom"></span></div>
 <label class="field-label">New name</label>
 <input type="text" id="renameField" placeholder="new-name" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
 <div class="hint mono" id="renameHint">a&ndash;z, 0&ndash;9, dashes only</div>
@@ -287,10 +300,11 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 </div>
 
 <div class="overlay" id="moveOverlay">
-<h2>Move photo</h2>
-<p><span class="mono" id="moveName" style="color:var(--text)"></span><br/>Pick its new category. It keeps its name and order settles at the end of the new gallery.</p>
+<h2>Change category</h2>
+<div class="ov-photo"><img id="moveThumb"/><span class="ov-name" id="moveName"></span></div>
+<div class="ov-current" id="moveCurrent"></div>
 <label class="field-label">Move to</label>
-<div class="dial" id="moveDial" style="flex-wrap:wrap;overflow:visible;margin-bottom:14px"></div>
+<div class="cat-list" id="moveDial"></div>
 <div class="hint mono" id="moveHint"></div>
 <div class="overlay-actions">
 <button onclick="closeMove()">Cancel</button>
@@ -300,8 +314,8 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 
 <div class="overlay" id="deleteOverlay">
 <h2>Remove photo?</h2>
-<div class="del-preview"><img id="deleteThumb"/></div>
-<p><span class="mono" id="deleteName" style="color:var(--text)"></span><br/>This takes it off the website for good. There's no undo.</p>
+<div class="ov-photo"><img id="deleteThumb"/><span class="ov-name" id="deleteName"></span></div>
+<p>This takes it off the website for good. There's no undo.</p>
 <div class="overlay-actions">
 <button onclick="closeDelete()">Cancel</button>
 <button class="save danger" id="deleteGo" onclick="doDestroy()">Remove</button>
@@ -1034,7 +1048,7 @@ function renderMngList(){
     rn.onclick = ()=> openRename(r);
     const mv = document.createElement('button');
     mv.className = 'mng-btn';
-    mv.textContent = 'Move to\u2026';
+    mv.textContent = 'Category\u2026';
     mv.disabled = !unlocked;
     mv.onclick = ()=> openMove(r);
     const dl = document.createElement('button');
@@ -1380,6 +1394,7 @@ async function cloudFetch(url, options){
 
 function openRename(r){
   targetPhoto = r;
+  document.getElementById('renameThumb').src = mngThumb(r);
   document.getElementById('renameFrom').textContent = r.name;
   document.getElementById('renameField').value = r.name;
   document.getElementById('renameHint').textContent = 'a\u2013z, 0\u20139, dashes only';
@@ -1443,21 +1458,30 @@ function openMove(r){
   if(dests.length === 0){ showMngStatus('err', 'No other categories are visible \u2014 turn one on in Settings first'); return; }
   targetPhoto = r;
   moveDest = null;
+  document.getElementById('moveThumb').src = mngThumb(r);
   document.getElementById('moveName').textContent = r.name;
+  const curLabel = (ALL_CATEGORIES.find(c=>c.folder===mngCategory) || {}).label || mngCategory;
+  document.getElementById('moveCurrent').textContent = 'Currently in ' + curLabel;
   document.getElementById('moveHint').textContent = '';
-  const dial = document.getElementById('moveDial');
-  dial.innerHTML = '';
+  const list = document.getElementById('moveDial');
+  list.innerHTML = '';
   dests.forEach(cat=>{
-    const chip = document.createElement('div');
-    chip.className = 'dial-item';
-    chip.textContent = cat.label;
-    chip.onclick = ()=>{
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+    const radio = document.createElement('span');
+    radio.className = 'radio';
+    const lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = cat.label;
+    row.appendChild(radio);
+    row.appendChild(lbl);
+    row.onclick = ()=>{
       moveDest = cat.folder;
-      [...dial.children].forEach(c=>c.classList.remove('selected'));
-      chip.classList.add('selected');
+      [...list.children].forEach(c=>c.classList.remove('sel'));
+      row.classList.add('sel');
       document.getElementById('moveHint').textContent = '';
     };
-    dial.appendChild(chip);
+    list.appendChild(row);
   });
   document.getElementById('moveOverlay').classList.add('show');
 }
