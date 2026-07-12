@@ -173,6 +173,8 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .cat-row.sel{border-color:var(--tungsten);background:rgba(232,135,58,.14)}
 .cat-row.sel .radio{border-color:var(--tungsten)}
 .cat-row.sel .radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--tungsten)}
+.cat-row.current{opacity:.4;cursor:default;pointer-events:none}
+.cat-row.current .lbl{color:var(--text-dim)}
 
 /* Drag to reorder */
 .order-bar{display:flex;gap:8px;margin-bottom:12px}
@@ -302,7 +304,6 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 <div class="overlay" id="moveOverlay">
 <h2>Change category</h2>
 <div class="ov-photo"><img id="moveThumb"/><span class="ov-name" id="moveName"></span></div>
-<div class="ov-current" id="moveCurrent"></div>
 <label class="field-label">Move to</label>
 <div class="cat-list" id="moveDial"></div>
 <div class="hint mono" id="moveHint"></div>
@@ -1460,27 +1461,29 @@ function openMove(r){
   moveDest = null;
   document.getElementById('moveThumb').src = mngThumb(r);
   document.getElementById('moveName').textContent = r.name;
-  const curLabel = (ALL_CATEGORIES.find(c=>c.folder===mngCategory) || {}).label || mngCategory;
-  document.getElementById('moveCurrent').textContent = 'Currently in ' + curLabel;
   document.getElementById('moveHint').textContent = '';
   const list = document.getElementById('moveDial');
   list.innerHTML = '';
-  dests.forEach(cat=>{
+  // Show every visible category. The one it's already in is greyed + disabled.
+  visibleCats().forEach(cat=>{
+    const isCurrent = cat.folder === mngCategory;
     const row = document.createElement('div');
-    row.className = 'cat-row';
+    row.className = 'cat-row' + (isCurrent ? ' current' : '');
     const radio = document.createElement('span');
     radio.className = 'radio';
     const lbl = document.createElement('span');
     lbl.className = 'lbl';
-    lbl.textContent = cat.label;
+    lbl.textContent = cat.label + (isCurrent ? '  (current)' : '');
     row.appendChild(radio);
     row.appendChild(lbl);
-    row.onclick = ()=>{
-      moveDest = cat.folder;
-      [...list.children].forEach(c=>c.classList.remove('sel'));
-      row.classList.add('sel');
-      document.getElementById('moveHint').textContent = '';
-    };
+    if(!isCurrent){
+      row.onclick = ()=>{
+        moveDest = cat.folder;
+        [...list.children].forEach(c=>c.classList.remove('sel'));
+        row.classList.add('sel');
+        document.getElementById('moveHint').textContent = '';
+      };
+    }
     list.appendChild(row);
   });
   document.getElementById('moveOverlay').classList.add('show');
