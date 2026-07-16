@@ -1,0 +1,412 @@
+<!-- pose app build: v1 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Poses | Liam Devine Photography</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Poses"/>
+<link rel="apple-touch-icon" href="images/logo1.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --chassis:#0e0e0e;
+  --panel:#1a1a18;
+  --hairline:rgba(245,243,239,.10);
+  --text:#f5f3ef;
+  --text-dim:rgba(245,243,239,.62);
+  --tungsten:#e8873a;
+  --tungsten-dim:rgba(232,135,58,.18);
+  --star:#f0c05a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;background:var(--chassis);color:var(--text);
+  font-family:'Space Grotesk',sans-serif;overflow:hidden;overscroll-behavior:none}
+
+/* ---- top bar: small, out of the way ---- */
+.bar{position:fixed;top:0;left:0;right:0;z-index:20;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(to bottom, rgba(0,0,0,.75), transparent)}
+.dial{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
+.dial::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--hairline);
+  background:rgba(20,20,20,.6);color:var(--text-dim);font-size:.92rem;white-space:nowrap;cursor:pointer;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .18s ease}
+.chip.sel{border-color:var(--tungsten);color:var(--tungsten);background:rgba(232,135,58,.28);
+  box-shadow:inset 0 0 0 1px var(--tungsten)}
+.chip.fav.sel{border-color:var(--star);color:var(--star);background:rgba(240,192,90,.24);
+  box-shadow:inset 0 0 0 1px var(--star)}
+.gear{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--hairline);
+  background:rgba(20,20,20,.6);color:var(--text-dim);font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+
+/* ---- the photo IS the app ---- */
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;touch-action:none}
+.stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;
+  user-select:none;-webkit-user-drag:none;transition:opacity .18s ease}
+.stage img.swapping{opacity:0}
+
+.msg{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;
+  color:var(--text-dim);font-size:1rem;padding:0 40px;line-height:1.6}
+.msg b{color:var(--text);font-weight:500}
+.msg button{margin-top:16px;background:var(--tungsten);color:#161412;border:none;border-radius:6px;
+  padding:12px 22px;font-family:'Space Grotesk';font-weight:500;font-size:.9rem;cursor:pointer}
+
+/* ---- bottom: star + credit, nothing to read ---- */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:20;
+  padding:14px 16px calc(16px + env(safe-area-inset-bottom));
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+  background:linear-gradient(to top, rgba(0,0,0,.8), transparent);pointer-events:none}
+.credit{font-size:.7rem;color:rgba(245,243,239,.5);pointer-events:auto;max-width:55%;line-height:1.4}
+.credit a{color:rgba(245,243,239,.65);text-decoration:none;border-bottom:1px solid rgba(245,243,239,.2)}
+.star{pointer-events:auto;width:58px;height:58px;border-radius:50%;border:1px solid var(--hairline);
+  background:rgba(20,20,20,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  color:var(--text-dim);font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:transform .12s ease, color .18s ease, border-color .18s ease}
+.star:active{transform:scale(.9)}
+.star.on{color:var(--star);border-color:rgba(240,192,90,.5);background:rgba(240,192,90,.16)}
+.counter{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(28px + env(safe-area-inset-bottom));
+  z-index:19;font-size:.72rem;color:rgba(245,243,239,.4);pointer-events:none;letter-spacing:.08em}
+
+/* ---- grid view: scan many, tap one to blow it up ---- */
+.grid{position:fixed;inset:0;display:none;overflow-y:auto;z-index:10;
+  padding:calc(58px + env(safe-area-inset-top)) 8px calc(24px + env(safe-area-inset-bottom));
+  grid-template-columns:repeat(3,1fr);gap:6px;align-content:start}
+.grid.show{display:grid}
+.grid .cell{position:relative;aspect-ratio:2/3;border-radius:4px;overflow:hidden;background:var(--panel);cursor:pointer}
+.grid .cell img{width:100%;height:100%;object-fit:cover;display:block}
+.grid .cell .fav-dot{position:absolute;top:5px;right:5px;color:var(--star);font-size:.9rem;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);display:none}
+.grid .cell.faved .fav-dot{display:block}
+@media(min-width:700px){.grid{grid-template-columns:repeat(5,1fr);gap:8px;padding-left:14px;padding-right:14px}}
+.viewtog{flex:0 0 auto;width:36px;height:36px;border-radius:50%;border:1px solid var(--hairline);
+  background:rgba(20,20,20,.6);color:var(--text-dim);font-size:.95rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.viewtog.on{border-color:var(--tungsten);color:var(--tungsten);background:rgba(232,135,58,.22)}
+body.gridmode .foot,body.gridmode .counter{display:none}
+
+/* ---- settings ---- */
+.overlay{position:fixed;inset:0;background:var(--chassis);z-index:60;display:none;
+  padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top));overflow-y:auto}
+.overlay.show{display:block}
+.overlay h2{font-size:1.1rem;font-weight:500;margin:0 0 12px}
+.overlay p{font-size:.85rem;line-height:1.6;color:var(--text-dim)}
+.overlay label{display:block;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--text-dim);margin:14px 0 6px}
+.overlay input{width:100%;padding:12px;border:1px solid var(--hairline);border-radius:6px;
+  background:var(--panel);color:var(--text);font-size:.95rem;font-family:monospace}
+.overlay input:focus{outline:none;border-color:var(--tungsten)}
+.acts{display:flex;gap:10px;margin-top:20px}
+.acts button{flex:1;padding:14px;border-radius:6px;font-family:'Space Grotesk';font-size:.88rem;
+  cursor:pointer;border:1px solid var(--hairline);background:transparent;color:var(--text)}
+.acts button.save{background:var(--tungsten);color:#161412;border-color:var(--tungsten);font-weight:500}
+.tiny{font-size:.75rem;color:rgba(245,243,239,.4);margin-top:18px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="dial" id="dial"></div>
+  <button class="viewtog" id="viewTog" onclick="toggleView()" title="Grid view">&#9638;</button>
+  <button class="gear" onclick="openSettings()">&#9881;</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="stage" id="stage">
+  <img id="photo" style="display:none" alt=""/>
+  <div class="msg" id="msg"></div>
+</div>
+
+<div class="counter" id="counter"></div>
+
+<div class="foot">
+  <div class="credit" id="credit"></div>
+  <button class="star" id="star" onclick="toggleFav()">&#9734;</button>
+</div>
+
+<div class="overlay" id="settings">
+  <h2>Connect this device</h2>
+  <p>Paste your Unsplash Access Key. It's saved only on this phone or computer — never in the code.
+  Get one free at unsplash.com/developers.</p>
+  <label>Unsplash access key</label>
+  <input type="text" id="keyField" placeholder="paste key here" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+  <div class="acts">
+    <button onclick="closeSettings()">Cancel</button>
+    <button class="save" onclick="saveKey()">Save key</button>
+  </div>
+  <div class="tiny">
+    Photos come from Unsplash, whose photographers release their work for free use.
+    Credit is shown on each photo, as their terms require.<br/><br/>
+    Starred poses are kept on this device.
+  </div>
+</div>
+
+<script>
+// ===== Pose reference =====
+// Built for glancing, not reading: the photo fills the screen, you flick
+// with your thumb, and you star the ones that work. Over time the starred
+// ones become your own library.
+
+const CATS = [
+  {label:'Portrait', q:'portrait pose studio'},
+  {label:'Family',   q:'family portrait pose'},
+  {label:'Couples',  q:'couple portrait pose'},
+  {label:'Pets',     q:'dog portrait photography'},
+  {label:'B&W',      q:'black and white portrait pose'}
+];
+
+let cat = 0;
+let showingFavs = false;
+let list = [];        // [{id, url, name, link}]
+let idx = 0;
+let page = 1;
+let loading = false;
+
+// ---- key (device only) ----
+function getKey(){ try{ return localStorage.getItem('unsplash_key') || ''; }catch(e){ return ''; } }
+function saveKey(){
+  const v = document.getElementById('keyField').value.trim();
+  try{ if(v) localStorage.setItem('unsplash_key', v); }catch(e){ alert('Browser blocked saving. Turn off private browsing.'); return; }
+  closeSettings();
+  loadCat(true);
+}
+function openSettings(){
+  document.getElementById('keyField').value = getKey();
+  document.getElementById('settings').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settings').classList.remove('show'); }
+
+// ---- favourites (device only) ----
+function getFavs(){
+  try{ return JSON.parse(localStorage.getItem('pose_favs') || '[]'); }catch(e){ return []; }
+}
+function setFavs(a){ try{ localStorage.setItem('pose_favs', JSON.stringify(a)); }catch(e){} }
+function isFav(p){ return getFavs().some(f => f.id === p.id); }
+function toggleFav(){
+  const p = list[idx];
+  if(!p) return;
+  let favs = getFavs();
+  if(favs.some(f => f.id === p.id)){
+    favs = favs.filter(f => f.id !== p.id);
+  } else {
+    favs.unshift(p);
+    if(navigator.vibrate) navigator.vibrate(15);
+  }
+  setFavs(favs);
+  paintStar();
+  if(showingFavs){ list = getFavs(); if(idx >= list.length) idx = Math.max(0, list.length - 1); show(); }
+  if(gridMode){ renderGrid(); }
+}
+
+// ---- chips ----
+function renderDial(){
+  const d = document.getElementById('dial');
+  d.innerHTML = '';
+  CATS.forEach((c, i)=>{
+    const b = document.createElement('div');
+    b.className = 'chip' + (!showingFavs && cat === i ? ' sel' : '');
+    b.textContent = c.label;
+    b.onclick = ()=>{ showingFavs = false; cat = i; renderDial(); loadCat(true); };
+    d.appendChild(b);
+  });
+  const f = document.createElement('div');
+  f.className = 'chip fav' + (showingFavs ? ' sel' : '');
+  f.innerHTML = '&#9733; Mine';
+  f.onclick = ()=>{ showingFavs = true; renderDial(); openFavs(); };
+  d.appendChild(f);
+}
+
+function openFavs(){
+  list = getFavs();
+  idx = 0;
+  if(list.length === 0){
+    document.getElementById('photo').style.display = 'none';
+    setMsg('No starred poses yet.<br/>Tap the <b>&#9734;</b> on ones that work and they collect here.');
+    document.getElementById('credit').innerHTML = '';
+    document.getElementById('counter').textContent = '';
+    document.getElementById('grid').innerHTML = '';
+    return;
+  }
+  if(gridMode){ renderGrid(); } else { show(); }
+}
+
+function setMsg(html){
+  const m = document.getElementById('msg');
+  m.innerHTML = html;
+  m.style.display = html ? 'block' : 'none';
+}
+
+// ---- loading ----
+async function loadCat(reset){
+  const key = getKey();
+  if(!key){
+    document.getElementById('photo').style.display = 'none';
+    setMsg('Tap the <b>&#9881;</b> and paste your Unsplash key to start.<br/><br/><button onclick="openSettings()">Add key</button>');
+    return;
+  }
+  if(loading) return;
+  loading = true;
+  if(reset){ list = []; idx = 0; page = 1; document.getElementById('photo').style.display='none'; setMsg('loading…'); }
+  try{
+    const q = encodeURIComponent(CATS[cat].q);
+    const res = await fetch(`https://api.unsplash.com/search/photos?query=${q}&per_page=30&page=${page}&orientation=portrait&content_filter=high`, {
+      headers: {'Authorization': 'Client-ID ' + key}
+    });
+    if(res.status === 401){ setMsg('That key was rejected.<br/>Tap the <b>&#9881;</b> and check it.'); loading = false; return; }
+    if(!res.ok) throw new Error('load failed');
+    const data = await res.json();
+    const batch = (data.results || []).map(r => ({
+      id: r.id,
+      url: r.urls.regular,
+      name: r.user.name,
+      link: r.user.links.html
+    }));
+    list = list.concat(batch);
+    page++;
+    if(list.length === 0){ setMsg('Nothing found — try another category.'); loading = false; return; }
+    if(gridMode){ renderGrid(); } else { show(); }
+  }catch(err){
+    setMsg('Couldn\'t load — check your connection.');
+  }
+  loading = false;
+}
+
+// ---- display ----
+function show(){
+  const p = list[idx];
+  if(!p) return;
+  setMsg('');
+  const img = document.getElementById('photo');
+  img.classList.add('swapping');
+  const pre = new Image();
+  pre.onload = ()=>{
+    img.src = p.url;
+    img.style.display = 'block';
+    requestAnimationFrame(()=> img.classList.remove('swapping'));
+  };
+  pre.onerror = ()=>{ img.classList.remove('swapping'); };
+  pre.src = p.url;
+
+  document.getElementById('credit').innerHTML =
+    'Photo: <a href="' + p.link + '?utm_source=pose_reference&utm_medium=referral" target="_blank" rel="noopener">' + p.name + '</a> / Unsplash';
+  document.getElementById('counter').textContent = (idx + 1) + ' / ' + list.length;
+  paintStar();
+  preloadNext();
+}
+
+function paintStar(){
+  const p = list[idx];
+  const s = document.getElementById('star');
+  const on = p && isFav(p);
+  s.classList.toggle('on', !!on);
+  s.innerHTML = on ? '&#9733;' : '&#9734;';
+}
+
+function preloadNext(){
+  [1, 2].forEach(d=>{
+    const p = list[idx + d];
+    if(p){ const i = new Image(); i.src = p.url; }
+  });
+}
+
+function next(){
+  if(list.length === 0) return;
+  if(idx >= list.length - 1){
+    if(!showingFavs){ loadCat(false); }   // fetch more automatically
+    if(idx >= list.length - 1) return;
+  }
+  idx++;
+  show();
+}
+function prev(){
+  if(idx <= 0) return;
+  idx--;
+  show();
+}
+
+// ---- grid view: scan many at once, tap one to blow it up ----
+let gridMode = false;
+
+function toggleView(){
+  gridMode = !gridMode;
+  applyView();
+  if(gridMode) renderGrid();
+}
+function applyView(){
+  document.getElementById('grid').classList.toggle('show', gridMode);
+  document.getElementById('viewTog').classList.toggle('on', gridMode);
+  document.getElementById('viewTog').innerHTML = gridMode ? '&#9635;' : '&#9638;';
+  document.body.classList.toggle('gridmode', gridMode);
+  document.getElementById('stage').style.display = gridMode ? 'none' : 'flex';
+}
+function renderGrid(){
+  const g = document.getElementById('grid');
+  g.innerHTML = '';
+  if(list.length === 0){ return; }
+  const favIds = getFavs().map(f=>f.id);
+  list.forEach((p, i)=>{
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (favIds.includes(p.id) ? ' faved' : '');
+    const im = document.createElement('img');
+    im.src = p.url;
+    im.loading = 'lazy';
+    im.alt = '';
+    cell.appendChild(im);
+    const dot = document.createElement('span');
+    dot.className = 'fav-dot';
+    dot.innerHTML = '&#9733;';
+    cell.appendChild(dot);
+    cell.onclick = ()=>{           // tap a thumbnail → full screen, right there
+      idx = i;
+      gridMode = false;
+      applyView();
+      show();
+    };
+    g.appendChild(cell);
+  });
+}
+// keep loading more as you scroll the grid
+document.getElementById('grid').addEventListener('scroll', ()=>{
+  const g = document.getElementById('grid');
+  if(!gridMode || showingFavs || loading) return;
+  if(g.scrollTop + g.clientHeight > g.scrollHeight - 400){
+    loadCat(false).then(()=>{ if(gridMode) renderGrid(); });
+  }
+});
+
+// ---- thumb: flick left/right, tap right/left half ----
+const stage = document.getElementById('stage');
+let sx = 0, sy = 0, moved = false;
+stage.addEventListener('touchstart', e=>{
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false;
+}, {passive:true});
+stage.addEventListener('touchmove', e=>{
+  if(Math.abs(e.touches[0].clientX - sx) > 8) moved = true;
+}, {passive:true});
+stage.addEventListener('touchend', e=>{
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = e.changedTouches[0].clientY - sy;
+  if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)){
+    if(dx < 0) next(); else prev();
+    return;
+  }
+  if(!moved){   // simple tap: right half = next, left half = back
+    if(e.changedTouches[0].clientX > window.innerWidth * 0.5) next(); else prev();
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'ArrowRight' || e.key === ' ') next();
+  if(e.key === 'ArrowLeft') prev();
+});
+
+renderDial();
+applyView();
+loadCat(true);
+</script>
+</body>
+</html>
