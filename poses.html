@@ -31,10 +31,13 @@ html,body{margin:0;padding:0;height:100%;background:var(--chassis);color:var(--t
 .bar{position:fixed;top:0;left:0;right:0;z-index:20;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;
   display:flex;align-items:center;gap:8px;
   background:linear-gradient(to bottom, rgba(0,0,0,.75), transparent)}
-.dial{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1}
+.dialwrap{position:relative;flex:1;min-width:0}
+.dialwrap::after{content:'';position:absolute;top:0;right:0;bottom:0;width:22px;pointer-events:none;
+  background:linear-gradient(to right, transparent, rgba(0,0,0,.85))}
+.dial{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}
 .dial::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;padding:8px 14px;border-radius:999px;border:1px solid var(--hairline);
-  background:rgba(20,20,20,.6);color:var(--text-dim);font-size:.92rem;white-space:nowrap;cursor:pointer;
+.chip{flex:0 0 auto;padding:7px 11px;border-radius:999px;border:1px solid var(--hairline);
+  background:rgba(20,20,20,.6);color:var(--text-dim);font-size:.82rem;white-space:nowrap;cursor:pointer;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .18s ease}
 .chip.sel{border-color:var(--tungsten);color:var(--tungsten);background:rgba(232,135,58,.28);
   box-shadow:inset 0 0 0 1px var(--tungsten)}
@@ -46,7 +49,7 @@ html,body{margin:0;padding:0;height:100%;background:var(--chassis);color:var(--t
 
 /* ---- the photo IS the app ---- */
 .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;touch-action:none}
-.stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;
+.stage img{max-width:100vw;max-height:100vh;width:auto;height:auto;object-fit:contain;display:block;
   user-select:none;-webkit-user-drag:none;transition:opacity .18s ease}
 .stage img.swapping{opacity:0}
 
@@ -72,13 +75,20 @@ html,body{margin:0;padding:0;height:100%;background:var(--chassis);color:var(--t
 .counter{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(28px + env(safe-area-inset-bottom));
   z-index:19;font-size:.72rem;color:rgba(245,243,239,.4);pointer-events:none;letter-spacing:.08em}
 
+.catflash{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:25;
+  padding:14px 26px;border-radius:999px;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);border:1px solid var(--hairline);
+  color:var(--tungsten);font-size:1.05rem;letter-spacing:.04em;pointer-events:none;
+  opacity:0;transition:opacity .2s ease}
+.catflash.show{opacity:1}
+
 /* ---- grid view: scan many, tap one to blow it up ---- */
 .grid{position:fixed;inset:0;display:none;overflow-y:auto;z-index:10;
   padding:calc(58px + env(safe-area-inset-top)) 8px calc(24px + env(safe-area-inset-bottom));
   grid-template-columns:repeat(3,1fr);gap:6px;align-content:start}
 .grid.show{display:grid}
-.grid .cell{position:relative;aspect-ratio:2/3;border-radius:4px;overflow:hidden;background:var(--panel);cursor:pointer}
-.grid .cell img{width:100%;height:100%;object-fit:cover;display:block}
+.grid .cell{position:relative;height:0;padding-bottom:150%;border-radius:4px;overflow:hidden;background:var(--panel);cursor:pointer}
+.grid .cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .grid .cell .fav-dot{position:absolute;top:5px;right:5px;color:var(--star);font-size:.9rem;
   text-shadow:0 1px 4px rgba(0,0,0,.9);display:none}
 .grid .cell.faved .fav-dot{display:block}
@@ -110,7 +120,7 @@ body.gridmode .foot,body.gridmode .counter{display:none}
 <body>
 
 <div class="bar">
-  <div class="dial" id="dial"></div>
+  <div class="dialwrap"><div class="dial" id="dial"></div></div>
   <button class="viewtog" id="viewTog" onclick="toggleView()" title="Grid view">&#9638;</button>
   <button class="gear" onclick="openSettings()">&#9881;</button>
 </div>
@@ -123,6 +133,7 @@ body.gridmode .foot,body.gridmode .counter{display:none}
 </div>
 
 <div class="counter" id="counter"></div>
+<div class="catflash" id="catFlash"></div>
 
 <div class="foot">
   <div class="credit" id="credit"></div>
@@ -219,6 +230,11 @@ function renderDial(){
   f.innerHTML = '&#9733; Mine';
   f.onclick = ()=>{ showingFavs = true; renderDial(); openFavs(); };
   d.appendChild(f);
+  // keep the active chip in view when you swipe between categories
+  const active = d.querySelector('.sel');
+  if(active && active.scrollIntoView){
+    active.scrollIntoView({block:'nearest', inline:'center', behavior:'smooth'});
+  }
 }
 
 function openFavs(){
@@ -269,7 +285,7 @@ async function loadCat(reset){
     list = list.concat(batch);
     page++;
     if(list.length === 0){ setMsg('Nothing found — try another category.'); loading = false; return; }
-    if(gridMode){ renderGrid(); } else { show(); }
+    if(gridMode){ if(reset) renderGrid(0); } else { show(); }
   }catch(err){
     setMsg('Couldn\'t load — check your connection.');
   }
@@ -344,12 +360,14 @@ function applyView(){
   document.body.classList.toggle('gridmode', gridMode);
   document.getElementById('stage').style.display = gridMode ? 'none' : 'flex';
 }
-function renderGrid(){
+function renderGrid(fromIndex){
   const g = document.getElementById('grid');
-  g.innerHTML = '';
+  const start = fromIndex || 0;
+  if(start === 0){ g.innerHTML = ''; }   // full repaint only when starting fresh
   if(list.length === 0){ return; }
   const favIds = getFavs().map(f=>f.id);
-  list.forEach((p, i)=>{
+  list.slice(start).forEach((p, n)=>{
+    const i = start + n;
     const cell = document.createElement('div');
     cell.className = 'cell' + (favIds.includes(p.id) ? ' faved' : '');
     const im = document.createElement('img');
@@ -370,29 +388,65 @@ function renderGrid(){
     g.appendChild(cell);
   });
 }
-// keep loading more as you scroll the grid
+// Load more as you scroll — appends only the new cells, so your place is
+// never lost and the grid can't thrash itself into a crash.
+const MAX_PAGES = 6;   // ~180 poses per category is plenty
 document.getElementById('grid').addEventListener('scroll', ()=>{
   const g = document.getElementById('grid');
   if(!gridMode || showingFavs || loading) return;
-  if(g.scrollTop + g.clientHeight > g.scrollHeight - 400){
-    loadCat(false).then(()=>{ if(gridMode) renderGrid(); });
+  if(page > MAX_PAGES) return;
+  if(g.scrollTop + g.clientHeight > g.scrollHeight - 600){
+    const had = list.length;
+    loadCat(false).then(()=>{ if(gridMode && list.length > had) renderGrid(had); });
   }
 });
 
-// ---- thumb: flick left/right, tap right/left half ----
+// ---- thumb gestures ----
+// Left/right  = through the album.
+// Up/down     = change category.
+// Tap         = right half next, left half back.
 const stage = document.getElementById('stage');
 let sx = 0, sy = 0, moved = false;
+
+function flashCat(){
+  const name = showingFavs ? '\u2605 Mine' : CATS[cat].label;
+  const f = document.getElementById('catFlash');
+  f.textContent = name;
+  f.classList.add('show');
+  clearTimeout(f._t);
+  f._t = setTimeout(()=> f.classList.remove('show'), 900);
+}
+function nextCat(dir){
+  if(showingFavs){                 // leaving favourites returns to the dial
+    showingFavs = false;
+    cat = dir > 0 ? 0 : CATS.length - 1;
+  } else {
+    cat += dir;
+    if(cat >= CATS.length){ showingFavs = true; }
+    else if(cat < 0){ showingFavs = true; }
+  }
+  if(cat >= CATS.length) cat = 0;
+  if(cat < 0) cat = CATS.length - 1;
+  renderDial();
+  flashCat();
+  if(showingFavs){ openFavs(); } else { loadCat(true); }
+}
+
 stage.addEventListener('touchstart', e=>{
   sx = e.touches[0].clientX; sy = e.touches[0].clientY; moved = false;
 }, {passive:true});
 stage.addEventListener('touchmove', e=>{
-  if(Math.abs(e.touches[0].clientX - sx) > 8) moved = true;
+  if(Math.abs(e.touches[0].clientX - sx) > 8 || Math.abs(e.touches[0].clientY - sy) > 8) moved = true;
 }, {passive:true});
 stage.addEventListener('touchend', e=>{
   const dx = e.changedTouches[0].clientX - sx;
   const dy = e.changedTouches[0].clientY - sy;
   if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)){
     if(dx < 0) next(); else prev();
+    return;
+  }
+  if(Math.abs(dy) > 55 && Math.abs(dy) > Math.abs(dx)){
+    nextCat(dy < 0 ? 1 : -1);     // swipe up = next category, down = previous
     return;
   }
   if(!moved){   // simple tap: right half = next, left half = back
@@ -402,6 +456,8 @@ stage.addEventListener('touchend', e=>{
 document.addEventListener('keydown', e=>{
   if(e.key === 'ArrowRight' || e.key === ' ') next();
   if(e.key === 'ArrowLeft') prev();
+  if(e.key === 'ArrowDown') nextCat(1);
+  if(e.key === 'ArrowUp') nextCat(-1);
 });
 
 renderDial();
