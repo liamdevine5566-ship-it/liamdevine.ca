@@ -31,7 +31,7 @@ nav a{margin:0 12px;text-decoration:none;color:#fff;font-weight:400;letter-spaci
 .hero{height:100vh;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%),url('images/portraits/hijab.jpg') center/cover no-repeat;display:flex;align-items:flex-start;justify-content:flex-start;text-align:left;color:#fff}
 .hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(2.2rem,6vw,5rem);max-width:80%;margin:0;text-align:left;line-height:1.15;letter-spacing:.01em}
 .hero-content{max-width:1200px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;}
-section{padding:130px 8%}
+section{padding:130px 8%;scroll-margin-top:64px}
 .alt{background:var(--stone)}
 .wrap{max-width:1200px;margin:auto}
 h2{text-align:center;margin-bottom:60px}
@@ -132,6 +132,16 @@ footer a{color:#f6f2eb;text-decoration:none}
 .pi-btn.primary{background:#2f2f2f;color:#fff}
 .pi-btn.primary:hover{background:#4a4a4a}
 .lb-order{display:none;position:absolute;bottom:22px;left:26px;font-family:'Jost',Georgia,serif;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:#fff;border:1px solid rgba(255,255,255,.65);padding:10px 18px;border-radius:2px;cursor:pointer;z-index:2;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+/* Print picker */
+.picker{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;justify-content:center;align-items:center;padding:18px}
+.picker.show{display:flex}
+.picker-panel{position:relative;background:var(--ivory);max-width:560px;width:100%;max-height:82vh;overflow-y:auto;border-radius:4px;padding:26px 22px 22px}
+.picker-x{position:absolute;top:8px;right:16px;font-size:30px;color:#999;cursor:pointer;line-height:1}
+.picker-panel h3{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:400;text-align:center;margin:0 0 6px;font-size:1.45rem;letter-spacing:.02em}
+.picker-sub{font-family:'Jost',Georgia,serif;font-weight:300;text-align:center;font-size:.88rem;color:#777;margin:0 0 18px}
+.picker-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.picker-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:2px;cursor:pointer;display:block;transition:transform .2s ease,box-shadow .2s ease}
+@media(hover:hover){.picker-grid img:hover{transform:scale(1.04);box-shadow:0 8px 18px rgba(0,0,0,.25)}}
 </style>
 <meta content="Portrait, fine art and pet photography by Liam Devine. Based in London, Ontario and available throughout Southwestern Ontario." name="description"/>
 <meta content="London Ontario photographer, portrait photographer, family photographer, pet photographer, fine art photography" name="keywords"/>
@@ -181,7 +191,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <a href="#family" data-cat="family">FAMILY</a>
 <a href="#pets" data-cat="pets">PETS</a>
 <a href="#personal" data-cat="fine-art">FINE ART</a>
-<a href="#print-inquiry" data-cat="fine-art">PRINTS</a>
+<a href="#personal" data-cat="fine-art">PRINTS</a>
 <a href="#showcase" data-cat="showcase">SPEED &amp; MOTION</a>
 <a href="#wildlife" data-cat="wildlife">WILDLIFE</a>
 <a href="#landscapes" data-cat="landscapes">LANDSCAPES</a>
@@ -229,7 +239,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <p><strong>Canada-Wide Shipping</strong> — securely packaged and shipped directly to your door.</p>
 </div>
 <div class="pi-actions">
-<a class="pi-btn primary" href="#contact" onclick="orderPrint()">Order a Print</a>
+<a class="pi-btn primary" href="#contact" onclick="orderPrint(event)">Order a Print</a>
 <a class="pi-btn" href="#contact" onclick="askFineArt()">Ask a Question</a>
 </div>
 </div>
@@ -382,6 +392,15 @@ footer a{color:#f6f2eb;text-decoration:none}
 <p>© 2026 Liam Devine. All rights reserved.</p>
 </footer>
 <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<div class="picker" id="printPicker" onclick="if(event.target.id==='printPicker')closePicker()">
+<div class="picker-panel">
+<span class="picker-x" onclick="closePicker()">×</span>
+<h3>Choose Your Print</h3>
+<p class="picker-sub">Tap the photo you'd like to order</p>
+<div class="picker-grid" id="pickerGrid"></div>
+</div>
+</div>
 
 <div class="lightbox" id="lightbox"><span class="close" onclick="closeLightbox()">×</span><span class="nav-arrow prev" onclick="prevImage()">❮</span><img id="lightbox-img"/><span class="lb-order" id="lbOrder" onclick="orderFromLightbox()">Order This Print</span><span class="lightbox-watermark">© Liam Devine Photography</span><span class="nav-arrow next" onclick="nextImage()">❯</span></div>
 
@@ -592,8 +611,35 @@ function prefillContact(subject, message){
   document.getElementById('contactSubject').value = subject;
   document.getElementById('contactMessage').value = message;
 }
-function orderPrint(){
-  prefillContact('Fine Art Print Inquiry', printTemplate(''));
+function orderPrint(e){
+  if(e){ e.preventDefault(); }
+  const srcs = galleries['personal'] || [];
+  if(srcs.length === 0){
+    // gallery still loading — fall back to the plain inquiry
+    prefillContact('Fine Art Print Inquiry', printTemplate(''));
+    location.hash = '#contact';
+    return;
+  }
+  const grid = document.getElementById('pickerGrid');
+  grid.innerHTML = '';
+  srcs.forEach(src=>{
+    const im = document.createElement('img');
+    im.src = thumbUrl(src);
+    im.alt = photoNames[src] || '';
+    im.loading = 'lazy';
+    im.onclick = ()=> pickPrint(src);
+    grid.appendChild(im);
+  });
+  document.getElementById('printPicker').classList.add('show');
+}
+function closePicker(){ document.getElementById('printPicker').classList.remove('show'); }
+function pickPrint(src){
+  closePicker();
+  prefillContact('Fine Art Print Inquiry', printTemplate(photoNames[src] || ''));
+  setTimeout(()=>{
+    const c = document.getElementById('contact');
+    if(c) c.scrollIntoView({behavior:'smooth'});
+  }, 80);
 }
 function askFineArt(){
   prefillContact('Fine Art Question', '');
@@ -645,12 +691,18 @@ function closeLightbox(){
 
 function actuallyCloseLightbox(){
   resetZoom();
+  // Put the page back to its exact spot INSTANTLY — the site's global
+  // smooth-scrolling must not animate this jump, or the visitor sees the
+  // page "run down" from the top after closing a photo.
+  const html = document.documentElement;
+  html.style.scrollBehavior = 'auto';
   document.body.style.position='';
   document.body.style.top='';
   document.body.style.width='';
-  window.scrollTo(0, savedScrollY);
+  window.scrollTo({top: savedScrollY, left: 0, behavior: 'auto'});
   requestAnimationFrame(()=>{
     document.getElementById('lightbox').style.display='none';
+    html.style.scrollBehavior = '';
   });
 }
 
