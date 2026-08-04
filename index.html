@@ -765,14 +765,12 @@ function openGallery(gallery,src){
   preloadNeighbors();
 }
 function nextImage(){
-  if(isZoomed()){ resetZoomAnimated(); return; } // zoom out first, navigate second
   resetZoom();
   currentIndex=(currentIndex+1)%currentGallery.length;
   document.getElementById('lightbox-img').src=currentGallery[currentIndex];
   preloadNeighbors();
 }
 function prevImage(){
-  if(isZoomed()){ resetZoomAnimated(); return; }
   resetZoom();
   currentIndex=(currentIndex-1+currentGallery.length)%currentGallery.length;
   document.getElementById('lightbox-img').src=currentGallery[currentIndex];
