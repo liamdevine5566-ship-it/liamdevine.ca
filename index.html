@@ -836,8 +836,8 @@ function tapClose(){
 
 lb.addEventListener('touchstart', e=>{
   lastTouchT = Date.now();
-  // Don't start gestures if tapping an arrow
-  if(e.target.classList.contains('nav-arrow')){ return; }
+  // Don't start gestures if tapping controls (arrows, close, order button)
+  if(e.target.classList.contains('nav-arrow') || e.target.classList.contains('close') || e.target.classList.contains('lb-order')){ return; }
   if(e.touches.length === 2){
     // PINCH takes priority over everything — cancel pending swipe/tap
     clearTimeout(tapTimer);
@@ -900,8 +900,8 @@ lb.addEventListener('touchmove', e=>{
 }, {passive:false});
 
 lb.addEventListener('touchend', e=>{
-  // If tapped an arrow, let the onclick handler fire
-  if(e.target.classList.contains('nav-arrow')){ gesture = null; return; }
+  // If tapped a control (arrow, close, order button), let the onclick handler fire
+  if(e.target.classList.contains('nav-arrow') || e.target.classList.contains('close') || e.target.classList.contains('lb-order')){ gesture = null; return; }
   if(!gesture) return;
   const g = gesture;
 
