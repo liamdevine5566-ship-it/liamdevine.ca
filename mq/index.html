@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MQ Finder">
+<meta name="theme-color" content="#DC143C">
+<title>MQ Equipment Finder</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F2F2F4;color:#1a1a1a;padding-bottom:env(safe-area-inset-bottom)}
+.hdr{background:#fff;border-bottom:1px solid #E2E2E6;padding:14px 16px calc(14px) 16px;padding-top:calc(14px + env(safe-area-inset-top));position:sticky;top:0;z-index:50}
+.hdr h1{font-size:17px;font-weight:600;letter-spacing:-.2px}
+.hdr h1 span{color:#DC143C}
+.wrap{max-width:640px;margin:0 auto;padding:14px 16px 340px}
+.sbox{position:relative;margin-bottom:10px}
+.sbox input{width:100%;padding:14px;font-size:16px;border:1.5px solid #DDD;border-radius:11px;font-family:inherit;background:#fff}
+.sbox input:focus{outline:none;border-color:#DC143C}
+.clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;background:#C9C9CE;color:#fff;border:none;font-size:15px;line-height:1;cursor:pointer;display:none}
+.clr.on{display:block}
+.sug{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid #DDD;border-radius:11px;max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.sug.hide{display:none}
+.sug-i{padding:11px 13px;border-bottom:1px solid #F0F0F2;cursor:pointer}
+.sug-i:last-child{border-bottom:none}
+.sug-i:active{background:#F5F5F7}
+.sug-m{font-weight:600;color:#DC143C;font-size:14px}
+.sug-d{font-size:12px;color:#7A7A80;margin-top:2px}
+.sug-p{font-size:12px;color:#1a1a1a;font-weight:600;float:right}
+.row{display:flex;gap:8px;margin-bottom:14px}
+.disc{flex:1;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #E2E2E6;border-radius:11px;padding:11px 13px}
+.disc label{font-size:13px;color:#6A6A70;font-weight:500;white-space:nowrap}
+.disc input{width:100%;border:none;font-size:16px;font-family:inherit;font-weight:600;background:transparent}
+.disc input:focus{outline:none}
+.cat{display:flex;gap:7px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cat::-webkit-scrollbar{display:none}
+.cat button{flex-shrink:0;padding:8px 13px;background:#fff;border:1px solid #E2E2E6;border-radius:100px;font-size:13px;font-family:inherit;font-weight:500;color:#3a3a3e;cursor:pointer}
+.cat button:active{background:#DC143C;color:#fff;border-color:#DC143C}
+.hint{font-size:12px;color:#8A8A90;margin-bottom:9px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.card{background:#fff;border:1px solid #E2E2E6;border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer}
+.card:active{background:#FAFAFA}
+.card-m{font-weight:700;color:#DC143C;font-size:15px}
+.card-d{font-size:13px;color:#5A5A60;margin-top:3px;line-height:1.35}
+.card-p{font-size:14px;font-weight:600;margin-top:7px}
+.hero{background:#fff;border:1px solid #E2E2E6;border-radius:12px;padding:16px;margin-bottom:16px}
+.hero-m{font-size:21px;font-weight:700;letter-spacing:-.4px}
+.hero-d{font-size:14px;color:#5A5A60;margin-top:4px;line-height:1.4}
+.hero-p{margin-top:12px;padding-top:12px;border-top:1px solid #EFEFF1;display:flex;justify-content:space-between;align-items:flex-end}
+.pl{font-size:11px;color:#8A8A90;text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.pv{font-size:20px;font-weight:700;margin-top:2px}
+.pv.was{font-size:15px;color:#9A9AA0;text-decoration:line-through;font-weight:500}
+.red{color:#DC143C}
+.back{background:none;border:none;color:#DC143C;font-size:15px;font-weight:600;font-family:inherit;padding:4px 0 12px;cursor:pointer}
+.acc{background:#fff;border:1px solid #E2E2E6;border-radius:11px;padding:13px;margin-bottom:7px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.acc:active{background:#FAFAFA}
+.acc.on{border-color:#DC143C;border-width:2px;padding:12px}
+.tick{width:25px;height:25px;border-radius:50%;border:1.5px solid #C9C9CE;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;font-weight:700}
+.acc.on .tick{background:#DC143C;border-color:#DC143C;color:#fff}
+.acc-i{flex:1;min-width:0}
+.acc-m{font-size:13px;font-weight:700}
+.acc-d{font-size:12px;color:#6A6A70;margin-top:2px;line-height:1.3}
+.acc-p{text-align:right;flex-shrink:0;font-size:14px;font-weight:700}
+.acc-p small{display:block;font-size:11px;color:#9A9AA0;text-decoration:line-through;font-weight:500}
+.grp{font-size:11px;font-weight:700;color:#8A8A90;text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px}
+.empty{background:#fff;border:1px solid #E2E2E6;border-radius:12px;padding:26px 16px;text-align:center;color:#8A8A90;font-size:14px}
+.quote{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #DDD;box-shadow:0 -4px 20px rgba(0,0,0,.09);z-index:70;max-height:62vh;display:flex;flex-direction:column}
+.q-bar{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;flex-shrink:0}
+.q-bar .lbl{flex:1;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#5A5A60}
+.q-bar .tot{font-size:19px;font-weight:700;color:#DC143C}
+.q-bar .chev{color:#9A9AA0;font-size:12px;width:14px;text-align:center}
+.q-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px;max-width:640px;margin:0 auto;width:100%}
+.quote.shut .q-body,.quote.shut .q-foot{display:none}
+.q-line{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #F0F0F2;font-size:13px}
+.q-line .n{flex:1;min-width:0}
+.q-line .nm{font-weight:700}
+.q-line .ds{font-size:11px;color:#8A8A90;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-line .pr{font-weight:700;flex-shrink:0}
+.q-line .x{color:#C9C9CE;font-size:19px;padding:0 2px;cursor:pointer;flex-shrink:0}
+.q-foot{padding:12px 16px calc(14px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto;width:100%;flex-shrink:0}
+.q-sum{display:flex;justify-content:space-between;font-size:13px;color:#6A6A70;padding:3px 0}
+.q-sum.big{font-size:16px;font-weight:700;color:#1a1a1a;border-top:1px solid #E2E2E6;margin-top:7px;padding-top:9px}
+.q-btn{width:100%;padding:12px;background:#F2F2F4;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;color:#3a3a3e;cursor:pointer;margin-top:9px}
+.q-none{padding:16px 0 20px;text-align:center;color:#9A9AA0;font-size:13px}
+</style>
+</head>
+<body>
+<div class="hdr"><h1>MQ <span>Equipment Finder</span></h1></div>
+
+<div class="wrap">
+  <div class="sbox">
+    <input id="q" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Model, or &quot;25 kVA&quot;, &quot;ride on trowel&quot;...">
+    <button class="clr" id="clr">&times;</button>
+    <div class="sug hide" id="sug"></div>
+  </div>
+
+  <div class="row">
+    <div class="disc"><label>Machine</label><input id="dm" type="number" inputmode="decimal" placeholder="0" min="0" max="100"><label>%</label></div>
+    <div class="disc"><label>Parts</label><input id="dp" type="number" inputmode="decimal" placeholder="0" min="0" max="100"><label>%</label></div>
+  </div>
+
+  <div class="cat" id="cat"></div>
+  <div id="out"></div>
+</div>
+
+<div class="quote shut" id="quote">
+  <div class="q-bar" id="qbar">
+    <span class="chev" id="chev">&#9650;</span>
+    <span class="lbl">Quote <span id="qn"></span></span>
+    <span class="tot" id="qtot">$0.00</span>
+  </div>
+  <div class="q-body" id="qbody"></div>
+  <div class="q-foot" id="qfoot"></div>
+</div>
+
+<script>
+const P = [{"m":"MTR40HF","d":"Rammer Honda GXR100 Float Carb","p":6288.8},{"m":"MTX50HD","d":"Rammer Honda GX100 Diaphragm Carb","p":5878.6},{"m":"MTX60HD","d":"Rammer Honda GX100 Diaph. Carb","p":6224.4},{"m":"MTX70HD","d":"Rammer Honda GX100 Diaphragm Carb","p":8121.4},{"m":"MTX70HDR","d":"Rammer Honda GXR120 Diaphragm Carb","p":8121.4},{"m":"MTX80HDR","d":"Rammer Honda GXR120 Diaphragm Carb","p":8811.6},{"m":"MTE55B","d":"Rammer Electric Bare","p":7186.2},{"m":"KIT8511S","d":"Kit incl: Shoe  Washers  Nuts  Bolts","p":612.73},{"m":"KITSHOEMTX50/60","d":"Kit incl: Shoe  Washers  Nuts  Bolts","p":532.5},{"m":"3504S","d":"Shoe  4 wood  MTR35  40","p":502.6},{"m":"355XA","d":"Foot  4\u201d (W) x12\u201d (H)  steel  MTR35  40","p":544.6},{"m":"460XA","d":"Foot  4.5x12  steel  MT50-60  MTX60","p":544.6},{"m":"362910150","d":"Foot Assy (Prod only) use PN KITSHOEMTX5","p":651.14},{"m":"485XA","d":"Foot  4.5x12  steel  MT70-80  MTX70-90","p":544.6},{"m":"660X","d":"Foot  6.5x12  wood  MT50-60  MTX60","p":943.6},{"m":"685XA","d":"Foot  6.5x12  steel  MT70-80  MTX70-90","p":544.6},{"m":"CART-RAMMER","d":"Rammer wheel cart (MTX models)","p":426.0},{"m":"RMRSTAND","d":"Display Stand - Rammer and Forward Plate","p":1251.6},{"m":"FKITMTX1","d":"MTX50/60/70; AF1 AF2 FF SP","p":178.64},{"m":"FKITMTX1-5PK","d":"5-Pack of FKITMTX1","p":861.91},{"m":"FKITMTX2","d":"MTX60SD/80SD/90; AF1 AF2 FF SP","p":158.36},{"m":"FKITMTX3","d":"MTXSF/HF/SF; AF1 AF2 FF SP","p":145.46},{"m":"366010070-6PK","d":"Kit  Primary Element  Filter (6 pack)","p":235.58},{"m":"366010080-6PK","d":"Kit  Secondary Element  Filter (6 pack)","p":553.48},{"m":"SPFKITMTX1","d":"Kit  Filter -   MTX1","p":62.86},{"m":"MVC60VTH","d":"Plate Honda GX120 no water tank 13.8","p":4180.4},{"m":"MVC60VTHW","d":"Plate Honda GX120 water tank 13.8 wide","p":4333.0},{"m":"MVC82VH","d":"Plate Honda GX160 no water tank 18 wide","p":3840.2},{"m":"MVC82VHW","d":"Plate Honda GX160 w/ water tank 18 wide","p":4209.8},{"m":"MVC88VTH","d":"Plate Honda GX160 no water tank 20 wide","p":4845.4},{"m":"MVC88VTHW","d":"Plate Honda GX160 w/ water tank 20 wide","p":5111.4},{"m":"MVCE64VBW","d":"Fwd Plate Electric Bare  wtr tnk 14 wide","p":5565.0},{"m":"MVCE82VBW","d":"Fwd PLT GBX xbatt/chgr  wtr tnk  18 plt","p":6090.0},{"m":"MVB85H","d":"Plate-Roller Honda GX120 15 wide","p":7443.8},{"m":"MVB150H","d":"Plate-Roller Honda GX160 22 wide","p":11953.2},{"m":"MVH128GH","d":"Reversible Plate Honda GX160- 16 wide","p":10908.8},{"m":"MVH158GH","d":"Reversible Plate Honda GX200 17 wide","p":13088.6},{"m":"MVH208GH","d":"Reversible Plate Honda GX240 20 wide","p":15999.2},{"m":"MVH308DE","d":"Reversible Plt Hatz 1B30E 18 wide DIESEL","p":28520.8},{"m":"MVH308GH","d":"Reversible Plate Honda GX270 18 wide","p":20543.6},{"m":"MVH408DE","d":"Reversible Plt Hatz 1B50E 20 wide DIESEL","p":32086.6},{"m":"MVH408GH","d":"Reversible Plate Honda GX390 20 wide","p":22043.0},{"m":"MVH408GV","d":"Rev Plate Vanguard-400 20 wide","p":22486.8},{"m":"MVH508DE","d":"Reversible Plt Hatz 1D90E 20 wide DIESEL","p":38038.0},{"m":"MVH508GH","d":"Rev Plate Honda GX390 20 wide E-Start","p":28106.4},{"m":"MVH508GV","d":"Rev Plate Vanguard-400  E-Start 20 wide","p":28047.6},{"m":"MVHER60B","d":"Rev Plate Electric Bare  14 wide","p":10700.2},{"m":"CPAS308DE","d":"Compas Kit for MVH308DE","p":3544.8},{"m":"CPAS408DE","d":"Compas Kit for MVH408DE","p":3544.8},{"m":"CPAS508DE","d":"Compas Kit for MVH508DE","p":3544.8},{"m":"CPAS508GH","d":"Compas Kit for MVH508GH","p":3726.8},{"m":"CPAS308DZ","d":"Compas Kit for MVH308DZ","p":3726.8},{"m":"CPAS408DZ","d":"Compas Kit for MVH408DZ","p":3726.8},{"m":"CPAS508DZ","d":"Compas Kit for MVH508DZ","p":3726.8},{"m":"UPA88T","d":"NLA - Urethene Rammer Plate - See Notes","p":775.6},{"m":"WHL64","d":"Wheel Kit for MVC64VH(W)","p":453.6},{"m":"WHL82","d":"Wheel Kit MVC82VH(W) SN C2073 ABOVE","p":453.6},{"m":"WHL158","d":"Wheel Kit for MVH158/MVH128","p":564.2},{"m":"WHL88T","d":"Wheel Kit MVC88VTH(W) SN C1472 ABOVE","p":509.6},{"m":"WHL88TC","d":"Wheel Kit MVC88VTH(W) SN A9198 ~ C1471","p":509.6},{"m":"KIT12EXTEND","d":"12 Plate Extensions MVH308  408  508","p":877.8},{"m":"731099","d":"Water Tank Kit      MVC40H.","p":368.06},{"m":"52677","d":"Kit  Water   MVC64VHW","p":301.84},{"m":"52693","d":"*NLA* Kit water tank MVC-F80(*use 35269)","p":326.48},{"m":"352678","d":"Water Tank set for MVC-82VH(W) (11L)","p":222.47},{"m":"731598","d":"Water Tank Kit MVC88VTHW (Notes)","p":294.73},{"m":"451008","d":"Water Tank Kit  MVH128-158 *see notes*","p":546.7},{"m":"G3572","d":"Battery  MVH308 408 508DE (Canada Only)","p":573.77},{"m":"G51R60","d":"Battery  MVH508GH (Canada Only)","p":624.69},{"m":"731292","d":"Water Tank Kit (JP) MVC60","p":265.0},{"m":"FKITMVC1","d":"MVC82/80(GX160U1SM12); AF OF SP","p":42.89},{"m":"FKITMVC2","d":"MVC88(GX160US1SMX4); AF OF SP","p":35.77},{"m":"FKITMVC3","d":"MVC88(GX160UT2SCM); AF OF SP","p":47.25},{"m":"FKITMVH128","d":"Kit  Filter  MVH128","p":52.92},{"m":"FKITMVC40H","d":"Kit incl: Air  Fuel  Plus Spark Plug","p":41.51},{"m":"FKITMVC64VH","d":"Kit  Filter  MVC64VH","p":50.87},{"m":"MC3PBAT","d":"Mixer-Conc  Poly Drum  3cf  48V battery","p":3213.0},{"m":"MC3PEA","d":"Mixer-Conc  Poly Drum  115V elec  3cf","p":1731.8},{"m":"DM1200","d":"Stand Assy       MC3E MC3B MC3H SB4","p":252.47},{"m":"MC44SE","d":"Mixer-Conc  1/2HP 115V 1-phase 4cf Steel","p":5888.4},{"m":"MC44SH","d":"Mixer-Conc  Honda GX-120 4cf Steel","p":5843.6},{"m":"MC64PE","d":"Mixer-Conc  1.5HP 115/230V 1-ph 6cf Poly","p":7364.0},{"m":"MC64PK","d":"Mixer-Conc  Kohler 9.5HP CH395 6cf Poly","p":7879.2},{"m":"MC64SE","d":"Mixer-Conc  1.5HP 115/230V 1-ph 6cf Stl","p":6945.4},{"m":"MC64SK","d":"Mixer-Conc  Kohler 9.5HP CH395 6cf Steel","p":7287.0},{"m":"MC64PH5","d":"Mixer-Conc  Honda GX-160 6cf Poly","p":7845.6},{"m":"MC64SH5","d":"Mixer-Conc  Honda GX-160 6cf Steel","p":7072.8},{"m":"MC64PH8","d":"Mixer-Conc  Honda GX-240 6cf Poly","p":8223.6},{"m":"MC64SH8","d":"Mixer-Conc  Honda GX-240 6cf Steel","p":7502.6},{"m":"MC94PE","d":"Mixer-Conc  1.5HP 115/230V 1-ph 9cf Poly","p":9002.0},{"m":"MC94PK","d":"Mixer-Conc  Kohler 9.5HP CH395 9cf Poly","p":8908.2},{"m":"MC94SE","d":"Mixer-Conc  1.5HP 115/230V 1-ph 9cf Stl","p":8531.6},{"m":"MC94PH8","d":"Mixer-Conc  Honda GX-240 9cf Poly","p":9423.4},{"m":"MC94SH8","d":"Mixer-Conc  Honda GX-240 9cf Steel","p":8488.2},{"m":"MC12PH","d":"Mixer-Conc  Honda GX-340 12cf Poly","p":10717.0},{"m":"WM45E","d":"Mixer-Mortar  1HP 115/230V 1ph 4.5cf","p":5605.6},{"m":"WM45H","d":"Mixer-Mortar  Honda 4.8HP 4.5cf","p":6028.4},{"m":"WM63H5","d":"Mixer-Mortar  6.3cf Towable  Honda 4.8hp","p":6392.4},{"m":"WM63H8","d":"Mixer-Mortar  6.3cf Towable  Honda 7.9hp","p":7061.6},{"m":"WM63E","d":"Mixer-Mortar  6.3cf Towable  Elect 1.5hp","p":6115.2},{"m":"WM63SLF","d":"Mixer-Mortar  6cf Steel  MPower 9hp Eng","p":6629.0},{"m":"WM70PE","d":"Mixer-Mortar 1.5HP 115/230V 1-ph 7cf Pol","p":7364.0},{"m":"WM70PH5","d":"Mixer-Mortar  Honda GX-160 7cf Poly","p":7536.2},{"m":"WM70PH8","d":"Mixer-Mortar  Honda GX-240 7cf Poly","p":8146.6},{"m":"WM70PLF","d":"Mixer-Mortar  7cf Poly  MPower 9hp Eng","p":6984.6},{"m":"WM70SE","d":"Mixer-Mortar  1.5HP 115/230V 1-ph 7cf St","p":6776.0},{"m":"WM70SH5","d":"Mixer-Mortar  Honda GX-160 7cf Steel","p":6945.4},{"m":"WM70SH8","d":"Mixer-Mortar  Honda GX-240 7cf Steel","p":7543.2},{"m":"WM70SLF","d":"Mixer-Mortar  7cf Steel  MPower 9hp Eng","p":6830.6},{"m":"WM90PE","d":"Mixer-Mortar  3HP 230V 1-phase 9cf Poly","p":8737.4},{"m":"WM90PH8","d":"Mixer-Mortar  Honda GX-240 9cf Poly","p":8874.6},{"m":"WM90PLF","d":"Mixer-Mortar  9cf Poly  MPower 9hp Eng","p":8488.2},{"m":"WM90SE","d":"Mixer-Mortar  3HP 230V 1-phase 9cf Steel","p":8051.4},{"m":"WM90SH8","d":"Mixer-Mortar  Honda GX-240 9cf Steel","p":8103.2},{"m":"WM90SLF","d":"Mixer-Mortar  9cf Steel  MPower 9hp Eng","p":7709.8},{"m":"WM120PHD","d":"Mixer-Mortar  Honda GX390QA  w/hyd dump","p":16676.8},{"m":"WM120SHHD","d":"Mixer-Mortar  Honda GX390QA  w/hyd dump","p":16419.2},{"m":"WM120SE1D","d":"Mixer-Mortar  5HP 230V 1-phase  hyd dump","p":17189.2},{"m":"WM120SE3D","d":"Mixer-Mortar  5HP 230/460V 3P  hyd dump","p":17024.0},{"m":"EM70SE","d":"Mixer-Mortar  1.5HP 115/230V 1-ph 7cf St","p":7061.6},{"m":"EM70SH5","d":"Mixer-Mortar  Honda GX-160 7cf Steel","p":7117.6},{"m":"EM70SH8","d":"Mixer-Mortar  Honda GX-240 7cf Steel","p":7789.6},{"m":"EM90SE","d":"Mixer-Mortar  3HP 230V 1-phase 9cf Steel","p":8223.6},{"m":"EM70SLF","d":"Mixer-Mortar  7cf Steel  MPower 9hp Eng","p":7015.4},{"m":"EM90SH8","d":"Mixer-Mortar  Honda GX-240 9cf Steel","p":8226.4},{"m":"EM90SLF","d":"Mixer-Mortar  9cf Steel  MPower 9hp Eng","p":8024.8},{"m":"EM120HYD","d":"Mixer-Mortar 12cf  Hyd Drive  Towable","p":16695.0},{"m":"PRO12","d":"Mixer-Mortar 12cf  skid over center dump","p":19506.2},{"m":"PRO12E51","d":"Mixer-Mortar  12cf skid 5HP 1\u00d8 230V only","p":22198.4},{"m":"PRO12E53","d":"Mixer-Mortar  12cf skid 5HP 3\u00d8 230V only","p":21393.4},{"m":"PRO12E53-460V","d":"Mixer-Mortar  12cf skid  5HP 3\u00d8 460V","p":23142.0},{"m":"PRO20","d":"Mixer-Mortar 20cf skid 18HP Vanguard eng","p":28551.6},{"m":"WM70SH5C","d":"Mixer-Mortar  Honda GX-160 7cf Steel CAN","p":6636.0},{"m":"WM70SH8C","d":"Mixer-Mortar  Honda GX-240 7cf Steel CAN","p":7296.8},{"m":"PRO12C","d":"Mixer-Mortar 12cf  skid over center dump","p":18953.2},{"m":"HPC1","d":"Hitch-Mixer  1 Pin-7 9 12mort/allcon35","p":179.2},{"m":"HLC1","d":"Hitch-Mixer  Loop - 7 9 12mort/allcon35","p":197.4},{"m":"HBC1","d":"Hitch-Mixer 2Ball ~7 9 12mort/allcon35","p":239.4},{"m":"MQMJS","d":"Kit  Jack Stand for mixers - see BDT","p":712.97},{"m":"LTMIX1","d":"Tail light kit for mixers","p":462.0},{"m":"MFENDERKIT","d":"Kit Mixer Fender - Excludes 12cuft","p":659.4},{"m":"BM2200","d":"BATTERY ION LITHIUM 48V-30AH","p":1255.74},{"m":"MUDTUB","d":"Multiquip Mud Tub  10cf cap. stationary","p":907.2},{"m":"MUDTUBW","d":"Multiquip Mud Tub  10cf cap. w/ wheels","p":1610.0},{"m":"HBC19BCSA","d":"Rebar Cutter  Hand Held  3/4 Grade 60","p":5460.0},{"m":"HBC25BCSA","d":"Rebar Cutter  Hand Held  1 Grade 60","p":6440.0},{"m":"UM12325","d":"Vibr Assy. 0.90 Head  9.5  Length 115V","p":1307.6},{"m":"UM12810","d":"Vibr Assy. 1.10 Head  4.7  Length 115V","p":1135.4},{"m":"UM12815","d":"Vibr Assy. 1.10 Head  6.3   Length 115V","p":1174.6},{"m":"UM12825","d":"Vibr Assy. 1.10 Head  9.5  Length  115V","p":1307.6},{"m":"UM13225","d":"Vibr Assy. 1.25 Head  9.5  Length 115V","p":1346.8},{"m":"UM13810","d":"Vibr Assy. 1.50  Head  4.7  Length 115V","p":1220.8},{"m":"UM13815","d":"Vibr Assy. 1.50 Head  6.3   Length 115V","p":1260.0},{"m":"UM13825","d":"Vibr Assy. 1.50 Head  9.5   Length 115V","p":1349.6},{"m":"CV1A","d":"Vibrator Motor  1HP 115V w/ 15 Amp plug","p":1198.4},{"m":"CV2B","d":"Vibrator motor  2HP 230V w/out plug","p":1281.0},{"m":"CV2A","d":"Vibrator Motor  2HP 115V w/ 15 Amp plug","p":1281.0},{"m":"CV2E","d":"Vibrator Motor 2hp  230V","p":1041.6},{"m":"CV3A","d":"Vibrator motor  3HP 115V w/ 20 Amp Plug","p":1458.8},{"m":"CV3B","d":"Vibrator motor  3HP 230V w/out Plug","p":1458.8},{"m":"G55H","d":"VIBRATORY MOTOR STATIONARY HONDA GX160","p":2958.2},{"m":"BPX","d":"VIBRATOR MOTOR BACKPACK","p":3929.8},{"m":"FSN2","d":"Flex-Shaft  Narrow 2  for pencil heads","p":275.8},{"m":"FSN7","d":"Flex-Shaft  Narrow 7  for pencil heads","p":372.4},{"m":"FSN10","d":"FLEX NARROW SHAFT 314V","p":434.0},{"m":"FSN12","d":"Flex-Shaft  Narrow 12  for pencil heads","p":467.6},{"m":"FSN14","d":"Flex-Shaft  Narrow 14  for pencil heads","p":512.4},{"m":"FSN21","d":"6.4M / 21FT FOR USE WITH 900HD & 1000HD","p":679.0},{"m":"FS10","d":"Shaft  10  for 1400~2600HD  all RHV head","p":477.4},{"m":"FS12","d":"Shaft  12  for 1400~2600HD  all RHV head","p":512.4},{"m":"FS14","d":"Shaft  14  for 1400~2600HD  all RHV head","p":555.8},{"m":"FS21","d":"Shaft  21  for 1400~2600HD  all RHV head","p":716.8},{"m":"FS3","d":"Shaft  3  for 1400~2600HD  all RHV heads","p":317.8},{"m":"FS7","d":"Shaft  7  for 1400~2600HD  all RHV heads","p":414.4},{"m":"900HD","d":"Vibrator Head  7/8 diameter  steel","p":455.0},{"m":"1000HD","d":"Vibrator Head 1-1/16 diameter steel","p":473.2},{"m":"1400HD","d":"Vibrator Head 1-3/8 diameter steel","p":544.6},{"m":"1700HD","d":"Vibrator Head 1-11/16 diameter steel","p":564.2},{"m":"2100HD","d":"Vibrator Head 2-1/8 diameter steel","p":579.6},{"m":"2600HD","d":"Vibrator Head  2-5/8 diameter  steel","p":749.0},{"m":"FSC","d":"Vibrator-Connector  to extend FS shafts","p":620.2},{"m":"FU162A","d":"Controller for FX30E/40G/50G/60E","p":4958.8},{"m":"FX30E6","d":"HC Vibr 1.25 diam.  20   hose","p":3103.8},{"m":"FX40G6","d":"HC Vibr 1.7 diam.  20   hose","p":3425.8},{"m":"FX50G6","d":"HC Vibr  2 diam.  20  hose","p":3749.2},{"m":"FX60E6","d":"HC Vibr  2.4 diam.  20  hose","p":4071.2},{"m":"VHKIT10FT","d":"10 Foot Extension FX40G6-FX50G6-See BDT","p":931.0},{"m":"VHKIT20FT","d":"20 Foot Extension  FX40G6-FX50G6-See BDT","p":1706.6},{"m":"WBH-16EF","d":"Buggy  Honda GX390 Elect Strt Foam tires","p":23286.2},{"m":"WBH-16F","d":"Buggy  Honda GX390 Recoil Foam tires","p":22251.6},{"m":"WBH-21EF","d":"Buggy  Vanguard 18HP  21cf  Poly Tub","p":24430.0},{"m":"WBH-21EFP","d":"Buggy  Vanguard 18HP  21cf  Propane Fuel","p":29401.4},{"m":"WBH-16EAWDF","d":"Buggy  Vanguard Elect Strt AWD Foam tire","p":30305.8},{"m":"WTB-16","d":"Buggy  Track Honda GX690 Electric Start","p":42172.2},{"m":"WTB-16PD","d":"Buggy  Track Honda GX690 Pivot Dump","p":49718.2},{"m":"TB11E","d":"Tufftruk buggy -NLA ** see TB12SE","p":20909.0},{"m":"TB12PE","d":"Tufftruk buggy 6cf walk BH poly tub 24v","p":20916.0},{"m":"TB12SE","d":"Tufftruk buggy 6cf walk BH steeltub 24v","p":20909.0},{"m":"TTBH","d":"Opt Acc Tufftruk tow ball hitch","p":978.6},{"m":"TSP","d":"Opt AccTufftruk snow plough blade +Tbar","p":2772.0},{"m":"TBLADE","d":"Opt Acc Tufftruk snow plough replaceme","p":2289.0},{"m":"FTB","d":"Opt Acc Tufftruk snow plough tool bar","p":567.0},{"m":"TFB33","d":"Opt Acc Tufftruk flatbed kit 33 inch","p":1764.0},{"m":"TFB29","d":"Opt Acc Tufftruk flatbed kit 29 inch","p":1687.0},{"m":"TLP","d":"Opt Acc Tufftruk log pole x 2","p":427.0},{"m":"TTE","d":"Opt Acc Tufftruk STL tub extension TB11","p":777.0},{"m":"TT7","d":"Opt Acc Tufftruk STL tub 7cf TB11/TB12","p":1323.0},{"m":"TT11","d":"Opt Acc Tufftruk STL tub 10.6cf TB11","p":1638.0},{"m":"TTH","d":"Opt Acc Tufftruk steel tub dump handle","p":343.0},{"m":"TTHP","d":"Opt Acc Tufftruk poly tub dump handle","p":343.0},{"m":"CA4HC","d":"TROWEL 24 HONDA GX160 CENT CLUTCH","p":4971.4},{"m":"CA4HM","d":"TROWEL 24 HONDA GX160 MAN CLUTCH W/QP","p":5632.2},{"m":"J36E2","d":"TROWEL 36 230 ADJ CLUTCH W/STD HNDL","p":9868.6},{"m":"J36H55","d":"TROWEL 36 HONDA GX160","p":4897.2},{"m":"J36H90H","d":"TROWEL 36 HONDA GX270 HIGH SPEED","p":5306.0},{"m":"J36B65","d":"TROWEL 36 VANGUARD 200","p":4748.8},{"m":"J3036H55","d":"TROWEL 30/36 HONDA GX160 CONVERT","p":5416.6},{"m":"B46H11H","d":"TROWEL 46 HONDA GX340 HIGH SPEED","p":6203.4},{"m":"B46H90","d":"TROWEL 46 HONDA GX270","p":6084.4},{"m":"B46B90","d":"TROWEL 46 BRIGGS XR 1450","p":5929.0},{"m":"HDA48413H","d":"TROWEL 48 HONDA GX390 HEAVY DUTY","p":9720.2},{"m":"JH55C","d":"TROWEL 36 HONDA FRICTION CLUTCH SEE BDT","p":5145.0},{"m":"QPHAFC","d":"HANDLE TROWEL QP FOLDING CA4HC","p":1373.4},{"m":"QXHC","d":"HANDLE TROWEL QP FRICTION CLUTCH","p":1409.8},{"m":"QXH","d":"HANDLE TROWEL QP","p":1185.8},{"m":"QXHD","d":"HANDLE TROWEL QP HD","p":1299.2},{"m":"QXHP","d":"HANDLE TROWEL QP OP PRESENCE","p":1209.6},{"m":"STHAC","d":"HANDLE TROWEL STD CA4HC","p":1076.6},{"m":"SXHD","d":"HANDLE TROWEL STD HD","p":1016.4},{"m":"SXHC","d":"HANDLE TROWEL STD FRICTION CLUTCH","p":1031.8},{"m":"SXH","d":"HANDLE TROWEL STD","p":928.2},{"m":"SXHP","d":"HANDLE TROWEL STD OP PRESENCE","p":928.2},{"m":"52078","d":"STRAP  LIFTING 3FT-6IN 6200LBS CAP","p":124.95},{"m":"9177","d":"TROWEL ARM ADJUSTMENT 48 HD ROT","p":140.0},{"m":"1817","d":"TROWEL ARM  ADJUSTMENT 36/46","p":133.0},{"m":"QPDIS","d":"WBT HANDLE QP DISASSEMBLY TOOL","p":480.2},{"m":"LOWSPEEDKITJB","d":"LOW SPEED KIT  JB FINISHER   (SEE BDT)","p":110.06},{"m":"TROWELSTAND","d":"STAND DISPLAY TROWEL (FITS 36/46)","p":1356.6},{"m":"FKITCH4","d":"CA4HM/HC; AF  PreAF SP","p":50.87},{"m":"FKITJH55","d":"JH55/J36H55/3036H55; AF OF SP (GX160)","p":42.56},{"m":"FKITJBH9","d":"B46H90/BH90C/JH90/J36H90;(GX240)A O F P","p":75.57},{"m":"FKITBH11","d":"Kit incl: Oil Fuel Air Plus Spark Plug","p":85.82},{"m":"FKITHDAH13","d":"Kit incl: Air  Fuel Filters  SparkPlug","p":81.68},{"m":"MKITJB","d":"COMPLETE SERVICE KIT (BUSHINGS & GB OIL)","p":175.86},{"m":"HHNG5","d":"ROT 8  MECH 5 BLD GAS VANGUARD","p":47481.0},{"m":"JWN24HTCSL","d":"ROT 6  MECH 4 BLD GAS HONDA","p":31906.0},{"m":"LD60","d":"ROT 6  HYD GAS VANGUARD SPRAY/LIGHTS","p":38425.0},{"m":"LD6SL","d":"ROT 6  HYD GAS VANGUARD **see LD60**","p":37100.0},{"m":"STXDF","d":"ROT 10  HYD 6 BLD GAS/LPG FORD","p":123900.0},{"m":"HTX6H","d":"ROT 8  HYD 6 BLD DIESEL HATZ","p":121688.0},{"m":"STX6H","d":"ROT 10  HYD 6 BLD DIESEL HATZ","p":124656.0},{"m":"MD80","d":"ROT 8  HYD 6 BLD GAS VANGUARD","p":66705.8},{"m":"MD82","d":"ROT 8  HYD 6 BLD GAS/LPG KUBOTA","p":99428.0},{"m":"MD105","d":"ROT 10  HYD 6 BLD GAS TWIN HONDA","p":91000.0},{"m":"30006","d":"ROT TANK LPG  33.5#","p":723.75},{"m":"EMR2","d":"ROT EASY MOVER JTN/JWN/HTO/HTN/HHN/HHX","p":1306.2},{"m":"EMR3","d":"ROT EASY MOVER HHN/HTX/STX/HHX","p":3710.0},{"m":"LD6EZM","d":"ROT EASY MOVER LD6","p":2597.0},{"m":"LD6EK","d":"LD6 COMPLETE EDGING KIT","p":170.8},{"m":"FKITHHNG5","d":"FILTER KIT HHNG5","p":125.86},{"m":"FKITHHXDF5","d":"FILTER KIT HHXDF5","p":272.86},{"m":"FKITHTX44Y5","d":"Kit incl Oil Fuel Air Hydraulic Filters","p":305.44},{"m":"FKITHTXD6I","d":"Kit incl Oil Fuel Air Hyd Filters","p":344.33},{"m":"FKITHTXG6DF","d":"Kit incl Oil Fuel Air Filters","p":570.44},{"m":"FKITHTX6H","d":"Kit incl Air Oil Fuel #RE2005678 &Before","p":1173.12},{"m":"FKITHTX6H-2","d":"Kit incl AirOilFuel SN#RE2005679 & After","p":974.47},{"m":"FKITSTX55Y","d":"Kit incl: Oil Fuel Air Hydraulic Filters","p":294.56},{"m":"FKITSTX6H","d":"Kit incl AirOilFuel SN#RE2005678 &Before","p":1173.12},{"m":"FKITSTX6H-2","d":"Kit incl AirOilFuel SN#RE2005679 & After","p":974.47},{"m":"FKITSTXDF","d":"FILTER KIT STXDF","p":756.45},{"m":"FKITLD6LD6SL","d":"Kit incl: Oil  Fuel  Air Filters","p":276.99},{"m":"FKITJWN24H","d":"Kit incl Oil Fuel Air Filters","p":146.58},{"m":"FKITMD80","d":"Kit  Filter","p":1339.59},{"m":"FKITMD105","d":"Kit  Filter","p":768.19},{"m":"C10464","d":"BLADE COMBO ENDURO 8 x 18 46/48 TROWEL","p":58.8},{"m":"C10844","d":"BLADE COMBO ENDURO 8 x 14  36  TROWEL","p":51.8},{"m":"C10816","d":"BLADE COMBO ENDURO 8 x 16 486-BLADE ROT","p":65.8},{"m":"C11997","d":"BLADE COMBO ENDURO 8 x 23  60 ROT","p":93.8},{"m":"C244","d":"BLADE COMBO EDGER 5 x 9.2  24  TROWEL","p":35.0},{"m":"C334","d":"BLADE COMBO 8 x 10.5 30  TROWEL","p":40.6},{"m":"C464","d":"BLADE COMBO 8 x 18  46  & 48  TROWEL","p":54.6},{"m":"C464L","d":"BLADE COMBO LIGHT 8x18  46&48  TROWEL","p":36.4},{"m":"C464R","d":"BLADE COMBO 8 x 18  46/48  ROT","p":57.4},{"m":"C844","d":"BLADE COMBO 8 x 14   36  TROWEL","p":43.4},{"m":"C8160","d":"BLADE COMBO REV 8 X 16  48 6BLD ROT","p":56.0},{"m":"C844L","d":"BLADE COMBO LIGHT 8 x 14   36  TROWEL","p":33.6},{"m":"C844R","d":"BLADE COMBO 8 x 14   36  ROT","p":46.2},{"m":"CL444F","d":"BLADE FLOAT 10 x 18    46/48  TROWEL","p":53.2},{"m":"CL954F","d":"BLADE FLOAT 10 x 14   36  TROWEL","p":49.0},{"m":"F10400","d":"BLADE FINISH ENDURO 6 x 18  46/48 TROW","p":50.4},{"m":"F10616","d":"BLADE FINISH ENDURO 6 x 16  48 6BLD ROT","p":57.4},{"m":"F10900","d":"BLADE FINISH ENDURO 6 x 14   36  TROWEL","p":42.0},{"m":"F11990","d":"BLADE FINISH ENDURO 6 x 23 60 ROT","p":82.6},{"m":"F300","d":"BLADE FINISH  6 x 10.5   30  TROWEL","p":40.6},{"m":"F616","d":"BLADE FINISH  6 x 16   48  6BLD  ROT","p":50.4},{"m":"F400","d":"BLADE FINISH  6 x 18   46/48  TROWEL","p":39.2},{"m":"F900","d":"BLADE FINISH  6 x 14   36  TROWEL","p":36.4},{"m":"QB1856","d":"BAR MOUNTING QC BLADE  46/ 48  TROWEL","p":64.4},{"m":"QB1857","d":"BAR MOUNTING QC BLADE  36  TROWEL","p":33.6},{"m":"QC10871","d":"BLADE COMBO ENDURO QC 8 x 14  36 TROWEL","p":60.2},{"m":"QC10873","d":"BLADE COMBO ENDURO QC 8x18 46/48TROWEL","p":39.2},{"m":"QC1871","d":"BLADE COMBO 8 x 14  QC  36  TROWEL","p":50.4},{"m":"QC1873","d":"BLADE COMBO 8 x 18  QC  46/48  TROWEL","p":46.2},{"m":"QF10872","d":"BLADE FINISH ENDURO QC 6 x 14 36 TROWEL","p":74.2},{"m":"QF10874","d":"BLADE FINISH ENDURO QC 6x18 46/48 TRWL","p":58.8},{"m":"QF1872","d":"BLADE FINISH QC 6 x 14  36 TROWEL","p":22.4},{"m":"RC818","d":"BLADE COMBO REV ENDURO 8 x 18 48 ROT","p":64.4},{"m":"RC816","d":"BLADE COMBO REV ENDURO 8 x16 48 6BL ROT","p":64.4},{"m":"RC814","d":"BLADE COMBO REV 8 x 14 6  ROT WBT","p":56.0},{"m":"RC823","d":"REVERSIBLE COMBI BLADE 8 X 23","p":113.4},{"m":"QS1869","d":"BLADE SNAP PIN FOR QC BLADE(2 PER BLADE)","p":4.35},{"m":"QF1874","d":"BLADE FINISH QC 6 x 18   46/48  TROWEL","p":40.6},{"m":"SPR8160","d":"BLADE COMBO 8 x 16 36 TROWEL/SUPERIOR","p":61.6},{"m":"SPR8180","d":"BLADE COMBO 8x18 46/48 TROWEL/SUPERIOR","p":63.0},{"m":"30698","d":"BLADE COMBO EDGER 30  8 X 10.5  TROWEL","p":64.4},{"m":"30699","d":"BLADE COMBO EDGER 36  8 X 14   TROWEL","p":68.6},{"m":"C244PL","d":"BLADE COMBO POLY 5 x 9.25 24 WBT","p":154.0},{"m":"F400PL","d":"BLADE FINISH POLY 6 x 18  46/48 TROWEL","p":194.6},{"m":"F616PL","d":"BLADE FINISH POLY 6 X 16  46 6BLD ROT","p":191.8},{"m":"F900PL","d":"BLADE FINISH POLY 6 X 14  36  TROWEL","p":183.4},{"m":"F11990PL","d":"BLADE FINISH POLY 6 X 23  60 6BLD ROT","p":268.8},{"m":"11017W","d":"PAN FLOAT 46  4 BLADE SF  ROT","p":515.2},{"m":"11032","d":"PAN FLOAT 36  4 BLADE SF  ROT","p":478.8},{"m":"12093W","d":"PAN FLOAT 46  5 BLADE  SF  ROT","p":515.2},{"m":"12271","d":"PAN FLOAT 46  4 BLADE FLAT  ALL","p":515.2},{"m":"12272","d":"PAN FLOAT 46  5 BLADE FLAT ROT","p":515.2},{"m":"20646","d":"PAN FLOAT LATCH PIN","p":6.82},{"m":"49521","d":"CLEVIS PIN  WIRE LOCK  5/16 DIA X 3 LONG","p":16.94},{"m":"21550","d":"PAN FLOAT 24  4 BLADE FLAT  WBT","p":345.8},{"m":"2870","d":"PAN FLOAT 36  4 BLADE FLAT  WBT/ROT","p":478.8},{"m":"32608W","d":"PAN FLOAT 46  6 BLADE SF ROT","p":515.2},{"m":"30696","d":"PAN FLOAT 30  4 BLADE EDGER FLAT WBT","p":462.0},{"m":"30697","d":"PAN FLOAT 36  4 BLADE EDGER FLAT WBT","p":478.8},{"m":"11979","d":"PAN FLOAT 60  6 BLADE SF  ROT","p":931.0},{"m":"11979E","d":"PAN FLOAT ENDURO 60 6 BLADE FLAT ROT","p":1167.6},{"m":"43777","d":"PAN FLOAT 70  SF POWER FLOAT RIDER","p":1223.6},{"m":"12272WZ","d":"PAN FLOAT 46  5 BLADE FLAT Z-CLIP  ROT","p":674.8},{"m":"12093WZ","d":"PAN FLOAT 46  5 BLADE SF Z CLIP  ROT","p":595.0},{"m":"32608WZ","d":"PAN FLOAT 46  6 BLADE SF Z-CLIP  ROT","p":674.8},{"m":"32690WZ","d":"PAN FLOAT 46  6 BLADE FLAT Z-CLIP ROT","p":674.8},{"m":"MSHE25","d":"TRUSS SECTION 2.5  W/ SHAFT VIBRATION","p":1661.8},{"m":"MSHE50","d":"TRUSS SECTION  5  W/ SHAFT VIBRATION","p":2252.6},{"m":"MSHE75","d":"TRUSS SECTION  7.5  W/ SHAFT VIBRATION","p":3028.2},{"m":"MSHEKIT11H","d":"TRUSS SCREED-ENGINE KIT GX340 HONDA","p":4334.4},{"m":"MSHE50KIT11H","d":"TRUSS SCREED 5  W/ ENGINE GX340 HONDA","p":6514.2},{"m":"MSHEH","d":"TRUSS SCREED END HANDLES/SET OF TWO","p":1440.6},{"m":"MSHEKITLE","d":"TRUSS SCREED ENG MOUNTING KIT/LESS ENG","p":2259.6},{"m":"WSHW","d":"TRUSS SCREED HAND WINCHES/SET OF TWO","p":1736.0},{"m":"WSHESPW(L)","d":"TRUSS SCREED ENGINE HYD WINCH(L)W/2.5","p":5612.6},{"m":"WSHESPW(R)","d":"TRUSS SCREED ENGINE HYD WINCH(R)W/2.5","p":5612.6},{"m":"WSHRBE","d":"TRUSS SCREED SECTION REINFORCE BRACKET","p":266.0},{"m":"WSKITAEBR","d":"TRUSS SCREED ADJ END BRACKETS-ROLLER","p":1698.2},{"m":"WSHEKITUJ","d":"TRUSS SCREED ENGINE UNIVERSAL JOINT KIT","p":1425.2},{"m":"WSHEIC","d":"TRUSS SCREED ENGINE  INVERT CROWN KIT","p":3130.4},{"m":"36243","d":"TRUSS SCREED 2 WHEEL DOLLY","p":1288.0},{"m":"46273-SK","d":"KIT TURNBUCKLE SCREED","p":300.3},{"m":"DSGPULW","d":"DUOSCREED POWER UNIT GX-35SAT HONDA","p":3914.4},{"m":"DSB6LW","d":"BLADE DUOSCREED 6 (1.83m)","p":820.4},{"m":"DSB8LW","d":"BLADE DUOSCREED 8 (2.44m)","p":938.0},{"m":"DSB10LW","d":"BLADE DUOSCREED 10 (3.05m)","p":1064.0},{"m":"DSB12LW","d":"BLADE DUOSCREED 12 (3.66m)","p":1174.6},{"m":"DSB14LW","d":"BLADE DUOSCREED 14 (4.27m)","p":1292.2},{"m":"DSB16LW","d":"BLADE DUOSCREED 16 (4.88m)","p":1351.0},{"m":"DUOSCREEDSTAND","d":"STAND DISPLAY DUOSCREED W/15 BLADE","p":331.8},{"m":"C30HDGA","d":"Pump-Conc  Zenith 45hp Gas engine","p":61814.2},{"m":"C30HDGAWR","d":"Pump-Conc  C30HDGA w/Wrless Rem-Installd","p":65158.8},{"m":"LS300GKWR","d":"Pump-Conc  LS300GK w/ WIRLESS REM-INSTLD","p":113446.2},{"m":"LS450","d":"Concrete Pump Mayco Remixer w/Hatz T4F","p":129220.0},{"m":"EM23101","d":"ASSY  AIR VIBRATOR","p":595.0},{"m":"EM98215KIT","d":"Radio Remote - NLA see EM98215CKIT","p":2639.0},{"m":"EMDC400K","d":"Kit  Electric Vibrator   LS","p":2450.0},{"m":"LSSTAB","d":"Hydraulic Stabilizer Kit   LS400 500 600","p":4438.0},{"m":"EM98268C","d":"*NLA*Wireless Radio Cntrl-use EM98268DP","p":2798.18},{"m":"FKITLS300","d":"Kit  Filter  LS300G & LS300GWR","p":223.35},{"m":"SS233","d":"Pump-Sub 2  1/2HP 115V 60GPM 1\u00d8","p":561.4},{"m":"ST2037","d":"Pump-Sub 2  1HP 115V 73GPM 1\u00d8","p":687.4},{"m":"ST2037F","d":"Pump-Sub 2  1HP 115V 73GPM 1\u00d8 w/Float","p":863.8},{"m":"ST2038P","d":"Pump-Sub 2  1HP 115V 60GPM 1\u00d8","p":858.2},{"m":"ST2047","d":"Pump-Sub 2  1HP 115V 87GPM 1\u00d8","p":1071.0},{"m":"ST3020BCUL","d":"Pump-Sub 3  2HP 230V 170GPM 1\u00d8","p":3014.2},{"m":"YELLSUB","d":"Pump-Sub 1 1/4  1/4HP 115V 33GPM 1\u00d8","p":259.0},{"m":"ST2010TCUL","d":"Pump-Sub 2  Trash 1HP 115V 95GPM  1\u00d8","p":2045.4},{"m":"ST2040T","d":"Pump-Sub 2  Trash 1HP 115V 79GPM  1\u00d8","p":708.4},{"m":"ST2040TF","d":"Pump-Sub 2  Trash 1HP 115V 79GPM wFloat","p":833.0},{"m":"CB126974","d":"*NLA*Cntrl Box ST41230-use pt# CB12A6974","p":3290.0},{"m":"CB145663","d":"*NLA*Cntrl Box  use pt# CB14A5663","p":3220.0},{"m":"CB12","d":"*NLA*Cntrl Box - see item#CB126974","p":2389.8},{"m":"CB14","d":"*NLA*Cntrl Box ST4125 -see item#CB145663","p":2122.4},{"m":"CB200","d":"Cntrl Box ST3050D (230V or 460V)","p":2732.8},{"m":"CB3","d":"Cntrl Box 115V Pumps incl. (2) SW1WOPA","p":2289.0},{"m":"CB6","d":"Cntrl Box 230V Pumps incl. (2) SW1WOPA","p":1698.2},{"m":"SW1A","d":"Float Switch 115V w/Plug/Receptacle","p":145.6},{"m":"SW1WOPA","d":"Float Switch 115V w/o Plug/Receptacle","p":145.6},{"m":"SW2A","d":"Float Switch Dual 120V w/Plug/Receptacle","p":294.0},{"m":"QP2H","d":"Pump-Centrifugal 2 Honda GX120 158GPM","p":1209.6},{"m":"QP2HLF","d":"Pump-Cent  QP2H Less Frame  for WT5C","p":1201.2},{"m":"QP303H","d":"Pump-Centrifugal 3 Honda GX160 245GPM","p":1715.0},{"m":"QP402H","d":"Pump-Centrifugal 4 Honda GX240 425GPM","p":3364.2},{"m":"QP15HP","d":"Pump  High Pressure  1.5 HONDA GXH50","p":1152.2},{"m":"QP205SH","d":"Pump-High Pressure 2 Honda GX160 106GPM","p":2055.2},{"m":"QPT205SLT","d":"Pump-High Pressure 2 Honda GX240 126GPM","p":3389.4},{"m":"QPT305SLT","d":"Pump-High Pressure 3 Honda GX340 145GPM","p":3911.6},{"m":"QPT405SLT","d":"Pump-High Pressure 4 Honda GX390 210GPM","p":8804.6},{"m":"MQ62TKS","d":"*NLA*Pump  Trash 6  KOHLER  SKID 16GAL","p":40986.4},{"m":"MQ62TKT","d":"Pump  Trash 6  KOHLER  Trailer 28GAL","p":43734.6},{"m":"MQ600H","d":"Pump  Trash  6  HATZ  1600 GPM   Skid","p":64808.8},{"m":"MQ600HTB","d":"Pump  Trash  6  HATZ  1600 GPM   TLRB","p":71117.2},{"m":"MQ600HTP","d":"Pump  Trash  6  HATZ  1600 GPM   TLRP","p":71117.2},{"m":"QP2TH","d":"Pump-Trash 2 Honda GX160 211GPM","p":2629.2},{"m":"QP2TK","d":"Pump  Trash  2 Kubota OC60 Diesel","p":6197.8},{"m":"QP3TH","d":"Pump-Trash 3 Honda GX240 396GPM","p":3241.0},{"m":"QP3TI","d":"Pump-Trash 3 AUTO Honda iGX270 w/Floats","p":9305.8},{"m":"QP3THX","d":"Pump  Trash  3 Silent  Pipe Frame","p":5595.8},{"m":"QP3TS","d":"Pump  Trash  3 Silent  Full Enclosure","p":8936.2},{"m":"QP4TH","d":"Pump-Trash 4 Honda GX340 555GPM","p":6433.0},{"m":"QP3TK","d":"Pump  Trash  3 Kubota OC60 Diesel","p":6900.6},{"m":"QP4TZ","d":"No Longer Available /Use model: QP4TK","p":11536.0},{"m":"QP4TK","d":"Pump  Trash  4 Kubota OC95 Diesel","p":10886.4},{"m":"QP4TKT16","d":"Pump  Trash  QP4TK  Trailer 16GAL","p":20930.0},{"m":"QP4TKT28","d":"Pump  Trash  QP4TK  Trailer  28GAL","p":23100.0},{"m":"FS65","d":"Float Switch  Dual Float Assy 65   QP3Ti","p":1376.2},{"m":"QP3BOX","d":"Utility Box  for QP3Ti only","p":506.8},{"m":"MQD2HA","d":"Pump-Diaphragm 2 Honda GX120 Ser. A","p":3837.4},{"m":"MQD3HA","d":"Pump-Diaphragm 3 Honda GX120 Ser. A","p":4103.4},{"m":"MKITPUMP-1","d":"QP2TH/3TH/205SH/GX160UT2 GX240UT2 A P 5x","p":89.22},{"m":"MKITPUMP-2","d":"Air cleaner  spark plug and caps","p":78.02},{"m":"MKITPUMP-3","d":"QP3THX GX240RT2; AF 5xFC SP","p":75.04},{"m":"UWK4","d":"KIT WHEEL QP4T PUMPS ONLY","p":812.0},{"m":"UWKB","d":"Wheel Kit Universal Pumps/Generators","p":502.6},{"m":"TRLR10P","d":"Trlr-Hwy Trailer for QP4TZ","p":2378.6},{"m":"TRLR600B","d":"Trlr-Kit Asm MQ600  2 5/16 Ball No Tank","p":7120.4},{"m":"TRLR600P","d":"Trlr-Kit Asm Mq600  3 Pintle  No Tank","p":6879.6},{"m":"EE43254","d":"Coupler 2 Ball 10K TRLRMP thru 125","p":165.2},{"m":"EE43253","d":"Coupler 2 5/16 14k TRLRMP thru 220","p":184.27},{"m":"EE36264","d":"Coupler 3 Pintle 25K TRLRMP thru 400","p":128.47},{"m":"RVPLUG","d":"7 Pin RV Plug","p":77.0},{"m":"HS1520","d":"Hose Suction 1.5 x 20 ft NPT Thrd.","p":73.08},{"m":"HS1525","d":"Hose Suction 1.5 x 25 ft NPT Thrd.","p":77.14},{"m":"HS220","d":"Hose Suction 2 x 20 ft NPT Thrd.","p":89.32},{"m":"HS225","d":"Hose Suction 2 x 25 ft NPT Thrd.","p":101.5},{"m":"HS320","d":"Hose Suction 3 x 20 ft NPT Thrd.","p":165.65},{"m":"HS325","d":"Hose Suction 3 x 25 ft NPT Thrd.","p":190.01},{"m":"HS420","d":"Hose Suction 4 x 20 ft NPT Thrd.","p":276.08},{"m":"HS425","d":"Hose Suction 4 x 25 ft NPT Thrd.","p":311.81},{"m":"HS620","d":"Hose Suction 6 x 20 ft NPT Thrd.","p":639.86},{"m":"HS625","d":"Hose Suction 6 x 25 ft NPT Thrd.","p":719.43},{"m":"HS1520C","d":"HOSE SUCTION 1.5 X 20  NPS THRD.","p":126.0},{"m":"HS1525C","d":"HOSE SUCTION 1.5 X 25  NPS THRD.","p":133.0},{"m":"HS220C","d":"HOSE SUCTION 2 X 20  NPS THRD.","p":154.0},{"m":"HS225C","d":"HOSE SUCTION 2 X 25  NPS THRD.","p":175.0},{"m":"HS320C","d":"HOSE SUCTION 3 X 20  NPS THRD.","p":285.6},{"m":"HS325C","d":"HOSE SUCTION 3 X 25  NPS THRD.","p":327.6},{"m":"HS420C","d":"HOSE SUCTION 4 X 20  NPS THRD.","p":476.0},{"m":"HS425C","d":"HOSE SUCTION 4 X 25  NPS THRD.","p":537.6},{"m":"HS620C","d":"HOSE SUCTION 6 X 20  NPS THRD.","p":1103.2},{"m":"HS625C","d":"HOSE SUCTION 6 X 25  NPS THRD.","p":1240.4},{"m":"HSQ1520","d":"Hose Suction 1.5 x 20 ft Quick Coupler","p":81.2},{"m":"HSQ220","d":"Hose Suction 2 x 20 ft Quick Coupler","p":97.44},{"m":"HSQ225","d":"Hose Suction 2 x 25 ft Quick Coupler","p":111.24},{"m":"HSQ320","d":"Hose Suction 3 x 20 ft Quick Coupler","p":177.83},{"m":"HSQ325","d":"Hose Suction 3 x 25 ft Quick Coupler","p":202.19},{"m":"HSQ420","d":"Hose Suction 4 x 20 ft Quick Coupler","p":286.64},{"m":"HSQ425","d":"Hose Suction 4 x 25 ft Quick Coupler","p":321.55},{"m":"HSQ625","d":"Hose Suction 6 x 25 ft Quick Coupler","p":734.05},{"m":"HSQ1520C","d":"HOSE SUCTION 1.5X20  NPT QUICK COUPLER","p":140.0},{"m":"HSQ1525C","d":"HOSE SUCTION 1.5X25  NPT QUICK COUPLER","p":147.0},{"m":"HSQ220C","d":"HOSE SUCTION 2 X 20  NPT QUICK COUPLER","p":168.0},{"m":"HSQ225C","d":"HOSE SUCTION 2 X 25  NPT QUICK COUPLER","p":191.8},{"m":"HSQ320C","d":"HOSE SUCTION 3 X 20  NPT QUICK COUPLER","p":306.6},{"m":"HSQ325C","d":"HOSE SUCTION 3 X 25  NPT QUICK COUPLER","p":348.6},{"m":"HSQ420C","d":"HOSE SUCTION 4 X 20  NPT QUICK COUPLER","p":494.2},{"m":"HSQ425C","d":"HOSE SUCTION 4 X 25  NPT QUICK COUPLER","p":554.4},{"m":"HSQ620C","d":"HOSE SUCTION 6 X 20  NPT QUICK COUPLER","p":1129.8},{"m":"HSQ625C","d":"HOSE SUCTION 6 X 25  NPT QUICK COUPLER","p":1265.6},{"m":"HD1100","d":"Hose Discharge 1 X 100 ft NP SM Thrd","p":280.0},{"m":"HD1550","d":"Hose Discharge 1.5 x 50 ft NPT Thrd.","p":44.66},{"m":"HD250","d":"Hose Discharge 2 x 50 ft  NPT Thrd.","p":52.78},{"m":"HD350","d":"Hose Discharge 3 x 50 ft  NPT Thrd.","p":92.57},{"m":"HD450","d":"Hose Discharge 4 x 50 ft  NPT Thrd.","p":159.15},{"m":"HD650","d":"Hose Discharge 6 x 50 ft  NPT Thrd.","p":377.58},{"m":"HD1550C","d":"HOSE DISCHARGE 1.5 X 50  NPS THRD.","p":77.0},{"m":"HD250C","d":"HOSE DISCHARGE 2 X 50  NPS THRD.","p":91.0},{"m":"HD350C","d":"HOSE DISCHARGE 3 X 50  NPS THRD.","p":159.6},{"m":"HD450C","d":"HOSE DISCHARGE 4 X 50  NPS THRD.","p":274.4},{"m":"HD650C","d":"HOSE DISCHARGE 6 X 50  NPS THRD.","p":651.0},{"m":"HDQ1550","d":"Hose Disch. 1.5 x 50  Quick Coupler","p":53.59},{"m":"HDQ1550HP","d":"Hose Disch. 1.5 x 50  Hi Press QC","p":354.2},{"m":"HDQ250","d":"Hose Disch. 2 x 50  Quick Coupler","p":61.71},{"m":"HDQ350","d":"Hose Disch. 3 x 50  Quick Coupler","p":104.75},{"m":"HDQ450","d":"Hose Disch. 4 x 50  Quick Coupler","p":168.9},{"m":"HDQ650","d":"Hose Disch. 6 x 50  Quick Coupler","p":393.82},{"m":"HDQ1550C","d":"HOSE DISCH. 1.5X50  NPT QUICK COUPLER","p":92.4},{"m":"HDQ250C","d":"HOSE DISCH. 2 X 50  NPT QUICK COUPLER","p":106.4},{"m":"HDQ350C","d":"HOSE DISCH. 3 X 50  NPT QUICK COUPLER","p":180.6},{"m":"HDQ450C","d":"HOSE DISCH. 4 X 50  NPT QUICK COUPLER","p":291.2},{"m":"HDQ650C","d":"HOSE DISCH. 6 X 50  NPT QUICK COUPLER","p":679.0},{"m":"A150A","d":"Coupling Female Quick Connect","p":63.0},{"m":"A200A","d":"Coulper  Type A 2 Male Q/D X Female NPT","p":28.0},{"m":"A300A","d":"Coupler  Type A 3 Male Q/D X Female NPT","p":43.4},{"m":"A400A","d":"Coupler Type a 4 Male Q/D x Female NPT","p":105.0},{"m":"A600A","d":"COUPLER 6 FEMALE ALUM MQ600","p":219.8},{"m":"HDFNST","d":"Hose Disch 2.5 x 25  Fire Hyd FNST & QC","p":583.8},{"m":"FIRENOZ15","d":"Nozzle Fire Hose 1.5 NPT Thrd.","p":65.8},{"m":"WT5C","d":"NLA use WT5C2","p":15804.6},{"m":"WTE5C","d":"NLA use WTE5C2","p":15804.6},{"m":"WT5HP","d":"NLA use WT5HP2","p":19644.8},{"m":"WTE5HP","d":"NLA use WTE5HP2","p":19644.8},{"m":"WT5HR","d":"ASM HOSE REEL WT5C","p":1920.8},{"m":"QP205SHLF","d":"Pump  QP205SH Less Frame  WT Series","p":1988.0},{"m":"WT8C","d":"WATER TRAILER 800G HYD","p":21000.0},{"m":"WT8CHR","d":"WATER TRAILER 800G HYD W/HR","p":23133.6},{"m":"WTE8C","d":"WATER TRAILER 800G ELEC","p":21000.0},{"m":"WTE8CHR","d":"WATER TRAILER 800G ELEC W/HR","p":23133.6},{"m":"WT8HP","d":"WATER TRAILER 800G HP HYD","p":24052.0},{"m":"WTE8HP","d":"WATER TRAILER 800G HP ELEC","p":24052.0},{"m":"WT5C2","d":"Water Trailer 500G Hydraulic brakes Gen2","p":16979.5},{"m":"WTE5C2","d":"Water Trailer 500G Electric brakes Gen2","p":16979.5},{"m":"WT5CHR2","d":"Water Trailer 500G Hyd. Gen2/hose reel","p":19189.3},{"m":"WTE5CHR2","d":"Water Trailer 500G Elect. Gen2/hose reel","p":19189.3},{"m":"WT5HP2","d":"Water Trailer 500G HP hyd. brakes Gen2","p":21054.0},{"m":"WTE5HP2","d":"Water Trailer 500G HP Elect. brakes Gen2","p":21054.0},{"m":"29228","d":"Coupler 2 Ball  Adjustable 8000","p":148.4},{"m":"29369","d":"PINTLE EYE 3   14K  BLACK POWDER COAT","p":175.25},{"m":"EE57033","d":"Coupler  2 Adj Channel Mnt  7k","p":249.52},{"m":"EE56638","d":"Coupler  2-5/16in Adj Channel Mnt  12.5k","p":270.41},{"m":"DCA6SPX4F","d":"Gen 6kW 1Ph Kubota Tier 4F","p":25774.0},{"m":"DAC7000SSA3","d":"Gen 7kW 1Ph 12.3hp Kubota Tier 4F","p":18093.6},{"m":"DCA10SPX4","d":"Gen 10kW 1Ph Kubota Tier 4F","p":36674.4},{"m":"DCA15SPX4F2","d":"Gen 13kW 1Ph Kubota Tier 4F","p":42950.6},{"m":"DCA20SPXU4F","d":"Gen 20kW 1Ph Isuzu Tier 4F Env","p":65416.4},{"m":"DCA36SPXU4F","d":"Gen 36kW 1Ph Isuzu Tier 4F Env","p":93716.0},{"m":"DCA25SSIU4F","d":"Gen 25kVA 3Ph Isuzu Tier 4F Env","p":64146.6},{"m":"DCA45SSIU4F","d":"Gen 45kVA 3Ph Isuzu Tier 4F Env","p":90318.2},{"m":"DCA70SSIU4F","d":"Gen 70kVA 3Ph Isuzu Tier 4F Env","p":125279.0},{"m":"DCA125SSIU4F","d":"Gen 125kVA 3Ph Isuzu Tier 4F Env","p":165335.8},{"m":"DCA220SSJU4F3PB","d":"Gen 220kVA 3Ph Deere T4F Parallel Basler","p":264419.4},{"m":"DCA300SSJU4F3PB","d":"Gen 300kVA 3Ph Deere T4F Parallel Basler","p":371687.4},{"m":"DCA150SSJU4F3","d":"Gen 150kVA 3Ph John Deere Tier 4F Env","p":219762.2},{"m":"DCA180SSJU4F3","d":"Gen 180kVA 3Ph John Deere Tier 4F Env","p":235758.6},{"m":"DCA220SSJU4F3","d":"Gen 220kVA 3Ph John Deere Tier 4F Env","p":264087.6},{"m":"DCA300SSJU4F3","d":"Gen 300kVA 3Ph John Deere Tier 4F Env","p":338632.0},{"m":"DCA400SSI4F3B","d":"Gen 400kVA 3Ph Isuzu T4F Basler","p":445079.6},{"m":"DCA400SSI4F3PB","d":"Gen 400kVA - Kit MQPDCA400P Required","p":486612.0},{"m":"DCA25SSIU4FC8","d":"Gen 25kVA 3Ph Isuzu T4F Env ECU","p":70393.4},{"m":"DCA45SSIU4FC8","d":"Gen 45kVA 3Ph Isuzu T4F Env ECU","p":97098.4},{"m":"DCA70SSIU4FC8B","d":"Gen 70kVA 3Ph Isuzu T4F Env Basler","p":134702.4},{"m":"TRLRMP","d":"Trailer Multipurpose","p":3693.2},{"m":"TRLRMPE","d":"Trailer Multipurpose Elec","p":4099.2},{"m":"TRLRMPXF","d":"Trailer  Multipurpose  28 Gal","p":6616.4},{"m":"TRLRMPXFE","d":"Trailer Multipurpose 28 Gal Elec","p":6683.6},{"m":"TRLR25US2","d":"Trailer DCA20-25SS","p":4963.0},{"m":"TRLR25US2E","d":"Trailer DCA20-25SS Elec","p":5427.8},{"m":"TRLR45E","d":"Trailer DCA36-45SS Elec","p":11062.8},{"m":"TRLR45H","d":"Trailer DCA36-45SS Hyd","p":11062.8},{"m":"TRLR70USE","d":"Trailer DCA70SSI Elec","p":14400.4},{"m":"TRLR70USH","d":"Trailer DCA70SSI Hyd","p":14400.4},{"m":"TRLR75XF2E","d":"Trailer DCA20-70 100 Gal Elec","p":19570.6},{"m":"TRLR75XF2H","d":"Trailer DCA20-70 100 Gal Hyd","p":19570.6},{"m":"TRLR125USE","d":"Trailer DCA125SS Elec","p":19496.4},{"m":"TRLR125USH","d":"Trailer DCA125SS Hyd","p":19496.4},{"m":"TRLR180EVE","d":"Trailer DCA150-180SSJU4F3 Elec","p":26586.0},{"m":"TRLR180EVH","d":"Trailer DCA150-180SSJU4F3 Hyd","p":26586.0},{"m":"TRLR220EVE","d":"Trailer DCA220SSJU4F3 Elec","p":34827.8},{"m":"TRLR220EVH","d":"Trailer DCA220SSJU4F3 Hyd","p":34827.8},{"m":"TRLR300EVE","d":"Trailer DCA300SSJU4F3 Elec","p":34045.2},{"m":"TRLR300EVH","d":"Trailer DCA300SSJU4F3 Hyd","p":34045.2},{"m":"TRLR400XF3DAE","d":"Trailer DCA400 3 Axles 350 Gal Elec","p":57012.2},{"m":"TRLR600XFBP3E","d":"Trailer DCA600 3 Axles 600 Gal Elec","p":86669.8},{"m":"MQPCANDCA15","d":"Canada Kit DCA15 Decals Labels & Pump","p":0.0},{"m":"MQPCANDCA25","d":"Canada Kit DCA25 Decals Labels & Pump","p":0.0},{"m":"MQPCANDCA45","d":"Canada Kit DCA45 Decals Labels & Pump","p":0.0},{"m":"MQPCANDCA70","d":"Canada Kit DCA70 Decals Labels & Pump","p":0.0},{"m":"MQPCANDCA125","d":"Canada Kit DCA125 Decals Labels & Pump","p":0.0},{"m":"DCA15TRLR75","d":"Mount Kit DA7 TLG8 DCA6-15 on TRLR75XF2","p":1890.0},{"m":"DCA25TRLR75","d":"Mount Kit DCA20-25 on TRLR75XF2","p":1255.8},{"m":"DCA45TRLR75","d":"Mount Kit DCA36-45 on TRLR75XF2","p":413.0},{"m":"MQPSTTRLRMPXF","d":"Spare Tire w-Mntg Bracket  TRLRMP-MPXF","p":886.2},{"m":"MQPSTTRLR25US2","d":"Spare Tire w-Mntg Bracket  TRLR25US2","p":1197.0},{"m":"MQPSTTRLR45","d":"Spare Tire w-Mntg Bracket  TRLR45","p":856.8},{"m":"MQPSTTRLR70US","d":"Spare Tire w-Mntg Bracket  TRLR70US","p":960.4},{"m":"MQPSTTRLR75XF","d":"Spare Tire w-Mntg Bracket TRLR75XF/2","p":974.4},{"m":"MQPSTTRLR125US","d":"Spare Tire w-Mntg Bracket  TRLR125US","p":1048.6},{"m":"MQPSTTRLR180EV","d":"Spare Tire w-Mntg Bracket  TRLR180EV","p":1226.4},{"m":"MQPSTTRLR220EV","d":"Spare Tire w-Mntg Bracket  TRLR220EV","p":1344.0},{"m":"MQPSTTRLR300EV","d":"Spare Tire w-Mntg Bracket  TRLR300EV","p":1551.2},{"m":"MQPSTTRLR400XF3","d":"Spare Tire w-Mntg Bracket  TRLR400XF3","p":1344.0},{"m":"MQPSTTRLR600","d":"Spare Tire w-Mntg Bracket TRLR600XFBP3E","p":1698.2},{"m":"MQPSTABJACK8K","d":"Stabilizer Jack  8k  TRLR25-180 (1 ea)","p":635.6},{"m":"MQPSTABJACK10K","d":"Stabilizer Jack  10k  TRLR220-600 (1 ea)","p":812.0},{"m":"MQPSBTRLRMP","d":"Storage Box 16 High TRLRMP/MPXF","p":1034.6},{"m":"MQPSBTRLR25US2","d":"Storage Box 24\u201d High TRLR25US2","p":1418.2},{"m":"MQPSBTRLR45","d":"Storage Box 24\u201d High TRLR45","p":2584.4},{"m":"MQPSBTRLR70US","d":"Storage Box 24\u201d High TRLR70US","p":2584.4},{"m":"MQPSBTRLR75XF2","d":"Storage Box 12 High TRLR75XF2 Side Mnt","p":1181.6},{"m":"MQPSBTRLR125US","d":"Storage Box 24\u201d High TRLR125US","p":2496.2},{"m":"MQPSBTRLR220EV","d":"Storage Box 17\u201d High TRLR220EV","p":2658.6},{"m":"MQPSBTRLR300EV","d":"Storage Box 20\u201d High TRLR300EV","p":2732.8},{"m":"MQPTRAN600V25","d":"Transformer 600V DCA25","p":10102.4},{"m":"MQPTRAN600V45","d":"Transformer 600V DCA45","p":11786.6},{"m":"MQPTRAN600V70","d":"Transformer 600V DCA70","p":11800.6},{"m":"MQPTRAN600V125","d":"Transformer 600V DCA125","p":16291.8},{"m":"MQPAUDIBLEALARM","d":"Exterior Mount 110 dB DCA20-600","p":590.8},{"m":"MQPASVA45T4F","d":"Air Shutoff Valve Auto DCA45","p":5790.4},{"m":"MQPASVA70T4F","d":"Air Shutoff Valve Auto DCA70I","p":5790.4},{"m":"MQPASVA220T4F","d":"Air Shutoff Valve Auto DCA25 70J 150-220","p":6129.2},{"m":"MQPASVA300T4F","d":"Air Shutoff Valve Auto DCA125 300","p":6129.2},{"m":"MQPASVA400T4F","d":"Air Shutoff Valve Auto DCA400","p":6129.2},{"m":"MQPECUDA7KIT","d":"Auto Start DA DAC TLG","p":3175.2},{"m":"MQPBCDAKIT","d":"Batt Tender 5A DA7 DAC7 DCA6-15 DLW TLG8","p":782.6},{"m":"MQPBCKIT-J","d":"Batt Chg 6A DCA20-125","p":974.4},{"m":"MQPBCKIT-H","d":"Batt Chg 10A DCA150-600","p":2924.6},{"m":"MQPSOLAR12","d":"Solar Battery Charger 12V DCA6-DCA300","p":1920.8},{"m":"MQPSOLAR24","d":"Solar Battery Charger 24V DCA400 DCA600","p":2496.2},{"m":"MQPBATTSWITCH125","d":"125A Rating DCA10-70","p":413.0},{"m":"MQPBATTSWITCH300","d":"300A Rating Waterproof DCA150-300","p":413.0},{"m":"CAMLOK1CANKIT","d":"Camlok 1 Set DCA20 CANADA","p":1359.4},{"m":"CAMLOK1CANKITA","d":"Camlok 1 Set DCA25 CANADA","p":1359.4},{"m":"CAMLOK1CANKITB","d":"Camlok 1 Set DCA36 CANADA","p":1359.4},{"m":"CAMLOK1CANKITD","d":"Camlok 1 Set DCA45 CANADA","p":1359.4},{"m":"CAMLOK1CANKIT45E","d":"Camlok 1 Set 45\u00b0 DCA70 CANADA","p":1359.4},{"m":"CAMLOK1CANKIT45F","d":"Camlok 1 Set 45\u00b0 DCA125 CANADA","p":1428.0},{"m":"CAMLOK2CANKIT45F","d":"Camlok 2 Set 45 DCA125 CANADA","p":2599.8},{"m":"CAMLOK2CANKIT45G","d":"Camlok 2 Set 45\u00b0 DCA150 CANADA","p":1979.6},{"m":"CAMLOK2CANKIT45H","d":"Camlok 2 Set 45\u00b0 DCA180 CANADA","p":1979.6},{"m":"CAMLOK2CANKIT45I","d":"Camlok 2 Set 45\u00b0 DCA220 CANADA","p":1979.6},{"m":"CAMLOK2CANKIT45J","d":"Camlok 2 Set 45\u00b0 DCA300 CANADA","p":1979.6},{"m":"CAMLOK3CANKIT45K","d":"Camlok 3 Set 45\u00b0 DCA400 CANADA","p":3397.8},{"m":"CAMLOK4CANKIT45L","d":"Camlok 4 Set 45\u00b0 DCA600 CANADA","p":6203.4},{"m":"MQPHEATDAKIT","d":"Blk Heater 400W DA DAC SDW","p":546.0},{"m":"MQPHEAT10/15KIT","d":"Blk Heater 400W DCA10 15 40","p":1211.0},{"m":"MQPHEATTKIT-A","d":"Blk Heater 500W DCA20 25","p":1019.2},{"m":"MQPHEATTKIT-C","d":"Blk Heater 1000W DCA36 45","p":1461.6},{"m":"MQPHEAT400IFKIT","d":"Blk Heater 2000W DCA400","p":2511.6},{"m":"MQPHEAT600VFKIT","d":"Blk Heater 2000W DCA600","p":3262.0},{"m":"MQPILHEATERKIT","d":"Inline Fuel Heater & Filter DA DAC","p":1373.4},{"m":"MQPESDAKIT","d":"Emergency Stop DA DAC","p":516.6},{"m":"MQPESTOPKIT","d":"Emergency Stop DCA10-15","p":457.8},{"m":"MQP3WAYFUELVALVEKT","d":"sn reqd: 3WayFuel Vlv Manual 7-15 40 600","p":1388.8},{"m":"MQP3WAYFUELTLG8KIT","d":"Manual 3 Way Fuel Valve TLG8SSK4F","p":2821.0},{"m":"MQP3WAYVALVE20","d":"3 Way Fuel Valve Manual DCA20","p":1521.8},{"m":"MQP3WAYVALVE25","d":"3 Way Fuel Valve Manual DCA25","p":1521.8},{"m":"MQP3WAYVALVE45","d":"3 Way Fuel Valve Manual DCA36 45","p":1521.8},{"m":"MQP3WAYVALVE70I","d":"3 Way Fuel Valve Manual DCA70I","p":1521.8},{"m":"MQP3WAYVALVE70J","d":"3 Way Fuel Valve Manual DCA70J","p":1521.8},{"m":"MQP3WAYVALVE125","d":"3 Way Fuel Valve Manual DCA125","p":1521.8},{"m":"MQP3WAYVALVE220","d":"3 Way Fuel Valve Manual DCA150-220","p":1521.8},{"m":"MQP3WAYVALVE300","d":"3 Way Fuel Valve Manual DCA300","p":1521.8},{"m":"MQP3WAYVALVE400","d":"3 Way Fuel Valve Manual DCA400","p":0.06},{"m":"MQP3WAYAUTOKIT-A","d":"Auto 3 Way Fuel Valve DCA20 25","p":1727.6},{"m":"MQP3WAYAUTOKIT-B","d":"Auto 3 Way Fuel Valve DCA36 45","p":1727.6},{"m":"MQP3WAYAUTOKIT-C","d":"Auto 3 Way Fuel Valve DCA70 125","p":1727.6},{"m":"MQP3WAYAUTOKIT-D","d":"Auto 3 Way Fuel Valve DCA150 180 220","p":1846.6},{"m":"FKITDA7000SSA2","d":"Kit incl: Oil  Fuel  Air Filters","p":63.82},{"m":"FKITTLG8SSK4F","d":"Filter Kit TLG8SSK4F/2","p":96.81},{"m":"FKITDCA10SPXU4C","d":"Kit incl: Oil  Fuel  Air Filters","p":106.69},{"m":"FKITDCA15SPXU4F","d":"Kit incl: Oil  Fuel  Air Filters","p":106.19},{"m":"FKITDCA20SPXU4F","d":"Kit incl: Oil  Fuel  Air Filters","p":371.84},{"m":"FKITDCA25SSIU4F","d":"Filter Kit  Air/Oil/Fuel Filters","p":409.41},{"m":"FKITDCA36SPXU4F","d":"Kit incl: Oil  Fuel  Air Filters","p":472.23},{"m":"FKITDCA45SSIU4F","d":"Filter Kit DCA45SSIU4F","p":497.54},{"m":"FKITDCA70SSIU4F","d":"Filter Kit DCA70SSIU4F","p":490.7},{"m":"FKITDCA125SSIU4F","d":"Filter Kit DCA125SSIU4F","p":771.17},{"m":"FKITDCA150SSJU4F2","d":"Kit incl: Oil  Fuel  Air Filters","p":816.2},{"m":"FKITDCA180SSJU4F","d":"Kit incl: Oil  Fuel  Air Filters","p":816.2},{"m":"FKITDCA220SSJU4F2","d":"Kit incl: Oil  Fuel  Air Filters","p":816.2},{"m":"FKITDCA300SSJU4F2","d":"Kit incl: Oil  Fuel  Air Filters","p":1147.36},{"m":"FKITDCA400SSI4F","d":"Filter Kit DCA400SSI4F/3/B/PB/PD","p":1181.18},{"m":"FKITDCA600SSV4F3","d":"Kit incl: Oil  Fuel  Air Filters","p":1868.86},{"m":"MQPFE05KIT","d":"Fire Extinguisher  5-lbs w/Bracket","p":768.6},{"m":"MQPFE20KIT","d":"Fire Extinguisher  20-lbs w/Bracket","p":1181.6},{"m":"LCSD12KIT","d":"Low Coolant DCA10-125","p":1698.2},{"m":"MQICON3","d":"Telematics Hardware/Subs/Factory Install","p":2339.99},{"m":"MQPPB45I4F","d":"Kit PowerBalance DCA45SSIU4F","p":10043.6},{"m":"MQPPBNK70I4F3","d":"Kit PowerBalance DCA70SSIU4F","p":8388.8},{"m":"MQPPBNK70J4F3","d":"Kit PowerBalance DCA70SSJU4F","p":8521.8},{"m":"MQPPBNK125I4F3","d":"Kit PowerBalance DCA125SSIU4F","p":9644.6},{"m":"MQPPBNK150J4F3","d":"Kit PowerBalance DCA150SSJU4F3/B/PB","p":9807.0},{"m":"MQPPBNK180J4F3","d":"Kit PowerBalance DCA180SSJU4F3/B/PB","p":11964.4},{"m":"MQPPBNK220J4F3","d":"Kit PowerBalance DCA220SSJU4F3/B/PB","p":12199.6},{"m":"MQPPBNK300J4F3","d":"Kit PowerBalance DCA300SSJU4F3/B/PB","p":14623.0},{"m":"MQPPBNK400I4F3","d":"Kit PowerBalance DCA400SSI4F3/B/PB","p":20161.4},{"m":"MQPPB600V4F","d":"Kit PowerBalance DCA600SSV4F3/B/PB","p":16262.4},{"m":"MQPPARALLEL125","d":"Parallel w/Camlok Basler DCA125SSIU4F","p":23632.0},{"m":"MQPPARALLEL150","d":"Parallel w/Camlok Basler DCA150SSJU4F3","p":26364.8},{"m":"MQPPARALLEL180","d":"Parallel w/Camlok Basler DCA180SSJU4F3","p":26364.8},{"m":"MQPDCA400P","d":"Kit DCA400SSI4F3PB Camlok & ACC Required","p":6203.4},{"m":"MQPDCA600P","d":"Kit DCA600SSV4F3PB Camlok & ACC Required","p":9601.2},{"m":"MQPISUZUSERVTOOL","d":"Isuzu Diagnostic Service Tool (Tier3-4F)","p":1776.96},{"m":"SG1400C4F","d":"Studio 1400A Cummins White","p":211860.6},{"m":"SG1400C4FP","d":"Studio 1400A Cummins Parallel White","p":219364.6},{"m":"SG1600C4F","d":"Studio 1600A Cummins White","p":207488.4},{"m":"SG1600C4FP","d":"Studio 1600A Cummins Parallel White","p":218551.2},{"m":"MQPSGBUSPANELE","d":"6-Camloks Model C4F","p":3323.6},{"m":"MQPSGBUSPANELD","d":"6-Camloks 2-50A Model C4F","p":4032.0},{"m":"MQPSGBUSPANELA","d":"6-Camloks 2-100A Bates 2-50A  Model C4F","p":4622.8},{"m":"MQPSGBUSPANELB","d":"6-Camloks 2-100A Bates  Model C4F","p":3736.6},{"m":"MQPSGBUSPANELH","d":"6-Camloks Model C4FP","p":3204.6},{"m":"MQPSGBUSPANELF","d":"6-Camloks 2-50A Model C4FP","p":4076.8},{"m":"MQPSGBUSPANELC","d":"6-Camloks 1-100A Bates 2-50A  Model C4FP","p":4711.0},{"m":"MQPSGBUSPANELG","d":"6-Camloks 1-100A Bates Model C4FP","p":3470.6},{"m":"MQPSGRCAMLOK","d":"Reverse Ground Camloks - QTY Up To 6","p":0.0},{"m":"TRLRSG1600XFE","d":"Trailer Studio 145 Gal Elec 3 Pintle","p":21830.2},{"m":"TRLRSG1600XFH","d":"Trailer Studio 145 Gal Hyd 3 Pintle","p":21830.2},{"m":"MQPSGVERTICALMT","d":"Tractor Vertical Brackets","p":739.2},{"m":"MQPSGANGLEMT","d":"Trailer Angled Brackets","p":457.8},{"m":"MQPSGMOUNTING","d":"Fuel Lines & HDW (Cust TRLR or Truck)","p":310.8},{"m":"MQPSGBCKIT-A","d":"Batt Chg 5A Studio (SG1400 SG1600)","p":295.4},{"m":"MQPSGHEAT1500","d":"Blk Heater 1500W Studio(s)","p":635.6},{"m":"MQPSGCUSTOMPAINT","d":"Custom Color Option - RAL REQUIRED","p":665.0},{"m":"MQPSGFE05KIT","d":"Fire Extinguisher 5-lbs w/Box","p":931.0},{"m":"MQPSGLIGHTING","d":"Exterior LED Lights QTY 4","p":1860.6},{"m":"MQPSGEU7000BC","d":"Gen EU7000 Honda w/1-60A Bates /Cart","p":9268.0},{"m":"DLW300ESA1","d":"Welder 300A 10.5kW  Tier 4F GFCI","p":27176.8},{"m":"DLW330X2","d":"Welder 340A Dual  10.5kW Tier 4 GFCI","p":33233.2},{"m":"DLW400ESA4F","d":"Welder 400A Dual 14kW Tier 4F GFCI","p":40425.0},{"m":"DAW500SA4","d":"Welder 500A  3kW GFCI  Tier 4F","p":56000.0},{"m":"DLW500ESA4","d":"Welder 500A Dual 14kW Tier 4F GFCI","p":68636.4},{"m":"GAW135HNC2","d":"Welder 135A 1.5kW gen Honda NON-CARB CO","p":6351.8},{"m":"GAW180HEANC2","d":"Welder 180A 3kW gen Honda NON-CARB CO","p":10043.6},{"m":"HEATPADKIT","d":"Kit  Oil Pan Heater 125W Multi Models","p":798.0},{"m":"MQPILHEATERKITE","d":"Inline Fuel Heater & Filter DLW400ESA4","p":1093.4},{"m":"WKT225A","d":"Wheel Kit DA DAC SDW","p":1050.0},{"m":"FKITDLW300ESA1","d":"Filter Kit DLW300ESA1","p":117.6},{"m":"FKITDLW330X2","d":"Filter Kit DLW330X2","p":117.6},{"m":"FKITDLW400ESA4","d":"Kit incl: Oil  Fuel  Air Filters","p":117.6},{"m":"FKITDAW500SA4","d":"Filter Kit DAW500SA4","p":148.4},{"m":"FKITDLW500ESA4","d":"Filter Kit DLW500ESA4","p":457.8},{"m":"TRLR502XFE","d":"Trailer DLW500 80 gal Elec","p":23004.8},{"m":"TRLR502XFH","d":"Trailer DLW500 80 gal Hyd","p":23004.8},{"m":"MQPCCTRLRMP","d":"Welder Cable Carriers TRLRMP/MPXF","p":849.8},{"m":"10E50","d":"Cable  50  # 1/0  w/electrode holder","p":980.0},{"m":"10G50","d":"Cable  50  # 1/0  w/ground clamp","p":1034.6},{"m":"10E100","d":"Cable  100  # 1/0  w/electrode holder","p":1554.0},{"m":"10G100","d":"Cable  100  # 1/0  w/ground clamp","p":1639.4},{"m":"10E150","d":"Cable  150  # 1/0  w/electrode holder","p":2086.0},{"m":"10G150","d":"Cable  150  # 1/0  w/ground clamp","p":1920.8},{"m":"2E25","d":"Cable  25  # 2/0 w/electrode holder","p":700.0},{"m":"2G25","d":"Cable  25  2/0 w/ground clamp","p":739.2},{"m":"2E50","d":"Cable  50  # 2/0 w/electrode holder","p":1050.0},{"m":"2G50","d":"Cable  50  # 2/0 w/ground clamp","p":1107.4},{"m":"DLWWRKIT300","d":"Wire Remote DLW300ESA1","p":1330.0},{"m":"DLWWRKIT400","d":"Wire Remote DLW330X2 & DLW400ESA4","p":2275.0},{"m":"GAC25HR","d":"NLA - No Longer Available","p":1804.6},{"m":"GAC36HR","d":"NLA - No Longer Available","p":2982.0},{"m":"GAC6HR","d":"NLA - No Longer Available","p":3224.2},{"m":"GAC97HEA","d":"NLA - No Longer Available","p":5747.0},{"m":"WKT97","d":"Wheel Kit GA97HEA","p":590.8},{"m":"ACV-DEF-350L","d":"AceCube Versatile DEF 350L","p":6769.0},{"m":"ACV-DEF-500L","d":"AceCube Versatile DEF 500L","p":10822.0},{"m":"ACV-DEF-1650L","d":"AceCube Versatile DEF 1650L","p":15729.0},{"m":"ACV-DEF-2650L","d":"AceCube Versatile DEF 2650L","p":21210.0},{"m":"ACP-450L","d":"AceCube Professional 450L","p":5565.0},{"m":"ACP-950L","d":"AceCube Professional 950L","p":6650.0},{"m":"ACP-2000L","d":"AceCube Professional 2000L","p":9590.0},{"m":"ACP-3000L","d":"AceCube Professional 3000L","p":12089.0},{"m":"ACV-4500L","d":"AceCube Versatile 4500L","p":19684.0},{"m":"ACP-DF-680/120","d":"AceCube Professional Dual-Fluid 680/120L","p":9632.0},{"m":"ACP-DF-1750/120","d":"AceCube Professional Dual-Fluid 1750/120","p":12572.0},{"m":"ACP-DF-2750/250","d":"AceCube Professional Dual-Fluid 2750/250","p":16961.0},{"m":"ACP-DF-4070/250","d":"AceCube Professional Dual-Fluid 4070/250","p":21672.0},{"m":"DEFTANK2","d":"Dual Auto Fill 100 gal Fork Pockets","p":21609.0},{"m":"DEFTANK302","d":"Dual Auto Fill 300 gal Fork Pockets","p":29576.4},{"m":"DEFTANKSTACKKITP","d":"4 Point Lift & Stack Assy (Black Paint)","p":1846.6},{"m":"DEFTANKSTACKKITG","d":"4 Point Lift & Stack Assy (Galvanized)","p":2392.6},{"m":"DEFTANK2KIT","d":"Converts DEFTANK1 to DEFTANK2","p":1905.4},{"m":"DEFADAPTERKITA","d":"DEF Unit Connection Kit DCA70/125I T4F","p":945.0},{"m":"DEFADAPTERKITB","d":"DEF Unit Connection Kit DCA70JD T4F","p":945.0},{"m":"DEFADAPTERKITC","d":"DEF Unit Connection Kit DCA150-300 T4F","p":1402.8},{"m":"DEFADAPTERKITD","d":"DEF Unit Connection Kit DCA400 T4F","p":1402.8},{"m":"DEFADAPTERKITE","d":"DEF Unit Connection Kit DCA600 T4F","p":1625.4},{"m":"DEFDISPENSERKIT","d":"Nozzle w/20  Hose 12VDC Manual Pump","p":2067.8},{"m":"DEFHOSEHEAT","d":"Heated Hose 20ft 1 ea","p":1447.6},{"m":"DEFHEATPAD","d":"Heat Pad 1200W 120VAC","p":1269.8},{"m":"FKITDIS1","d":"Filter kit display empty 6\u2019","p":530.6},{"m":"FKITSDW225SSA1","d":"Filter Kit SDW225SSA1","p":103.6},{"m":"FKITDIS100SSK4F","d":"Kit incl: Oil  Fuel  Air Filters","p":540.0},{"m":"FKITDIS185SSI4F","d":"Kit incl: Oil  Fuel  Air Filters","p":716.52},{"m":"FKITGA97HEA","d":"Air  Oil  In-line fuel & Spark plug","p":137.48},{"m":"FKITDCA6SPX4F","d":"Kit incl: Oil  Fuel  Air Filters","p":119.54},{"m":"SPFKITDCA6","d":"Filter Kit; Incl: Oil/Fuel Filters","p":74.3},{"m":"SPFKITDA7","d":"Kit incl: Oil  Fuel Filters","p":31.07},{"m":"SPFKITDCA10","d":"Filter Kit; Incl: Oil/Fuel Filters","p":66.34},{"m":"SPFKITDCA15","d":"Kit incl: Oil  Fuel Filters","p":52.99},{"m":"SPFKITDCA20","d":"Kit incl: Oil  Fuel Filters","p":211.61},{"m":"SPFKITDCA36","d":"Filter Kit; Incl: Oil/Fuel Filters","p":219.17},{"m":"SPFKITTLG8","d":"Filter Kit; Incl: Oil/Fuel Filters","p":29.33},{"m":"SPFKITDCA25","d":"Kit incl: Oil  Fuel Filters","p":248.62},{"m":"FKITDCA40SSKU4F","d":"Kit incl: Oil  Fuel  Air Filters","p":245.14},{"m":"SPFKITDCA40","d":"Filter Kit; Incl: Oil/Fuel Filters","p":137.51},{"m":"SPFKITDCA45","d":"Kit incl: Oil  Fuel Filters","p":250.6},{"m":"SPFKITDCA70I","d":"Kit incl: Oil  Fuel Filters","p":340.2},{"m":"FKITDCA70SSJU4F","d":"Kit incl: Oil  Fuel  Air Filters","p":490.65},{"m":"SPFKITDCA70J","d":"Filter Kit; Incl: Oil/Fuel Filters","p":368.41},{"m":"SPFKITDCA125","d":"Kit incl: Oil  Fuel Filters","p":441.77},{"m":"SPFKITDCA150","d":"Kit incl: Oil  Fuel Filters","p":451.82},{"m":"SPFKITDCA180","d":"Kit incl: Oil  Fuel Filters","p":451.82},{"m":"SPFKITDCA220","d":"Kit incl: Oil  Fuel Filters","p":451.82},{"m":"SPFKITDCA300","d":"Kit incl: Oil  Fuel Filters","p":607.14},{"m":"SPFKITDCA400","d":"Kit incl: Oil  Fuel Filters","p":440.79},{"m":"SPFKITDCA600","d":"Filter Kit; Incl: Oil/Fuel Filters","p":783.22},{"m":"FKIT10SPX3","d":"Filter Kit      DCA-10SPX3","p":69.66},{"m":"FKIT10SPX4","d":"Filter Kit     DCA10SPX4","p":148.68},{"m":"FKIT15SPX3","d":"Filter Kit     DCA-15SPX3","p":123.83},{"m":"FKIT15SPX4","d":"Filter Kit     DCA-15SPX4","p":148.68},{"m":"FKIT20SPXU2","d":"Filter Kit      DCA-20SPX/2/U2","p":202.87},{"m":"FKITMQP56","d":"Filter Kit MQP56","p":271.6},{"m":"FKIT25SSIU2","d":"Filter Kit      DCA-25SSIU2","p":292.06},{"m":"FKIT25SSIU3","d":"Filter Kit      DCA-25SSIU3","p":210.7},{"m":"FKIT25USI2","d":"Filter Kit      DCA-25USI2","p":210.7},{"m":"FKIT25USIXF/2XF","d":"Filter Kit      DCA-25USIXF/2XF","p":291.65},{"m":"FKIT45USIC","d":"Filter Kit      FKIT45USIC","p":209.37},{"m":"FKIT45USI2C","d":"Filter Kit      DCA45USI2C","p":443.63},{"m":"FKIT45SSIU3C","d":"Filter Kit      FKIT45SSIU3C","p":254.52},{"m":"FKIT45SSIU4C","d":"Filter Kit      FKIT45SSIU4C","p":443.63},{"m":"FKIT70SSIU","d":"Filter Kit      FKIT70SSIU","p":355.15},{"m":"FKIT70SSIU2","d":"Filter Kit","p":325.92},{"m":"FKIT70SSJU/2","d":"Filter Kit      FKIT70SSJU/2","p":319.98},{"m":"FKIT70SSJU3","d":"Filter Kit      FKIT70SSJU3","p":461.86},{"m":"FKIT70SSJU4I","d":"Filter Kit      DCA70SSJU4I","p":525.4},{"m":"FKIT70USI","d":"Filter Kit      FKIT70USI","p":355.15},{"m":"FKIT70USI2","d":"Filter Kit               DCA70USI2","p":324.8},{"m":"FKIT70USJ","d":"Filter Kit      FKIT70USJ","p":371.61},{"m":"FKITDCA150SSJU4F","d":"Filter Kit DCA150SSJU4F","p":499.8},{"m":"FKITDCA150SSJU4FB","d":"FilterKit DCA150SSJU4F SN:7601141 &After","p":499.8},{"m":"FKITDCA220SSJU4F","d":"Filter Kit DCA220SSJU4F","p":620.2},{"m":"FKITDCA220SSJU4FB","d":"FilterKit DCA220SSJU4F SN:8011008 &After","p":589.4},{"m":"FKITDCA300SSJU4F","d":"USE# FKITDCA300SSJU4F2","p":982.8},{"m":"FKITDCA600SSVC","d":"Vintage - Filter Kit      DCA600SSVC","p":960.4}];
+
+/* ---- hitch / coupler options (not reliably linked in catalog descriptions) ---- */
+const HITCH = {
+  mixer:[
+    {m:'HBC1',d:'Hitch-Mixer 2" Ball',p:239.40},
+    {m:'HLC1',d:'Hitch-Mixer Loop',p:197.40},
+    {m:'HPC1',d:'Hitch-Mixer 1" Pin',p:179.20}
+  ],
+  gen:[
+    {m:'EE43254',d:'Coupler 2" Ball 10K',p:165.20},
+    {m:'EE43253',d:'Coupler 2-5/16" 14K',p:184.27},
+    {m:'EE36264',d:'Coupler 3" Pintle 25K',p:128.47}
+  ]
+};
+
+/* ---- machine families: matched on MODEL PREFIX, since descriptions are inconsistent ---- */
+const FAM = [
+  {n:'Ride-On Trowel', k:['ride on trowel','ride-on trowel','riding trowel','ride on','rideon','rot'], f:p=>/^ROT\s+\d/i.test(p.d)},
+  {n:'Walk-Behind Trowel', k:['walk behind trowel','walk-behind trowel','walk behind','power trowel'], f:p=>/^TROWEL\s+\d/i.test(p.d)},
+  {n:'Trowel', k:['trowel','trowels'], f:p=>/^(ROT|TROWEL)\s+\d/i.test(p.d)},
+  {n:'Generator', k:['generator','generators','genset','gen set','gensets'], f:p=>/^(DCA|NGA|TLG)/i.test(p.m)&&/^Gen\b/i.test(p.d)},
+  {n:'Reversible Plate', k:['reversible plate','reversible','reversable'], f:p=>/^MVH/i.test(p.m)},
+  {n:'Forward Plate', k:['forward plate','fwd plate'], f:p=>/^MVC/i.test(p.m)},
+  {n:'Rammer', k:['rammer','rammers','jumping jack','tamper','trench'], f:p=>/^MT[XR]/i.test(p.m)},
+  {n:'Compaction', k:['compaction','compactor','compactors','plate compactor','plate','plates'], f:p=>/^(MVC|MVH|MT[XR])/i.test(p.m)},
+  {n:'Mortar Mixer', k:['mortar mixer','mortar mixers','mortar'], f:p=>/^(WM|EM)/i.test(p.m)&&/Mixer/i.test(p.d)},
+  {n:'Concrete Mixer', k:['concrete mixer','concrete mixers','conc mixer'], f:p=>/^MC/i.test(p.m)&&/Mixer/i.test(p.d)},
+  {n:'Mixer', k:['mixer','mixers'], f:p=>/^(WM|EM|MC)/i.test(p.m)&&/Mixer/i.test(p.d)},
+  {n:'Vibrator', k:['vibrator','vibrators','concrete vibrator','vibe'], f:p=>/^(CV|G55|BPX)/i.test(p.m)},
+  {n:'Pump', k:['pump','pumps','trash pump','water pump'], f:p=>/^Pump/i.test(p.d)},
+  {n:'Welder', k:['welder','welders','welding'], f:p=>/^Welder/i.test(p.d)},
+  {n:'Screed', k:['screed','screeds','duoscreed'], f:p=>/SCREED/i.test(p.d)}
+];
+const CHIPS = ['Generator','Compaction','Mixer','Trowel','Vibrator','Pump','Welder'];
+
+const ALIAS = {'270':'MVH128GH','325':'MVH158GH','460':'MVH208GH','750':'MVH308GH','800':'MVH308DE',
+'850':'MVH408GH','900':'MVH408DE','1000':'MVH508GH','THOUSAND':'MVH508GH','1200':'MVH508DE',
+'508':'MVH508GH','408':'MVH408GH','308':'MVH308GH','208':'MVH208GH','158':'MVH158GH','128':'MVH128GH'};
+
+const nz = s => (s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const isMachine = p => FAM.some(f=>f.f(p));
+const money = n => '$'+n.toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function famFor(q){
+  const s = q.toLowerCase().trim();
+  let best=null,len=0;
+  for(const f of FAM) for(const k of f.k)
+    if((s===k||s.includes(k)) && k.length>len){best=f;len=k.length;}
+  return best;
+}
+
+function search(q){
+  const raw=(q||'').trim(); if(!raw) return [];
+  const Q=nz(raw);
+  // "1000 pounder", "850 lb", "thousand pounder" -> strip the weight word, then alias
+  const A=nz(raw.replace(/\b(pounders?|pounds?|lbs?|plate)\b/gi,''));
+  if(ALIAS[A]){const hit=P.filter(p=>nz(p.m)===nz(ALIAS[A])); if(hit.length) return hit;}
+  const fam=famFor(raw);
+  if(fam){const r=P.filter(fam.f); if(r.length) return r.sort((a,b)=>a.m.localeCompare(b.m,undefined,{numeric:true}));}
+  const toks=raw.toUpperCase().split(/\s+/).map(nz).filter(Boolean);
+  const out=[];
+  for(const p of P){
+    const m=nz(p.m), d=nz(p.d), hay=m+' '+d;
+    let s=0;
+    if(m===Q) s=1000;
+    else if(m.startsWith(Q)) s=620;
+    else if(m.includes(Q)) s=430;
+    else if(d.includes(Q)) s=260;
+    else if(toks.length>1&&toks.every(t=>hay.includes(t))) s=140;
+    if(s){ if(isMachine(p)) s+=55; out.push({p,s}); }
+  }
+  return out.sort((a,b)=>b.s-a.s||a.p.m.localeCompare(b.p.m,undefined,{numeric:true})).map(o=>o.p);
+}
+
+/* accessories.
+   Two kinds, because the catalog only sometimes names the parent model:
+   1. exact  - description names this model (e.g. "Filter Kit DCA-25SSIU2")
+   2. by type - description is generic (vibrator shafts, trowel blades), so match on family */
+function accsFor(prod){
+  const M=nz(prod.m);
+  const base=(prod.m.match(/^[A-Za-z]+\d+/)||[prod.m])[0];
+  const B=nz(base);
+  const sortM=(a,b)=>a.m.localeCompare(b.m,undefined,{numeric:true});
+
+  const exact=P.filter(p=>{
+    if(nz(p.m)===M) return false;
+    const d=nz(p.d);
+    return d.includes(M)||(B.length>=4&&d.includes(B));
+  }).sort(sortM);
+
+  let hitches=[];
+  if(/^(WM|EM|MC)/i.test(prod.m)&&/Mixer/i.test(prod.d)) hitches=HITCH.mixer;
+  else if(/^(DCA|NGA|TLG)/i.test(prod.m)&&/^Gen\b/i.test(prod.d)) hitches=HITCH.gen;
+
+  /* groups are built in order; each part lands in the first group it fits */
+  const taken=new Set(exact.map(p=>p.m)); taken.add(prod.m);
+  const groups=[];
+  const G=(label,f)=>{
+    const items=P.filter(p=>!taken.has(p.m)&&f(p)).sort(sortM);
+    items.forEach(p=>taken.add(p.m));
+    if(items.length) groups.push({label,items});
+  };
+
+  const wbt=/^TROWEL\s+(\d+)/i.exec(prod.d);
+  const rot=/^ROT\s+\d/i.test(prod.d);
+
+  if(/^(CV|G55|BPX)/i.test(prod.m)){
+    G('Shafts &amp; heads &mdash; pick to suit the pour',
+      p=>/^FSN?\d/i.test(p.m)||/^FSC$/i.test(p.m)||/Vibrator Head/i.test(p.d));
+  }
+  else if(wbt||rot){
+    const sz = wbt ? wbt[1] : null;
+    /* a part is tagged ROT (ride-on) and/or TROWEL/WBT (walk-behind). untagged = fits both */
+    const fits = d => {
+      const isROT=/\bROT\b/i.test(d), isWBT=/TROWEL|\bWBT\b/i.test(d);
+      if(!isROT&&!isWBT) return true;
+      return rot ? isROT : isWBT;
+    };
+    /* blade dimensions imply a machine size when the size isn't spelled out */
+    const DIM={'9.2':['24'],'9.25':['24'],'10.5':['30'],'14':['36'],'16':['48'],'18':['46','48'],'23':['60']};
+    /* if a part states (or implies) machine sizes, one of them has to be ours */
+    const szOK = d => {
+      if(!sz) return true;
+      let found=(d.match(/\b(24|30|36|46|48|60|70)\b/g)||[]);
+      if(!found.length){
+        const dim=/(\d+(?:\.\d+)?)\s*[xX]\s*(\d+(?:\.\d+)?)/.exec(d);
+        if(dim&&DIM[dim[2]]) found=DIM[dim[2]];
+      }
+      return !found.length || found.includes(sz);
+    };
+    const lbl = sz ? sz+'&Prime; walk-behind' : 'ride-on &mdash; check size';
+    G('Finish blades &mdash; '+lbl,
+      p=>/\bBLADE\b/i.test(p.d)&&!/PAN/i.test(p.d)&&!/DUOSCREED|SNOW|TUFFTRUK|PLOUGH/i.test(p.d)&&fits(p.d)&&szOK(p.d));
+    G('Float pans &mdash; '+lbl,
+      p=>/PAN FLOAT/i.test(p.d)&&fits(p.d)&&szOK(p.d));
+    if(!rot) G('Handles',
+      p=>/HANDLE TROWEL/i.test(p.d)&&!(/CA4HC/i.test(p.d)&&!/^CA4/i.test(prod.m)));
+    G('Arms, pins &amp; service',
+      p=>/TROWEL ARM|LATCH PIN|CLEVIS PIN|SNAP PIN|LOW SPEED KIT|SERVICE KIT|DISASSEMBLY/i.test(p.d)&&fits(p.d)&&szOK(p.d));
+  }
+
+  return {exact,hitches,groups};
+}
+
+/* ---------------- state ---------------- */
+let results=[], current=null, cart=[], shut=true;
+const $=id=>document.getElementById(id);
+const rate=id=>{const v=parseFloat($(id).value); return isNaN(v)||v<0?0:Math.min(v,100);};
+const dM=()=>rate('dm');            /* machine discount */
+const dP=()=>rate('dp');            /* parts / accessory discount */
+const rateFor=k=>k==='m'?dM():dP();
+const net=(b,k)=>b*(1-rateFor(k)/100);
+const inCart=m=>cart.some(l=>l.m===m);
+
+/* ---------------- render ---------------- */
+function chips(){
+  $('cat').innerHTML=CHIPS.map(c=>`<button onclick="go('${c}')">${c}</button>`).join('');
+}
+
+function suggest(){
+  const v=$('q').value;
+  $('clr').classList.toggle('on',!!v);
+  if(v.trim().length<2){$('sug').classList.add('hide');return;}
+  const r=search(v);
+  if(!r.length){$('sug').classList.add('hide');return;}
+  $('sug').innerHTML=r.map((p,i)=>
+    `<div class="sug-i" onclick="pick(${P.indexOf(p)})"><span class="sug-p">${money(p.p)}</span>
+     <div class="sug-m">${esc(p.m)}</div><div class="sug-d">${esc(p.d)}</div></div>`).join('');
+  $('sug').classList.remove('hide');
+}
+
+function go(q){
+  $('q').value=q; $('clr').classList.add('on'); $('sug').classList.add('hide');
+  $('dm').value=''; $('dp').value=''; current=null;
+  results=search(q);
+  if(!results.length){$('out').innerHTML='<div class="empty">Nothing matched that.<br>Try a model number, or tap a category above.</div>';return;}
+  if(results.length===1){detail(results[0]);return;}
+  list();
+}
+
+function list(){
+  current=null;
+  const mach=results.filter(isMachine), part=results.filter(p=>!isMachine(p));
+  const card=p=>`<div class="card" onclick="openProd(${P.indexOf(p)})">
+      <div class="card-m">${esc(p.m)}</div><div class="card-d">${esc(p.d)}</div>
+      <div class="card-p">${money(p.p)}</div></div>`;
+  let h=`<div class="hint">${results.length} result${results.length>1?'s':''} &mdash; tap one</div>`;
+  if(mach.length&&part.length){
+    h+=`<div class="grp" style="margin-top:0">Machines (${mach.length})</div>`+mach.map(card).join('');
+    h+=`<div class="grp">Parts &amp; accessories (${part.length})</div>`+part.map(card).join('');
+  } else h+=results.map(card).join('');
+  $('out').innerHTML=h;
+  window.scrollTo(0,0);
+}
+
+function pick(i){ $('sug').classList.add('hide'); $('q').value=P[i].m; $('dm').value=''; $('dp').value=''; detail(P[i]); }
+
+/* opening a different product always starts from a clean slate -
+   parts rarely carry the same discount as the machine */
+function openProd(i){ $('dm').value=''; $('dp').value=''; detail(P[i]); }
+
+function detail(prod){
+  current=prod;
+  const {exact,hitches,groups}=accsFor(prod);
+  const d=dM();
+  let h='';
+  if(results.length>1) h+='<button class="back" onclick="list()">&larr; Back to results</button>';
+  h+=`<div class="hero"><div class="hero-m">${esc(prod.m)}</div><div class="hero-d">${esc(prod.d)}</div>
+    <div class="hero-p"><div><div class="pl">List price</div><div class="pv ${d?'was':''}">${money(prod.p)}</div></div>
+    ${d?`<div style="text-align:right"><div class="pl red">Your price &minus;${d}%</div><div class="pv red">${money(net(prod.p,'m'))}</div></div>`:''}</div></div>`;
+
+  h+=`<div class="acc ${inCart(prod.m)?'on':''}" onclick="toggle(${JSON.stringify(prod).replace(/"/g,'&quot;')},1)">
+    <div class="tick">&#10003;</div><div class="acc-i"><div class="acc-m">Add ${esc(prod.m)} to quote</div>
+    <div class="acc-d">The machine itself</div></div>
+    <div class="acc-p">${d?`<small>${money(prod.p)}</small>`:''}${money(net(prod.p,'m'))}</div></div>`;
+
+  if(hitches.length){
+    h+='<div class="grp">Choose a hitch / coupler</div>';
+    h+=hitches.map(a=>accRow(a,true)).join('');
+  }
+  if(exact.length){
+    h+=`<div class="grp">Fits this model (${exact.length})</div>`;
+    h+=exact.map(a=>accRow({m:a.m,d:a.d,p:a.p},false)).join('');
+  }
+  for(const g of groups){
+    h+=`<div class="grp">${g.label} (${g.items.length})</div>`;
+    h+=g.items.map(a=>accRow({m:a.m,d:a.d,p:a.p},false)).join('');
+  }
+  if(!exact.length&&!groups.length&&!hitches.length)
+    h+='<div class="empty">No accessories listed against this model in the price file.</div>';
+  $('out').innerHTML=h;
+  window.scrollTo(0,0);
+}
+
+function accRow(a,isHitch){
+  const d=dP();
+  return `<div class="acc ${inCart(a.m)?'on':''}" onclick="toggle(${JSON.stringify({m:a.m,d:a.d,p:a.p,h:isHitch?1:0}).replace(/"/g,'&quot;')},0)">
+    <div class="tick">&#10003;</div>
+    <div class="acc-i"><div class="acc-m">${esc(a.m)}</div><div class="acc-d">${esc(a.d)}</div></div>
+    <div class="acc-p">${d?`<small>${money(a.p)}</small>`:''}${money(net(a.p,'p'))}</div></div>`;
+}
+
+/* ---------------- quote ---------------- */
+function toggle(o,isMain){
+  const m=o.m;
+  const i=cart.findIndex(l=>l.m===m);
+  if(i>-1) cart.splice(i,1);
+  else{
+    // only one hitch at a time
+    if(o.h){const hs=[...HITCH.mixer,...HITCH.gen].map(x=>x.m);
+      cart=cart.filter(l=>!hs.includes(l.m));}
+    cart.push({m:o.m,d:o.d,p:o.p,k:isMain?'m':'p'});
+  }
+  if(current) detail(current);
+  quote();
+}
+
+function drop(i){ cart.splice(i,1); if(current) detail(current); quote(); }
+
+function clearQ(){ cart=[]; if(current) detail(current); quote(); }
+
+function quote(){
+  $('qn').textContent=cart.length?`(${cart.length})`:'';
+  if(!cart.length){
+    $('qbody').innerHTML='<div class="q-none">Tap any item to add it here</div>';
+    $('qfoot').innerHTML=''; $('qtot').textContent='$0.00';
+    return;
+  }
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
+  $('qbody').innerHTML=cart.map((l,i)=>`<div class="q-line">
+    <div class="n"><div class="nm">${esc(l.m)}${rateFor(l.k)?` <span style="color:#DC143C;font-weight:600">&minus;${rateFor(l.k)}%</span>`:''}</div>
+    <div class="ds">${esc(l.d)}</div></div>
+    <div class="pr">${money(net(l.p,l.k))}</div><div class="x" onclick="drop(${i})">&times;</div></div>`).join('');
+  $('qfoot').innerHTML=
+    (listT>netT?`<div class="q-sum"><span>List total</span><span>${money(listT)}</span></div>
+        <div class="q-sum"><span>Discount</span><span>&minus;${money(listT-netT)}</span></div>`:'')+
+    `<div class="q-sum big"><span>Total</span><span>${money(netT)}</span></div>
+     <button class="q-btn" onclick="copyQ(event)">Copy quote</button>
+     <button class="q-btn" onclick="clearQ()">Clear</button>`;
+  $('qtot').textContent=money(netT);
+}
+
+function copyQ(ev){
+  let t=cart.map(l=>{const r=rateFor(l.k);
+    return `${l.m}  ${l.d}  ${money(l.p)}`+(r?`  -${r}%  ${money(net(l.p,l.k))}`:'');}).join('\n');
+  t+=`\nTOTAL: ${money(cart.reduce((s,l)=>s+net(l.p,l.k),0))} CAD`;
+  navigator.clipboard?.writeText(t).then(()=>{
+    const b=ev.target; const o=b.textContent; b.textContent='Copied';
+    setTimeout(()=>b.textContent=o,1200);
+  });
+}
+
+/* ---------------- wiring ---------------- */
+$('q').addEventListener('input',suggest);
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('q').blur();go($('q').value);}});
+$('clr').onclick=()=>{$('q').value='';$('clr').classList.remove('on');$('sug').classList.add('hide');$('out').innerHTML='';results=[];current=null;};
+const redraw=()=>{ if(current) detail(current); else if(results.length>1) list(); quote(); };
+$('dm').addEventListener('input',redraw);
+$('dp').addEventListener('input',redraw);
+$('qbar').onclick=()=>{shut=!shut;$('quote').classList.toggle('shut',shut);$('chev').innerHTML=shut?'&#9650;':'&#9660;';};
+document.addEventListener('click',e=>{ if(!e.target.closest('.sbox')) $('sug').classList.add('hide'); });
+chips(); quote();
+</script>
+</body>
+</html>
