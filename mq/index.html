@@ -303,6 +303,95 @@ function vibGroups(prod,G){
     });
 }
 
+/* ---------------- generators ----------------
+   Accessory descriptions name their generators in three different shapes:
+   a range ("DCA20-25SS", "DCA10-125"), a list ("DCA20 25", "DCA150 180 220"),
+   or one model ("DCA125SSIU4F", "DCA-25SSIU2"). Plain substring matching
+   misses the first two, which is why the trailers and valves never showed up. */
+const GENSIZE = m => {
+  const u=m.toUpperCase();
+  if(/^DAC7/.test(u)) return 7;
+  const x=/^DCA(\d+)/.exec(u);
+  return x?parseInt(x[1],10):null;
+};
+/* sizes that actually exist in the catalog - stops "100 Gal" in
+   "Trailer DCA20-70 100 Gal Elec" being read as a model reference */
+const GENSIZES=(()=>{const s=new Set([600]);
+  P.forEach(p=>{const n=GENSIZE(p.m); if(n!==null) s.add(n);}); return s;})();
+
+/* every DCA size a description refers to.
+   Scans left to right: a dash binds to the number immediately before it,
+   so "DCA25 70J 150-220" is 25, 70 and 150-220 - not 25 through 220. */
+function genRefs(text){
+  const u=text.toUpperCase(), out=[];
+  const re=/DCA[\s-]*(\d+)/g;
+  let mm;
+  while((mm=re.exec(u))){
+    let n=parseInt(mm[1],10), i=re.lastIndex;
+    if(!GENSIZES.has(n)){ continue; }
+    for(;;){
+      const rest=u.slice(i);
+      const rng=/^[A-Z0-9]*\s*[-–~]\s*(?:DCA[\s-]*)?(\d+)/.exec(rest);
+      if(rng&&GENSIZES.has(parseInt(rng[1],10))){
+        const hi=parseInt(rng[1],10);
+        out.push({lo:Math.min(n,hi),hi:Math.max(n,hi)});
+        i+=rng[0].length; n=null;
+      } else {
+        if(n!==null) out.push({lo:n,hi:n});
+        const nxt=/^[A-Z0-9/]*\s+(\d+)(?![\d/])/.exec(rest);
+        if(nxt&&GENSIZES.has(parseInt(nxt[1],10))){
+          n=parseInt(nxt[1],10); i+=nxt[0].length;
+        } else break;
+      }
+      if(n===null){                       /* after a range, look for more */
+        const nxt=/^[A-Z0-9/]*\s+(\d+)(?![\d/])/.exec(u.slice(i));
+        if(nxt&&GENSIZES.has(parseInt(nxt[1],10))){ n=parseInt(nxt[1],10); i+=nxt[0].length; }
+        else break;
+      }
+    }
+    re.lastIndex=Math.max(re.lastIndex,i);
+  }
+  return out;
+}
+const genFits=(d,n)=>genRefs(d).some(r=>n>=r.lo&&n<=r.hi);
+/* Same size, different build. FKIT25SSIU2 is a DCA-25SSIU2 kit and must not
+   land on a DCA25SSIU4F. If a reference carries a build suffix, it has to be
+   compatible with ours; a bare "DCA25" or a range is treated as generic. */
+function genVariantOK(text,model){
+  const u=text.toUpperCase(), me=/^DCA\d+(.*)$/.exec(model.toUpperCase());
+  const mine=me?me[1].replace(/[^A-Z0-9]/g,''):'';
+  const n=GENSIZE(model);
+  const re=/DCA[\s-]*(\d+)([A-Z][A-Z0-9]*)?/g;
+  let mm, sawSuffix=false;
+  while((mm=re.exec(u))){
+    if(parseInt(mm[1],10)!==n) continue;
+    const suf=(mm[2]||'').replace(/[^A-Z0-9]/g,'');
+    if(!suf) return true;                       /* bare size - generic */
+    sawSuffix=true;
+    if(mine.startsWith(suf)||suf.startsWith(mine)) return true;
+  }
+  return !sawSuffix;                            /* only ranges - generic */
+}
+/* things that go on any DCA regardless of size */
+const GENANY=/wheel kit universal|telematics|7 pin rv plug|oil pan heater 125w multi/i;
+
+function genGroups(prod,G,taken){
+  const n=GENSIZE(prod.m); if(n===null) return;
+  const fits=p=>p.m!==prod.m
+    &&(genFits(p.d,n)||GENANY.test(p.d))
+    &&genVariantOK(p.d+' '+p.m,prod.m);
+  const g=(label,re)=>G(label,p=>fits(p)&&re.test(p.d+' '+p.m));
+
+  g('Trailers &amp; mounting',      /^TRLR|trailer|mount kit|spare tire|stabilizer jack|storage box/i);
+  g('Power connection',             /camlok|transformer|powerbalance|parallel/i);
+  g('Cold weather',                 /heater|heat pad|batt chg|batt tender|solar battery/i);
+  g('Fuel system',                  /fuel valve|3 ?way|inline fuel/i);
+  g('Safety &amp; monitoring',      /air shutoff|fire exting|emergency stop|audible|low coolant|batt(ery)?switch|rating.*waterproof|\d+A Rating|auto start/i);
+  g('DEF',                          /\bDEF\b/i);
+  g('Filters &amp; service',        /^FKIT|^SPFKIT|filter/i);
+  g('Canada kits',                  /canada/i);
+}
+
 /* accessories.
    Two kinds, because the catalog only sometimes names the parent model:
    1. exact  - description names this model (e.g. "Filter Kit DCA-25SSIU2")
@@ -316,6 +405,9 @@ function accsFor(prod){
   const exact=P.filter(p=>{
     if(nz(p.m)===M) return false;
     const d=nz(p.d);
+    /* "DCA6" is a substring of "DCA600", so generators can't use the loose
+       prefix match - genGroups does size-aware matching for them instead */
+    if(GENSIZE(prod.m)!==null) return d.includes(M)||nz(p.m).includes(M);
     return d.includes(M)||(B.length>=4&&d.includes(B));
   }).sort(sortM);
 
@@ -334,6 +426,8 @@ function accsFor(prod){
 
   const wbt=/^TROWEL\s+(\d+)/i.exec(prod.d);
   const rot=/^ROT\s+\d/i.test(prod.d);
+
+  genGroups(prod,G);
 
   if(VIBMOTOR(prod.m)||VIBHEAD(prod.m)||VIBSHAFT(prod.m)||/^FSC$/i.test(prod.m)){
     vibGroups(prod,G);
