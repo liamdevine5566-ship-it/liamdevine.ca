@@ -506,7 +506,8 @@ function go(q){
   list();
 }
 
-function list(){
+function list(keep){
+  const y=keep?window.scrollY:0;
   current=null;
   const mach=results.filter(isMachine), part=results.filter(p=>!isMachine(p));
   const card=p=>`<div class="card" onclick="openProd(${P.indexOf(p)})">
@@ -518,7 +519,7 @@ function list(){
     h+=`<div class="grp">Accessories (${part.length})</div>`+part.map(card).join('');
   } else h+=results.map(card).join('');
   $('out').innerHTML=h;
-  window.scrollTo(0,0);
+  window.scrollTo(0,y);
 }
 
 function clearDisc(){ $('dm').value=''; $('dp').value=''; dpCustom=false; }
@@ -529,7 +530,10 @@ function pick(i){ $('sug').classList.add('hide'); $('q').value=P[i].m; clearDisc
    parts rarely carry the same discount as the machine */
 function openProd(i){ clearDisc(); detail(P[i]); }
 
-function detail(prod){
+/* keep=true means we're just re-drawing after a tap, so hold the scroll
+   position instead of throwing the user back to the top of the page */
+function detail(prod,keep){
+  const y=keep?window.scrollY:0;
   current=prod;
   const {exact,hitches,groups}=accsFor(prod);
   const d=dM();
@@ -559,7 +563,7 @@ function detail(prod){
   if(!exact.length&&!groups.length&&!hitches.length)
     h+='<div class="empty">No accessories listed against this model in the price file.</div>';
   $('out').innerHTML=h;
-  window.scrollTo(0,0);
+  window.scrollTo(0,y);
 }
 
 function accRow(a,isHitch){
@@ -581,13 +585,13 @@ function toggle(o,isMain){
       cart=cart.filter(l=>!hs.includes(l.m));}
     cart.push({m:o.m,d:o.d,p:o.p,k:isMain?'m':'p'});
   }
-  if(current) detail(current);
+  if(current) detail(current,true);
   quote();
 }
 
-function drop(i){ cart.splice(i,1); if(current) detail(current); quote(); }
+function drop(i){ cart.splice(i,1); if(current) detail(current,true); quote(); }
 
-function clearQ(){ cart=[]; if(current) detail(current); quote(); }
+function clearQ(){ cart=[]; if(current) detail(current,true); quote(); }
 
 function quote(){
   $('qn').textContent=cart.length?`(${cart.length})`:'';
@@ -641,7 +645,7 @@ function openSaved(id){
   cart=q.cart.slice(); cust=q.name;
   $('dm').value=q.dm||''; $('dp').value=q.dp||''; dpCustom=!!q.dp;
   $('quote').classList.remove('shut'); shut=false;
-  if(current) detail(current); quote();
+  if(current) detail(current,true); quote();
 }
 function delSaved(id){ putSaved(loadSaved().filter(x=>x.id!==id)); savedList(); }
 function savedList(){
@@ -709,7 +713,7 @@ function copyQ(ev){
 $('q').addEventListener('input',suggest);
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('q').blur();go($('q').value);}});
 $('clr').onclick=()=>{$('q').value='';$('clr').classList.remove('on');$('sug').classList.add('hide');$('out').innerHTML='';results=[];current=null;};
-const redraw=()=>{ if(current) detail(current); else if(results.length>1) list(); quote(); };
+const redraw=()=>{ if(current) detail(current,true); else if(results.length>1) list(true); quote(); };
 $('dm').addEventListener('input',()=>{
   if(!dpCustom) $('dp').value=$('dm').value;   /* keep accessories in step */
   redraw();
