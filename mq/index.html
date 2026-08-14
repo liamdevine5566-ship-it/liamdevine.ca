@@ -154,6 +154,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="row">
     <div class="disc"><label>Product</label><input id="dm" type="number" inputmode="decimal" placeholder="0" min="0" max="100"><label>%</label></div>
     <div class="disc"><label>Accessories</label><input id="dp" type="number" inputmode="decimal" placeholder="0" min="0" max="100"><label>%</label></div>
+    <div class="disc" id="orow" style="display:none"><label>Different rate</label><input id="do" type="number" inputmode="decimal" placeholder="0" min="0" max="100"><label>%</label></div>
   </div>
 
   <div class="cat" id="cat"></div>
@@ -440,6 +441,26 @@ function genGroups(prod,G,taken){
   g('Other options',                /./);
 }
 
+/* ---------------- trowel handles ----------------
+   From the Walk-Behind Trowels brochure spec table. Handles are not
+   interchangeable across series - the HD series needs a 2" mount, the
+   InstaClutch needs a friction-clutch handle, and two models ship with
+   the handle already fitted so there is nothing to choose. */
+function handlesFor(model){
+  const u=model.toUpperCase();
+  if(/^CA4HM/.test(u))  return {list:[], note:''};              /* folding QP included */
+  if(/^J36E2/.test(u))  return {list:[], note:''};              /* electric handle included */
+  if(/^CA4HC/.test(u))  return {list:['STHAC','QPHAFC'],
+    note:'centrifugal clutch'};
+  if(/C$/.test(u)&&/^JH?\d*55C/.test(u)) return {list:['SXHC','QXHC'],
+    note:'InstaClutch friction clutch'};
+  if(/^HDA48/.test(u))  return {list:['SXHD','QXHD','SXHDP','QXHDP'],
+    note:'HD series, 2&Prime; mount'};
+  if(/^(J3036|J36|B46)/.test(u)) return {list:['SXH','QXH','SXHP','QXHP'],
+    note:'J and B series'};
+  return {list:[], note:''};
+}
+
 /* accessories.
    Two kinds, because the catalog only sometimes names the parent model:
    1. exact  - description names this model (e.g. "Filter Kit DCA-25SSIU2")
@@ -505,8 +526,10 @@ function accsFor(prod){
       p=>/\bBLADE\b/i.test(p.d)&&!/PAN/i.test(p.d)&&!/DUOSCREED|SNOW|TUFFTRUK|PLOUGH/i.test(p.d)&&fits(p.d)&&szOK(p.d));
     G('Float pans &mdash; '+lbl,
       p=>/PAN FLOAT/i.test(p.d)&&fits(p.d)&&szOK(p.d));
-    if(!rot) G('Handles',
-      p=>/HANDLE TROWEL/i.test(p.d)&&!(/CA4HC/i.test(p.d)&&!/^CA4/i.test(prod.m)));
+    if(!rot){
+      const h=handlesFor(prod.m);
+      if(h.list.length) G('Handles &mdash; '+h.note, p=>h.list.includes(p.m.toUpperCase()));
+    }
     G('Arms, pins &amp; service',
       p=>/TROWEL ARM|LATCH PIN|CLEVIS PIN|SNAP PIN|LOW SPEED KIT|SERVICE KIT|DISASSEMBLY/i.test(p.d)&&fits(p.d)&&szOK(p.d));
   }
@@ -522,8 +545,11 @@ const $=id=>document.getElementById(id);
 const rate=id=>{const v=parseFloat($(id).value); return isNaN(v)||v<0?0:Math.min(v,100);};
 const dM=()=>rate('dm');            /* product discount */
 const dP=()=>rate('dp');            /* accessory discount - mirrors product until overridden */
-const rateFor=k=>k==='m'?dM():dP();
-const net=(b,k)=>b*(1-rateFor(k)/100);
+const rateFor=(k,idx)=>{
+  if(idx!==undefined&&overrides[idx]) return dO();
+  return k==='m'?dM():dP();
+};
+const net=(b,k,idx)=>b*(1-rateFor(k,idx)/100);
 const inCart=m=>cart.some(l=>l.m===m);
 
 /* ---------------- render ---------------- */
@@ -570,11 +596,11 @@ function list(keep){
 
 function clearDisc(){ $('dm').value=''; $('dp').value=''; dpCustom=false; }
 
-function pick(i){ $('sug').classList.add('hide'); $('q').value=P[i].m; clearDisc(); detail(P[i]); }
+function pick(i){ $('sug').classList.add('hide'); $('q').value=P[i].m; detail(P[i]); }
 
 /* opening a different product always starts from a clean slate -
    parts rarely carry the same discount as the machine */
-function openProd(i){ clearDisc(); detail(P[i]); }
+function openProd(i){ detail(P[i]); }
 
 /* keep=true means we're just re-drawing after a tap, so hold the scroll
    position instead of throwing the user back to the top of the page */
@@ -621,6 +647,12 @@ function accRow(a,isHitch){
 }
 
 /* ---------------- quote ---------------- */
+function toggleOverride(i){
+  if(overrides[i]) delete overrides[i];
+  else overrides[i]=dO();
+  quote();
+}
+
 function toggle(o,isMain){
   const m=o.m;
   const i=cart.findIndex(l=>l.m===m);
@@ -631,6 +663,7 @@ function toggle(o,isMain){
       cart=cart.filter(l=>!hs.includes(l.m));}
     cart.push({m:o.m,d:o.d,p:o.p,k:isMain?'m':'p'});
   }
+  overrides={};
   if(current) detail(current,true);
   quote();
 }
@@ -647,11 +680,14 @@ function quote(){
     outState(); savedList();
     return;
   }
-  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
-  $('qbody').innerHTML=cart.map((l,i)=>`<div class="q-line">
-    <div class="n"><div class="nm">${esc(l.m)}${rateFor(l.k)?` <span style="color:#DC143C;font-weight:600">&minus;${rateFor(l.k)}%</span>`:''}</div>
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l,i)=>s+net(l.p,l.k,i),0);
+  const anyOvr=Object.keys(overrides).length>0;
+  $('orow').style.display=anyOvr?'':'none';
+  $('qbody').innerHTML=cart.map((l,i)=>{const r=rateFor(l.k,i);return `<div class="q-line">
+    <input type="checkbox" style="width:18px;height:18px;margin-right:6px" ${overrides[i]?'checked':''} onclick="toggleOverride(${i})">
+    <div class="n"><div class="nm">${esc(l.m)}${r?` <span style="color:#DC143C;font-weight:600">&minus;${r}%</span>`:''}</div>
     <div class="ds">${esc(l.d)}</div></div>
-    <div class="pr">${money(net(l.p,l.k))}</div><div class="x" onclick="drop(${i})">&times;</div></div>`).join('');
+    <div class="pr">${money(net(l.p,l.k,i))}</div><div class="x" onclick="drop(${i})">&times;</div></div>`}).join('');
   $('qfoot').innerHTML=
     (listT>netT?`<div class="q-sum"><span>List total</span><span>${money(listT)}</span></div>
         <div class="q-sum"><span>Discount</span><span>&minus;${money(listT-netT)}</span></div>`:'')+
@@ -670,6 +706,8 @@ function quote(){
 let cust='';
 const custName=()=>cust;
 const custSet=v=>{cust=v;};
+let overrides={};                    /* line index -> override rate */
+const dO=()=>{const v=parseFloat($('do').value); return isNaN(v)||v<0?0:Math.min(v,100);};
 const LS='mq.quotes';
 function loadSaved(){ try{ return JSON.parse(localStorage.getItem(LS)||'[]'); }catch(e){ return []; } }
 function putSaved(a){ try{ localStorage.setItem(LS,JSON.stringify(a)); return true; }catch(e){ return false; } }
@@ -701,6 +739,14 @@ function savedList(){
     : '';
 }
 
+/* Group lines under the machine they belong to. A quote can hold a track
+   buggy and an all-wheel-drive buggy, each with its own accessories. */
+function cartGroups(){
+  const order=[], by={};
+  cart.forEach(l=>{const k=l.pm||l.m; if(!by[k]){by[k]=[];order.push(k);} by[k].push(l);});
+  return order.map(k=>({pm:k,lines:by[k]}));
+}
+
 /* A reference so a quote can be talked about on the phone. */
 function quoteRef(dt){
   const p=n=>String(n).padStart(2,'0');
@@ -718,14 +764,18 @@ function quoteText(){
   w.push('QUOTATION', R, 'Reference   '+quoteRef(dt), 'Date        '+LONGDATE(dt));
   if(cust) w.push('Customer    '+cust);
   w.push(R,'');
-  cart.forEach((l,i)=>{
-    const r=rateFor(l.k);
-    w.push(`${i+1}. ${l.m}`);
-    w.push(`   ${l.d.replace(/\s{2,}/g,' ').trim()}`);
-    w.push('   '+(r?`${money(l.p)} less ${r}%  =  ${money(net(l.p,l.k))}`:money(l.p)));
-    w.push('');
+  const gs=cartGroups(); let n=0;
+  gs.forEach(g=>{
+    if(gs.length>1){ w.push(g.pm.toUpperCase(), '-'.repeat(g.pm.length)); }
+    g.lines.forEach(l=>{
+      const r=rateFor(l);
+      w.push(`${++n}. ${l.m}`);
+      w.push(`   ${l.d.replace(/\s{2,}/g,' ').trim()}`);
+      w.push('   '+(r?`${money(l.p)} less ${r}%  =  ${money(net(l.p,l))}`:money(l.p)));
+      w.push('');
+    });
   });
-  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l),0);
   w.push(R);
   if(listT>netT){
     w.push('List total       '+money(listT));
@@ -746,14 +796,14 @@ function emailQ(){
 function printQ(){
   if(!cart.length) return;
   const dt=new Date();
-  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
-  const rows=cart.map((l,i)=>{const r=rateFor(l.k);
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l),0);
+  const rows=cart.map((l,i)=>{const r=rateFor(l);
     return `<tr>
       <td class="i">${i+1}</td>
       <td><span class="mdl">${esc(l.m)}</span><span class="dsc">${esc(l.d.replace(/\s{2,}/g,' ').trim())}</span></td>
       <td class="r">${money(l.p)}</td>
       <td class="r dis">${r?'&minus;'+r+'%':'&mdash;'}</td>
-      <td class="r net">${money(net(l.p,l.k))}</td></tr>`;}).join('');
+      <td class="r net">${money(net(l.p,l))}</td></tr>`;}).join('');
   $('printsheet').innerHTML=`
     <header>
       <div class="ttl">Quotation</div>
@@ -787,9 +837,13 @@ const PW=612, PH=792, MG=42;      /* US Letter in points */
 
 function drawPages(scale){
   const dt=new Date(), pages=[];
-  const rows=cart.map((l,i)=>({m:l.m,d:l.d.replace(/\s{2,}/g,' ').trim(),
-                               p:l.p,r:rateFor(l.k),n:net(l.p,l.k),i:i+1}));
-  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
+  const gs=cartGroups(); const rows=[]; let n=0;
+  gs.forEach(g=>{
+    if(gs.length>1) rows.push({head:g.pm});
+    g.lines.forEach(l=>rows.push({m:l.m,d:l.d.replace(/\s{2,}/g,' ').trim(),
+                                  p:l.p,r:rateFor(l),n:net(l.p,l),i:++n}));
+  });
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l),0);
   const COL={idx:MG, item:MG+22, list:392, disc:462, net:PW-MG};
   const ROW=34, TOTALS=150;
 
@@ -829,9 +883,13 @@ function drawPages(scale){
 
     while(i<rows.length){
       const last=i===rows.length-1;
-      const need=ROW+(last?TOTALS:0);
+      const need=(rows[i].head?18:ROW)+(last?TOTALS:0);
       if(y+need>PH-MG-30) break;
       const r=rows[i];
+      if(r.head){                                  /* machine sub-heading */
+        T(r.head,COL.idx,y+2,'bold 9.5px Helvetica, Arial, sans-serif','#DC143C');
+        y+=18; i++; continue;
+      }
       T(String(r.i),COL.idx,y,'9px Helvetica, Arial, sans-serif','#aaa');
       T(r.m,COL.item,y,'bold 11px Helvetica, Arial, sans-serif','#111');
       T(r.d,COL.item,y+13,'10px Helvetica, Arial, sans-serif','#555');
@@ -984,6 +1042,7 @@ $('dp').addEventListener('input',()=>{
   dpCustom = $('dp').value.trim()!=='';        /* blank it out to resume following */
   redraw();
 });
+$('do').addEventListener('input',()=>quote());
 $('qbar').onclick=()=>{shut=!shut;$('quote').classList.toggle('shut',shut);$('chev').innerHTML=shut?'&#9650;':'&#9660;';};
 document.addEventListener('click',e=>{ if(!e.target.closest('.sbox')) $('sug').classList.add('hide'); });
 chips(); quote();
