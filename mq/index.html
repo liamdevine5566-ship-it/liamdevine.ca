@@ -81,6 +81,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .q-sum{display:flex;justify-content:space-between;font-size:13px;color:#6A6A70;padding:3px 0}
 .q-sum.big{font-size:16px;font-weight:700;color:#1a1a1a;border-top:1px solid #E2E2E6;margin-top:7px;padding-top:9px}
 .q-btn{width:100%;padding:12px;background:#F2F2F4;border:none;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;color:#3a3a3e;cursor:pointer;margin-top:9px}
+.q-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.q-btns .q-btn{margin-top:0}
+.q-btn.pri{background:#1a1a1a;color:#fff}
+.q-cust{width:100%;padding:10px;margin-top:9px;border:1px solid #E2E2E6;border-radius:10px;font-size:14px;font-family:inherit;box-sizing:border-box}
+.q-saved{padding:0 14px 14px}
+.q-saved h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#8A8A90;margin:14px 0 6px;font-weight:700}
+.q-sv{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #F0F0F2;font-size:13px}
+.q-sv .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-sv .dt{color:#8A8A90;font-size:11px}
+.q-sv button{background:none;border:none;font-family:inherit;font-size:12px;color:#3a6ea5;cursor:pointer;padding:4px 6px;font-weight:600}
+.q-sv button.del{color:#B4232A}
+#printsheet{display:none}
+@media print{
+  body>*{display:none!important}
+  #printsheet{display:block!important;font-size:12pt;color:#000}
+  #printsheet h1{font-size:18pt;margin:0 0 2pt}
+  #printsheet .meta{font-size:10pt;color:#333;margin-bottom:16pt}
+  #printsheet table{width:100%;border-collapse:collapse}
+  #printsheet th{text-align:left;font-size:9pt;text-transform:uppercase;letter-spacing:.05em;border-bottom:1.5pt solid #000;padding:4pt 6pt 4pt 0}
+  #printsheet td{padding:6pt 6pt 6pt 0;border-bottom:.5pt solid #ccc;vertical-align:top}
+  #printsheet td.r,#printsheet th.r{text-align:right;padding-right:0;white-space:nowrap}
+  #printsheet tfoot td{border:none;padding-top:8pt;font-weight:700}
+  #printsheet tfoot tr.sub td{font-weight:400;padding-top:4pt}
+  #printsheet .note{margin-top:20pt;font-size:9pt;color:#555}
+}
 .q-none{padding:16px 0 20px;text-align:center;color:#9A9AA0;font-size:13px}
 </style>
 </head>
@@ -111,6 +136,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="q-body" id="qbody"></div>
   <div class="q-foot" id="qfoot"></div>
+  <div class="q-saved" id="qsaved"></div>
 </div>
 
 <script>
@@ -483,15 +509,100 @@ function quote(){
     (listT>netT?`<div class="q-sum"><span>List total</span><span>${money(listT)}</span></div>
         <div class="q-sum"><span>Discount</span><span>&minus;${money(listT-netT)}</span></div>`:'')+
     `<div class="q-sum big"><span>Total</span><span>${money(netT)}</span></div>
-     <button class="q-btn" onclick="copyQ(event)">Copy quote</button>
+     <input class="q-cust" id="qcust" placeholder="Customer or job name" value="${esc(custName())}" oninput="custSet(this.value)">
+     <div class="q-btns">
+       <button class="q-btn pri" onclick="printQ()">Print / PDF</button>
+       <button class="q-btn" onclick="emailQ()">Email</button>
+       <button class="q-btn" onclick="saveQ()">Save</button>
+       <button class="q-btn" onclick="copyQ(event)">Copy</button>
+     </div>
      <button class="q-btn" onclick="clearQ()">Clear</button>`;
   $('qtot').textContent=money(netT);
+  savedList();
+}
+
+/* ---------------- saving, printing, emailing ----------------
+   localStorage may be blocked (private browsing, or a sandboxed preview).
+   Everything degrades to still working in-session if it is. */
+let cust='';
+const custName=()=>cust;
+const custSet=v=>{cust=v;};
+const LS='mq.quotes';
+function loadSaved(){ try{ return JSON.parse(localStorage.getItem(LS)||'[]'); }catch(e){ return []; } }
+function putSaved(a){ try{ localStorage.setItem(LS,JSON.stringify(a)); return true; }catch(e){ return false; } }
+
+function saveQ(){
+  if(!cart.length) return;
+  const a=loadSaved();
+  a.unshift({id:Date.now(), name:cust||'Untitled quote',
+             date:new Date().toISOString(), cart:cart.slice(),
+             dm:$('dm').value, dp:$('dp').value});
+  if(!putSaved(a.slice(0,50))) alert("This browser won't let the app save. The quote is still here - print it or email it instead.");
+  savedList();
+}
+function openSaved(id){
+  const q=loadSaved().find(x=>x.id===id); if(!q) return;
+  cart=q.cart.slice(); cust=q.name;
+  $('dm').value=q.dm||''; $('dp').value=q.dp||''; dpCustom=!!q.dp;
+  $('quote').classList.remove('shut'); shut=false;
+  if(current) detail(current); quote();
+}
+function delSaved(id){ putSaved(loadSaved().filter(x=>x.id!==id)); savedList(); }
+function savedList(){
+  const a=loadSaved(), el=$('qsaved'); if(!el) return;
+  el.innerHTML = a.length
+    ? '<h4>Saved quotes</h4>'+a.map(q=>`<div class="q-sv">
+        <div class="nm">${esc(q.name)}<div class="dt">${new Date(q.date).toLocaleDateString()} &middot; ${q.cart.length} line${q.cart.length===1?'':'s'}</div></div>
+        <button onclick="openSaved(${q.id})">Open</button>
+        <button class="del" onclick="delSaved(${q.id})">Delete</button></div>`).join('')
+    : '';
+}
+
+/* plain text body, shared by copy and email */
+function quoteText(){
+  const w=[];
+  if(cust) w.push(cust);
+  w.push(new Date().toLocaleDateString('en-CA'),'');
+  cart.forEach(l=>{const r=rateFor(l.k);
+    w.push(`${l.m}  ${l.d}  ${money(l.p)}`+(r?`  -${r}%  ${money(net(l.p,l.k))}`:''));});
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
+  w.push('');
+  if(listT>netT){ w.push(`List total: ${money(listT)}`); w.push(`Discount: -${money(listT-netT)}`); }
+  w.push(`TOTAL: ${money(netT)} CAD`);
+  return w.join('\n');
+}
+
+function emailQ(){
+  if(!cart.length) return;
+  const sub='Quote'+(cust?' - '+cust:'');
+  location.href='mailto:?subject='+encodeURIComponent(sub)+'&body='+encodeURIComponent(quoteText());
+}
+
+function printQ(){
+  if(!cart.length) return;
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
+  const rows=cart.map(l=>{const r=rateFor(l.k);
+    return `<tr><td>${esc(l.m)}</td><td>${esc(l.d)}</td>
+      <td class="r">${money(l.p)}</td><td class="r">${r?'&minus;'+r+'%':''}</td>
+      <td class="r">${money(net(l.p,l.k))}</td></tr>`;}).join('');
+  $('printsheet').innerHTML=`
+    <h1>Quotation</h1>
+    <div class="meta">${cust?esc(cust)+' &middot; ':''}${new Date().toLocaleDateString('en-CA')}</div>
+    <table>
+      <thead><tr><th>Model</th><th>Description</th><th class="r">List</th><th class="r">Disc</th><th class="r">Net</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        ${listT>netT?`<tr class="sub"><td colspan="4">List total</td><td class="r">${money(listT)}</td></tr>
+        <tr class="sub"><td colspan="4">Discount</td><td class="r">&minus;${money(listT-netT)}</td></tr>`:''}
+        <tr><td colspan="4">Total (CAD)</td><td class="r">${money(netT)}</td></tr>
+      </tfoot>
+    </table>
+    <div class="note">Prices in Canadian dollars, before taxes and freight. Quotation subject to confirmation.</div>`;
+  window.print();
 }
 
 function copyQ(ev){
-  let t=cart.map(l=>{const r=rateFor(l.k);
-    return `${l.m}  ${l.d}  ${money(l.p)}`+(r?`  -${r}%  ${money(net(l.p,l.k))}`:'');}).join('\n');
-  t+=`\nTOTAL: ${money(cart.reduce((s,l)=>s+net(l.p,l.k),0))} CAD`;
+  const t=quoteText();
   navigator.clipboard?.writeText(t).then(()=>{
     const b=ev.target; const o=b.textContent; b.textContent='Copied';
     setTimeout(()=>b.textContent=o,1200);
@@ -515,5 +626,6 @@ $('qbar').onclick=()=>{shut=!shut;$('quote').classList.toggle('shut',shut);$('ch
 document.addEventListener('click',e=>{ if(!e.target.closest('.sbox')) $('sug').classList.add('hide'); });
 chips(); quote();
 </script>
+<div id="printsheet"></div>
 </body>
 </html>
