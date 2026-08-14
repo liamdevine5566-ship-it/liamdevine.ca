@@ -169,7 +169,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="q-out" id="qout">
     <div class="opts">
       <label><input type="checkbox" id="oEmail"><span>Email</span></label>
-      <label><input type="checkbox" id="oPdf"><span>Print / PDF</span></label>
+      <label><input type="checkbox" id="oPdf" checked><span>PDF</span></label>
+      <label><input type="checkbox" id="oJpeg"><span>JPEG</span></label>
+      <label><input type="checkbox" id="oPrint"><span>Print</span></label>
       <label><input type="checkbox" id="oCopy"><span>Copy</span></label>
       <label><input type="checkbox" id="oSave"><span>Save</span></label>
     </div>
@@ -775,8 +777,165 @@ function printQ(){
   window.print();
 }
 
-/* Fires whatever is ticked. Order matters: the quiet ones first, then the
-   two that open something, with print given time to finish before mail. */
+/* ---------------- quote as a document ----------------
+   mailto: cannot carry an attachment, so the quote is drawn to a canvas,
+   wrapped as a PDF (or JPEG) and handed to the share sheet, which is what
+   actually gets it into Mail as a file.
+   Everything here is synchronous - iOS only allows share() while the tap
+   is still live, and an await would lose it. */
+const PW=612, PH=792, MG=42;      /* US Letter in points */
+
+function drawPages(scale){
+  const dt=new Date(), pages=[];
+  const rows=cart.map((l,i)=>({m:l.m,d:l.d.replace(/\s{2,}/g,' ').trim(),
+                               p:l.p,r:rateFor(l.k),n:net(l.p,l.k),i:i+1}));
+  const listT=cart.reduce((s,l)=>s+l.p,0), netT=cart.reduce((s,l)=>s+net(l.p,l.k),0);
+  const COL={idx:MG, item:MG+22, list:392, disc:462, net:PW-MG};
+  const ROW=34, TOTALS=150;
+
+  let i=0, first=true;
+  while(i<rows.length||first){
+    const c=document.createElement('canvas');
+    c.width=PW*scale; c.height=PH*scale;
+    const g=c.getContext('2d');
+    g.scale(scale,scale);
+    g.fillStyle='#fff'; g.fillRect(0,0,PW,PH);
+    g.textBaseline='alphabetic';
+    const T=(t,x,y,font,col,align)=>{g.font=font;g.fillStyle=col;g.textAlign=align||'left';g.fillText(t,x,y);};
+    const RULE=(y,col,wdt)=>{g.strokeStyle=col;g.lineWidth=wdt;g.beginPath();g.moveTo(MG,y);g.lineTo(PW-MG,y);g.stroke();};
+    let y=MG+34;
+
+    if(first){
+      T('Quotation',MG,y,'300 30px Helvetica, Arial, sans-serif','#111');
+      let hy=MG+4;
+      const meta=[['REFERENCE',quoteRef(dt)],['DATE',LONGDATE(dt)]];
+      if(cust) meta.push(['PREPARED FOR',cust]);
+      meta.forEach(([k,v])=>{
+        T(k,PW-MG,hy,'8px Helvetica, Arial, sans-serif','#8a8a8a','right'); hy+=11;
+        T(v,PW-MG,hy,'bold 10.5px Helvetica, Arial, sans-serif','#111','right'); hy+=15;
+      });
+      y=Math.max(y,hy)+8;
+      RULE(y,'#111',2); y+=26;
+    } else {
+      T('Quotation '+quoteRef(dt)+'  (continued)',MG,y,'11px Helvetica, Arial, sans-serif','#777');
+      y+=14; RULE(y,'#bbb',.8); y+=24;
+    }
+
+    T('ITEM',COL.item,y,'8px Helvetica, Arial, sans-serif','#8a8a8a');
+    T('LIST',COL.list,y,'8px Helvetica, Arial, sans-serif','#8a8a8a','right');
+    T('DISC.',COL.disc,y,'8px Helvetica, Arial, sans-serif','#8a8a8a','right');
+    T('NET',COL.net,y,'8px Helvetica, Arial, sans-serif','#8a8a8a','right');
+    y+=6; RULE(y,'#bbb',.8); y+=20;
+
+    while(i<rows.length){
+      const last=i===rows.length-1;
+      const need=ROW+(last?TOTALS:0);
+      if(y+need>PH-MG-30) break;
+      const r=rows[i];
+      T(String(r.i),COL.idx,y,'9px Helvetica, Arial, sans-serif','#aaa');
+      T(r.m,COL.item,y,'bold 11px Helvetica, Arial, sans-serif','#111');
+      T(r.d,COL.item,y+13,'10px Helvetica, Arial, sans-serif','#555');
+      T(money(r.p),COL.list,y,'10.5px Helvetica, Arial, sans-serif','#111','right');
+      T(r.r?'\u2212'+r.r+'%':'\u2014',COL.disc,y,'10.5px Helvetica, Arial, sans-serif','#777','right');
+      T(money(r.n),COL.net,y,'bold 10.5px Helvetica, Arial, sans-serif','#111','right');
+      y+=ROW-12; RULE(y,'#e6e6e6',.5); y+=22;
+      i++;
+    }
+
+    if(i>=rows.length){                       /* totals live on the last page */
+      y+=8;
+      const R=(lab,val,big)=>{
+        T(lab,300,y,(big?'bold 13px':'10.5px')+' Helvetica, Arial, sans-serif',big?'#111':'#666');
+        T(val,COL.net,y,(big?'bold 14px':'10.5px')+' Helvetica, Arial, sans-serif',big?'#111':'#666','right');
+        y+=big?20:16;
+      };
+      if(listT>netT){ R('List total',money(listT)); R('Discount','\u2212'+money(listT-netT)); }
+      y+=4; g.strokeStyle='#111'; g.lineWidth=1.4;
+      g.beginPath(); g.moveTo(300,y); g.lineTo(PW-MG,y); g.stroke(); y+=18;
+      R('Subtotal (CAD)',money(netT),true);
+      T('Freight and tax not included',300,y,'9px Helvetica, Arial, sans-serif','#999');
+
+      let fy=PH-MG-24;
+      RULE(fy,'#ddd',.5); fy+=13;
+      TERMS.split('\n').forEach(t=>{T(t,MG,fy,'8.5px Helvetica, Arial, sans-serif','#888'); fy+=11;});
+    }
+    pages.push(c);
+    first=false;
+    if(i>=rows.length) break;
+  }
+  return pages;
+}
+
+const b64bytes=url=>{const b=atob(url.split(',')[1]),u=new Uint8Array(b.length);
+  for(let k=0;k<b.length;k++)u[k]=b.charCodeAt(k); return u;};
+
+/* minimal PDF: one full-bleed JPEG per page */
+function buildPDF(jpegs){
+  const enc=new TextEncoder(), parts=[]; let len=0;
+  const put=d=>{const u=typeof d==='string'?enc.encode(d):d; parts.push(u); len+=u.length;};
+  const off=[];
+  const start=n=>{off[n]=len;};
+  put('%PDF-1.4\n');
+  const N=jpegs.length;
+  const kids=jpegs.map((_,k)=>(3+k*3)+' 0 R').join(' ');
+  start(1); put('1 0 obj\n<</Type/Catalog/Pages 2 0 R>>\nendobj\n');
+  start(2); put('2 0 obj\n<</Type/Pages/Kids['+kids+']/Count '+N+'>>\nendobj\n');
+  jpegs.forEach((j,k)=>{
+    const pg=3+k*3, ct=pg+1, im=pg+2;
+    const content='q '+PW+' 0 0 '+PH+' 0 0 cm /I0 Do Q';
+    start(pg); put(pg+' 0 obj\n<</Type/Page/Parent 2 0 R/MediaBox[0 0 '+PW+' '+PH+']'
+      +'/Resources<</XObject<</I0 '+im+' 0 R>>>>/Contents '+ct+' 0 R>>\nendobj\n');
+    start(ct); put(ct+' 0 obj\n<</Length '+content.length+'>>\nstream\n'+content+'\nendstream\nendobj\n');
+    start(im); put(im+' 0 obj\n<</Type/XObject/Subtype/Image/Width '+j.w+'/Height '+j.h
+      +'/ColorSpace/DeviceRGB/BitsPerComponent 8/Filter/DCTDecode/Length '+j.b.length+'>>\nstream\n');
+    put(j.b); put('\nendstream\nendobj\n');
+  });
+  const xref=len, total=3+N*3;
+  let x='xref\n0 '+total+'\n0000000000 65535 f \n';
+  for(let n=1;n<total;n++) x+=String(off[n]).padStart(10,'0')+' 00000 n \n';
+  put(x);
+  put('trailer\n<</Size '+total+'/Root 1 0 R>>\nstartxref\n'+xref+'\n%%EOF\n');
+  const out=new Uint8Array(len); let o=0;
+  parts.forEach(p=>{out.set(p,o); o+=p.length;});
+  return out;
+}
+
+/* returns a File, synchronously */
+function quoteFile(kind){
+  const scale=kind==='jpeg'?2:2.2;
+  const pages=drawPages(scale);
+  const name='Quote-'+quoteRef(new Date());
+  if(kind==='jpeg'){
+    return new File([b64bytes(pages[0].toDataURL('image/jpeg',.92))],
+                    name+'.jpg',{type:'image/jpeg'});
+  }
+  const jpegs=pages.map(c=>({b:b64bytes(c.toDataURL('image/jpeg',.9)),w:c.width,h:c.height}));
+  return new File([buildPDF(jpegs)],name+'.pdf',{type:'application/pdf'});
+}
+
+function saveFile(f){
+  const u=URL.createObjectURL(f), a=document.createElement('a');
+  a.href=u; a.download=f.name; document.body.appendChild(a); a.click();
+  a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000);
+}
+
+/* share sheet if the device has one (that's what attaches it to Mail),
+   otherwise download the file and open a mail draft alongside it */
+function sendFile(kind,withEmail){
+  let f;
+  try{ f=quoteFile(kind); }
+  catch(e){ alert("Couldn't build the "+kind.toUpperCase()+". Use Print instead."); return; }
+  const canShare=navigator.canShare&&navigator.canShare({files:[f]});
+  if(canShare){
+    navigator.share({files:[f],title:'Quotation '+quoteRef(new Date()),
+      text:cust?'Quotation for '+cust:'Quotation'}).catch(()=>{});
+  } else {
+    saveFile(f);
+    if(withEmail) setTimeout(emailQ,400);
+  }
+}
+/* Fires whatever is ticked. PDF/JPEG go through the share sheet so they
+   land in Mail as an attachment; text-only email falls back to mailto. */
 function runOutputs(ev){
   if(!cart.length) return;
   const want=k=>$('o'+k).checked;
@@ -787,8 +946,14 @@ function runOutputs(ev){
   if(want('Copy')){ navigator.clipboard?.writeText(quoteText()); done.push('copied'); }
   if(btn&&done.length){ btn.textContent=done.join(' & '); setTimeout(()=>btn.textContent=orig,1400); }
 
-  if(want('Pdf')) printQ();
-  if(want('Email')) setTimeout(emailQ, want('Pdf')?700:0);
+  const pdf=want('Pdf'), jpg=want('Jpeg'), mail=want('Email');
+  if(pdf||jpg){
+    sendFile(pdf?'pdf':'jpeg',mail);          /* attachment carries the quote */
+    if(jpg&&pdf) setTimeout(()=>sendFile('jpeg',false),900);
+  } else if(mail){
+    emailQ();                                  /* nothing to attach - plain text */
+  }
+  if(want('Print')) setTimeout(printQ,pdf||jpg?600:0);
 }
 
 /* grey the row out until there's something to send */
