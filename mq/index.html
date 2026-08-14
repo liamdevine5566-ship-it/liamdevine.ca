@@ -372,8 +372,10 @@ function genVariantOK(text,model){
   }
   return !sawSuffix;                            /* only ranges - generic */
 }
-/* things that go on any DCA regardless of size */
-const GENANY=/wheel kit universal|telematics|7 pin rv plug|oil pan heater 125w multi/i;
+/* things that go on any DCA regardless of size.
+   HEATPADKIT was in here and shouldn't be - the catalog only says
+   "125W Multi Models", which doesn't name the models it fits. */
+const GENANY=/wheel kit universal|telematics|7 pin rv plug/i;
 
 function genGroups(prod,G,taken){
   const n=GENSIZE(prod.m); if(n===null) return;
