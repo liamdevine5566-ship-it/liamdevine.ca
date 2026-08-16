@@ -355,6 +355,8 @@ function vibGroups(prod,G){
 const GENSIZE = m => {
   const u=m.toUpperCase();
   if(/^DAC7/.test(u)) return 7;
+  /* pipe-frame pumps (QP) get treated like small generators for accessory matching */
+  if(/^QP/.test(u)) return 3;
   const x=/^DCA(\d+)/.exec(u);
   return x?parseInt(x[1],10):null;
 };
@@ -426,7 +428,7 @@ function genGroups(prod,G,taken){
   const fits=p=>p.m!==prod.m
     &&(genFits(p.d,n)||GENANY.test(p.d))
     &&genVariantOK(p.d+' '+p.m,prod.m);
-  const g=(label,re)=>G(label,p=>fits(p)&&re.test(p.d+' '+p.m));
+  const g=(label,re)=>G(label,p=>fits(p)&&(typeof re==='function'?re(p):re.test(p.d+' '+p.m)));
 
   g('Trailers &amp; mounting',      /^TRLR|trailer|mount kit|spare tire|stabilizer jack|storage box|rv plug/i);
   g('Power connection',             /camlok|transformer|powerbalance|parallel/i);
@@ -437,8 +439,10 @@ function genGroups(prod,G,taken){
   g('Filters &amp; service',        /^FKIT|^SPFKIT|filter/i);
   g('Canada kits',                  /canada/i);
   /* anything that fits this generator but matched none of the categories
-     above still has to surface - otherwise it disappears silently */
-  g('Other options',                /./);
+     above still has to surface - otherwise it disappears silently.
+     BUT: UWKB (wheel kit) only goes on GAC and pipe-frame pumps, not DCA */
+  const isGacOrPump=/^GAC|^QP/.test(prod.m);
+  g('Other options',                p=>isGacOrPump?true:!/^UWKB$/i.test(p.m));
 }
 
 /* ---------------- trowel handles ----------------
