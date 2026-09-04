@@ -1,0 +1,46 @@
+name: Echo
+options:
+  bundleIdPrefix: com.liamdevine
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  WhisperKit:
+    url: https://github.com/argmaxinc/WhisperKit
+    from: 0.9.0
+
+targets:
+  Echo:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+    resources:
+      - path: Resources
+    dependencies:
+      - package: WhisperKit
+    settings:
+      base:
+        PRODUCT_NAME: Echo
+        PRODUCT_BUNDLE_IDENTIFIER: com.liamdevine.echo
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_ENTITLEMENTS: Resources/Echo.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # This app is intentionally NOT sandboxed (no com.apple.security.app-sandbox
+        # entitlement below). System-wide text insertion into other apps and a
+        # global hotkey are not permitted under App Sandbox, so this ships
+        # outside the Mac App Store: Developer ID signed + notarized instead.
+    info:
+      path: Resources/Info.plist
+      properties:
+        LSUIElement: true
+        NSMicrophoneUsageDescription: "Echo needs microphone access to transcribe your speech when you hold the push-to-talk key."
+        NSAppleEventsUsageDescription: "Echo uses this to insert transcribed text into the app you're currently using."
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSMinimumSystemVersion: "14.0"

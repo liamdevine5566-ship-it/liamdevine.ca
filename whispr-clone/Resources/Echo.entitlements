@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	Deliberately empty of com.apple.security.app-sandbox: this app reads the
+	keyboard globally, controls the mouse/keyboard of other apps to paste
+	text, and needs the Accessibility permission. None of that is possible
+	inside the App Sandbox, so this app is distributed outside the Mac App
+	Store (Developer ID signed + notarized) rather than sandboxed.
+	-->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<false/>
+</dict>
+</plist>
