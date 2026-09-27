@@ -1,4 +1,4 @@
-<!-- app build: portfolio-v1 -->
+<!-- app build: portfolio-v2 (hero editor) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -183,6 +183,53 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .mng-row{position:relative}
 .mng-row.dragging{border-color:var(--tungsten);box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 14px rgba(232,135,58,.3);opacity:.97;z-index:5;will-change:transform}
 .grip{flex:0 0 auto;width:24px;height:52px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.05rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+
+/* ===== Hero Shot ===== */
+/* .hero-frame mirrors the website's hero exactly (cover + position/origin + scale), so the preview is what visitors see */
+.hero-frame{position:relative;overflow:hidden;background:var(--chassis-hi);container-type:inline-size;user-select:none;-webkit-user-select:none}
+.hero-frame .hf-img{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;will-change:transform}
+.hero-frame .hf-shade{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%);pointer-events:none}
+.hero-frame .hf-text{position:absolute;left:6%;top:30%;z-index:2;font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#fff;font-size:5.4cqw;line-height:1.15;pointer-events:none}
+.hero-frame.phone .hf-text{top:42%;font-size:9cqw}
+.hero-frame .hf-grid{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .2s ease;
+  background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px)),
+             linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
+.hero-frame.gesturing .hf-grid{opacity:1}
+
+.hero-card{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--hairline);border-radius:6px;padding:10px;margin-bottom:14px}
+.hero-mini{flex:0 0 auto;width:128px;aspect-ratio:16/10;border-radius:3px;cursor:pointer}
+.hero-card-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.hero-card-label{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim)}
+.hero-card-name{font-size:.84rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-card-actions{display:flex;gap:6px;margin-top:4px}
+.hero-card-actions .mng-btn{flex:1}
+
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.hero-grid .mng-empty{grid-column:1/-1}
+.hero-pick{position:relative;padding:0;border:1px solid var(--hairline);border-radius:4px;overflow:hidden;aspect-ratio:1;background:var(--chassis-hi);cursor:pointer}
+.hero-pick img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-pick:active{transform:scale(.96)}
+.hero-pick.current{border-color:var(--tungsten);box-shadow:inset 0 0 0 2px var(--tungsten)}
+.hero-pick.current::after{content:'HERO';position:absolute;left:5px;bottom:5px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;padding:2px 6px;border-radius:999px;background:var(--tungsten);color:#161412}
+
+.hero-editor{position:fixed;inset:0;z-index:60;background:#0b0b0b;display:none;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);touch-action:none;overscroll-behavior:contain}
+.hero-editor.show{display:flex}
+.he-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px}
+.he-btn{background:none;border:none;color:var(--text);font-family:'Space Grotesk';font-size:1rem;padding:10px 6px;cursor:pointer}
+.he-btn.he-save{color:var(--tungsten);font-weight:600}
+.he-btn:disabled{opacity:.35;cursor:default}
+.he-title{flex:1;min-width:0;text-align:center;font-size:.8rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.he-seg{align-self:center;display:flex;gap:4px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:3px}
+.he-seg button{border:none;background:transparent;color:var(--text-dim);font-family:'Space Grotesk';font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:7px 16px;border-radius:999px;cursor:pointer}
+.he-seg button.on{background:var(--tungsten-dim);color:var(--tungsten)}
+.he-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px 16px;cursor:grab}
+.he-stage:active{cursor:grabbing}
+#heFrame{border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 20px 50px rgba(0,0,0,.6)}
+.he-foot{padding:4px 16px 18px;text-align:center}
+.he-msg{font-size:.82rem;color:var(--text-dim);min-height:1.2em;margin-bottom:10px}
+.he-msg.err{color:var(--bad)}
+.he-foot-row{display:flex;align-items:center;justify-content:center;gap:14px}
+.he-zoom{font-size:.8rem;color:var(--text-dim);min-width:3.5em}
 </style>
 </head>
 <body>
@@ -236,6 +283,18 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 </div><!-- /uploadView -->
 
 <div id="manageView" style="display:none">
+<div class="hero-card">
+<div class="hero-frame hero-mini" onclick="openHeroEditor()" title="Adjust hero framing"><div class="hf-img" id="heroMiniImg"></div><div class="hf-shade"></div></div>
+<div class="hero-card-body">
+<span class="hero-card-label">Hero shot</span>
+<span class="hero-card-name mono" id="heroName">loading…</span>
+<div class="hero-card-actions">
+<button class="mng-btn" onclick="openHeroPicker()">Change photo</button>
+<button class="mng-btn" onclick="openHeroEditor()">Adjust</button>
+</div>
+</div>
+</div>
+
 <div class="section-label"><span>Category</span><span class="names-toggle mono" id="mngRefresh" onclick="refreshMng()" style="display:none">&#8635; refresh</span></div>
 <div class="dial-wrap"><div class="dial" id="mngCategories"></div></div>
 
@@ -253,6 +312,38 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 
 <div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
 </div><!-- /manageView -->
+</div>
+
+<div class="overlay" id="heroPickerOverlay">
+<h2>Choose the hero photo</h2>
+<p>From the categories that are live on the site. Tap one to frame it.</p>
+<div class="dial-wrap"><div class="dial" id="heroPickCats"></div></div>
+<div class="hero-grid" id="heroPickGrid"></div>
+<div class="overlay-actions" style="margin-top:18px">
+<button onclick="closeHeroPicker()">Cancel</button>
+</div>
+</div>
+
+<div class="hero-editor" id="heroEditor">
+<div class="he-bar">
+<button class="he-btn" onclick="closeHeroEditor()">Cancel</button>
+<span class="he-title mono" id="heTitle"></span>
+<button class="he-btn he-save" id="heSave" onclick="saveHero()">Save</button>
+</div>
+<div class="he-seg">
+<button id="heSegDesktop" class="on" onclick="setHeroMode('desktop')">Computer</button>
+<button id="heSegPhone" onclick="setHeroMode('phone')">Phone</button>
+</div>
+<div class="he-stage" id="heStage">
+<div class="hero-frame desktop" id="heFrame"><div class="hf-img" id="heImg"></div><div class="hf-shade"></div><div class="hf-text">Making the Ordinary<br/>Extraordinary</div><div class="hf-grid"></div></div>
+</div>
+<div class="he-foot">
+<div class="he-msg" id="heMsg">Pinch to zoom · drag to reposition</div>
+<div class="he-foot-row">
+<span class="he-zoom mono" id="heZoom">1.0×</span>
+<button class="mng-btn" onclick="resetHeroPos()">Reset</button>
+</div>
+</div>
 </div>
 
 
@@ -935,6 +1026,348 @@ try{
   Object.keys(localStorage).filter(k=>k.indexOf('bsky_tpl_')===0).forEach(k=>localStorage.removeItem(k));
 }catch(e){}
 
+// ===== Hero Shot: pick a portfolio photo, then pinch / drag to frame it =====
+// Saved as hero-config.json on Cloudinary (same pattern as portfolio-config.json).
+// The website draws the hero with exactly the same rule used in this preview:
+//   background-size:cover; background-position:X% Y%; transform-origin:X% Y%; transform:scale(S)
+// X / Y (0–100) choose which part of the photo stays in view, S (1–3) is the zoom.
+// Because nothing is stored in pixels, one setting works on phones and computers.
+const HERO_CONFIG_URL = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/hero-config.json`;
+const HERO_DEFAULT = {url:'https://liamdevine.ca/images/portraits/hijab.jpg', photoName:'hijab (site default)', scale:1, x:50, y:50};
+const HERO_MAX_ZOOM = 3;
+let heroCfg = null;
+let heroPickCat = null;
+const he = {src:null, iw:0, ih:0, s:1, x:.5, y:.5, mode:'desktop', saving:false, token:0};
+const clampN = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+function heroPhotoUrl(r, w){
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_${w}/v${r.version}/${r.public_id}.${r.format}`;
+}
+function paintHero(el, url, s, x, y){
+  el.style.backgroundImage = `url("${url}")`;
+  el.style.backgroundPosition = `${x}% ${y}%`;
+  el.style.transformOrigin = `${x}% ${y}%`;
+  el.style.transform = `scale(${s})`;
+}
+function normHero(cfg){
+  if(!cfg || !cfg.url) return Object.assign({}, HERO_DEFAULT);
+  const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d;
+  return Object.assign({}, cfg, {
+    scale: clampN(num(cfg.scale, 1), 1, HERO_MAX_ZOOM),
+    x: clampN(num(cfg.x, 50), 0, 100),
+    y: clampN(num(cfg.y, 50), 0, 100)
+  });
+}
+
+async function loadHeroConfig(){
+  try{
+    const res = await fetch(HERO_CONFIG_URL + '?v=' + Date.now(), {cache:'no-store'});
+    heroCfg = normHero(res.ok ? await res.json() : null);
+  }catch(e){ heroCfg = normHero(null); }
+  renderHeroCard();
+}
+function renderHeroCard(){
+  const c = heroCfg || normHero(null);
+  paintHero(document.getElementById('heroMiniImg'), c.editUrl || c.url, c.scale, c.x, c.y);
+  document.getElementById('heroName').textContent = c.photoName || '—';
+}
+
+// ---- Picker: only categories that are live on the site ----
+function heroCats(){
+  const live = ALL_CATEGORIES.filter(c => catVis[c.folder] === 'site');
+  return live.length ? live : visibleCats();
+}
+function openHeroPicker(){
+  const cats = heroCats();
+  const cur = heroCfg && heroCfg.public_id ? heroCfg.public_id.split('/').slice(-2, -1)[0] : null;
+  if(!heroPickCat || !cats.some(c => c.folder === heroPickCat)){
+    heroPickCat = cats.some(c => c.folder === cur) ? cur : (cats[0] || {}).folder || null;
+  }
+  renderHeroPickCats();
+  document.getElementById('heroPickerOverlay').classList.add('show');
+  loadHeroPickGrid();
+}
+function closeHeroPicker(){ document.getElementById('heroPickerOverlay').classList.remove('show'); }
+function renderHeroPickCats(){
+  const box = document.getElementById('heroPickCats');
+  box.innerHTML = '';
+  heroCats().forEach(cat=>{
+    const b = document.createElement('div');
+    b.className = 'dial-item' + (heroPickCat === cat.folder ? ' selected' : '');
+    b.textContent = cat.label;
+    b.onclick = ()=>{ heroPickCat = cat.folder; renderHeroPickCats(); loadHeroPickGrid(); };
+    box.appendChild(b);
+  });
+}
+async function loadHeroPickGrid(){
+  const grid = document.getElementById('heroPickGrid');
+  const want = heroPickCat;
+  if(!want){ grid.innerHTML = '<div class="mng-empty">No categories are live on the site yet</div>'; return; }
+  if(!resCache[want]){ grid.innerHTML = '<div class="mng-empty">loading…</div>'; }
+  try{ await fetchFolder(want); }
+  catch(e){ if(heroPickCat === want) grid.innerHTML = '<div class="mng-empty">couldn\'t load — check connection</div>'; return; }
+  if(heroPickCat !== want) return;
+  const items = resCache[want] || [];
+  if(items.length === 0){ grid.innerHTML = '<div class="mng-empty">no photos in this category</div>'; return; }
+  grid.innerHTML = '';
+  items.forEach(r=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hero-pick' + (heroCfg && heroCfg.public_id === r.public_id ? ' current' : '');
+    const im = document.createElement('img');
+    im.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_300,h_300,c_fill,g_auto,f_auto,q_auto/v${r.version}/${r.public_id}.${r.format}`;
+    im.alt = r.name;
+    im.loading = 'lazy';
+    b.appendChild(im);
+    b.onclick = ()=>{
+      closeHeroPicker();
+      openHeroEditor({public_id:r.public_id, photoName:r.name, url:heroPhotoUrl(r, 2400), editUrl:heroPhotoUrl(r, 1600)});
+    };
+    grid.appendChild(b);
+  });
+}
+
+// ---- Editor ----
+function setHeroMsg(msg, isErr){
+  const el = document.getElementById('heMsg');
+  el.textContent = msg || 'Pinch to zoom · drag to reposition';
+  el.classList.toggle('err', !!isErr);
+}
+function openHeroEditor(src){
+  const cur = heroCfg || normHero(null);
+  const same = !src || (src.public_id ? src.public_id === cur.public_id : src.url === cur.url);
+  he.src = src || {public_id:cur.public_id || null, photoName:cur.photoName, url:cur.url, editUrl:cur.editUrl || cur.url};
+  he.s = same ? cur.scale : 1;
+  he.x = same ? cur.x / 100 : .5;
+  he.y = same ? cur.y / 100 : .5;
+  he.iw = 0; he.ih = 0;
+  const token = ++he.token;
+  document.getElementById('heTitle').textContent = he.src.photoName || '';
+  document.getElementById('heSave').disabled = true;
+  document.getElementById('heImg').style.backgroundImage = 'none';
+  setHeroMsg('Loading photo…');
+  document.getElementById('heroEditor').classList.add('show');
+  layoutHeroFrame();
+  const img = new Image();
+  img.onload = ()=>{
+    if(token !== he.token) return;
+    he.iw = img.naturalWidth; he.ih = img.naturalHeight;
+    layoutHeroFrame();
+    paintEditor();
+    document.getElementById('heSave').disabled = false;
+    setHeroMsg();
+  };
+  img.onerror = ()=>{ if(token === he.token) setHeroMsg('Couldn\'t load this photo — check connection', true); };
+  img.src = he.src.editUrl || he.src.url;
+}
+function closeHeroEditor(){
+  he.token++;
+  hePtrs.clear(); heG = null; heGest = null;
+  document.getElementById('heroEditor').classList.remove('show');
+}
+function setHeroMode(m){
+  he.mode = m;
+  document.getElementById('heSegDesktop').classList.toggle('on', m === 'desktop');
+  document.getElementById('heSegPhone').classList.toggle('on', m === 'phone');
+  layoutHeroFrame();
+}
+// Size the preview frame to the shape of the real hero: a computer screen or a phone held upright
+function layoutHeroFrame(){
+  const stage = document.getElementById('heStage');
+  const frame = document.getElementById('heFrame');
+  const a = he.mode === 'phone' ? 9/19.5 : 16/10;
+  const cs = getComputedStyle(stage);
+  const aw = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const ah = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const w = Math.max(40, Math.min(aw, ah * a));
+  frame.style.width = Math.floor(w) + 'px';
+  frame.style.height = Math.floor(w / a) + 'px';
+  frame.classList.toggle('phone', he.mode === 'phone');
+  frame.classList.toggle('desktop', he.mode !== 'phone');
+}
+function paintEditor(){
+  if(!he.src) return;
+  paintHero(document.getElementById('heImg'), he.src.editUrl || he.src.url, he.s, he.x * 100, he.y * 100);
+  document.getElementById('heZoom').textContent = he.s.toFixed(1) + '×';
+}
+function resetHeroPos(){
+  if(!he.iw) return;
+  const img = document.getElementById('heImg');
+  img.style.transition = 'transform .25s ease, background-position .25s ease, transform-origin .25s ease';
+  he.s = 1; he.x = .5; he.y = .5;
+  paintEditor();
+  setTimeout(()=>{ img.style.transition = ''; }, 280);
+}
+
+// ---- Gesture math ----
+// With the rule above, a point u (px across the cover-fitted photo) lands on screen at
+//   X·(W − S·Dw) + S·u     (and the same vertically)
+// so for any finger position we can solve for the X that keeps the grabbed point under it.
+function heGeom(){
+  const f = document.getElementById('heFrame').getBoundingClientRect();
+  const c = Math.max(f.width / he.iw, f.height / he.ih);
+  return {L:f.left, T:f.top, W:f.width, H:f.height, Dw:he.iw * c, Dh:he.ih * c};
+}
+const hePointAt = (p, X, S, W, D) => (p - X * (W - S * D)) / S;
+function heSolve(p, u, S, W, D, fallback){
+  const den = W - S * D;
+  return Math.abs(den) < 0.5 ? fallback : clampN((p - S * u) / den, 0, 1);
+}
+// Move so photo point (ux,uy) sits at frame point (px,py) at zoom S
+function heApply(px, py, ux, uy, S, g){
+  he.s = S;
+  he.x = heSolve(px, ux, S, g.W, g.Dw, he.x);
+  he.y = heSolve(py, uy, S, g.H, g.Dh, he.y);
+  paintEditor();
+}
+
+const hePtrs = new Map();
+let heG = null, heGest = null;
+function hePts(){ return [...hePtrs.values()].slice(0, 2); }
+function heCentre(pts, g){
+  return {x: pts.reduce((a, p) => a + p.x, 0) / pts.length - g.L, y: pts.reduce((a, p) => a + p.y, 0) / pts.length - g.T};
+}
+function heSnapshot(){
+  if(!he.iw || hePtrs.size === 0){ heG = null; return; }
+  const g = heGeom(), pts = hePts(), c = heCentre(pts, g);
+  heG = {
+    S0: he.s,
+    d0: pts.length > 1 ? Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) : 0,
+    ux: hePointAt(c.x, he.x, he.s, g.W, g.Dw),
+    uy: hePointAt(c.y, he.y, he.s, g.H, g.Dh)
+  };
+}
+function heMove(){
+  if(!heG) return;
+  const g = heGeom(), pts = hePts(), c = heCentre(pts, g);
+  let S = heG.S0;
+  if(pts.length > 1 && heG.d0 > 0){
+    S = clampN(heG.S0 * Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) / heG.d0, 1, HERO_MAX_ZOOM);
+  }
+  heApply(c.x, c.y, heG.ux, heG.uy, S, g);
+}
+
+(function wireHeroEditor(){
+  const ed = document.getElementById('heroEditor');
+  const stage = document.getElementById('heStage');
+  const frame = document.getElementById('heFrame');
+  // Fingers / mouse: one pointer drags, two pointers pinch (and drag) together
+  stage.addEventListener('pointerdown', e=>{
+    if(!he.iw) return;
+    e.preventDefault();
+    try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+    hePtrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    heSnapshot();
+    frame.classList.add('gesturing');
+  });
+  stage.addEventListener('pointermove', e=>{
+    if(!hePtrs.has(e.pointerId)) return;
+    hePtrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    heMove();
+  });
+  const lift = e=>{
+    if(!hePtrs.delete(e.pointerId)) return;
+    heSnapshot();
+    if(hePtrs.size === 0) frame.classList.remove('gesturing');
+  };
+  stage.addEventListener('pointerup', lift);
+  stage.addEventListener('pointercancel', lift);
+  stage.addEventListener('lostpointercapture', lift);
+
+  // Mac trackpad / mouse wheel: pinch (ctrl+wheel) zooms at the cursor, two-finger scroll moves the photo
+  stage.addEventListener('wheel', e=>{
+    if(!he.iw) return;
+    e.preventDefault();
+    const k = e.deltaMode === 1 ? 16 : 1;
+    const g = heGeom(), px = e.clientX - g.L, py = e.clientY - g.T;
+    const ux = hePointAt(px, he.x, he.s, g.W, g.Dw), uy = hePointAt(py, he.y, he.s, g.H, g.Dh);
+    if(e.ctrlKey){
+      heApply(px, py, ux, uy, clampN(he.s * Math.exp(-e.deltaY * k * 0.01), 1, HERO_MAX_ZOOM), g);
+    } else {
+      heApply(px - e.deltaX * k, py - e.deltaY * k, ux, uy, he.s, g);
+    }
+  }, {passive:false});
+
+  // Double-click / double-tap: zoom to 2× there, or back to 1×
+  stage.addEventListener('dblclick', e=>{
+    if(!he.iw) return;
+    const g = heGeom(), px = e.clientX - g.L, py = e.clientY - g.T;
+    const ux = hePointAt(px, he.x, he.s, g.W, g.Dw), uy = hePointAt(py, he.y, he.s, g.H, g.Dh);
+    const img = document.getElementById('heImg');
+    img.style.transition = 'transform .22s ease, background-position .22s ease, transform-origin .22s ease';
+    heApply(px, py, ux, uy, he.s > 1.05 ? 1 : 2, g);
+    setTimeout(()=>{ img.style.transition = ''; }, 240);
+  });
+
+  // Safari on Mac sends trackpad pinches as gesture events; on iPhone we ignore them
+  // (pointers already handle it) but still block Safari's own page zoom.
+  ed.addEventListener('gesturestart', e=>{
+    e.preventDefault();
+    if(hePtrs.size || !he.iw) return;
+    const g = heGeom();
+    const px = (e.clientX || g.L + g.W / 2) - g.L, py = (e.clientY || g.T + g.H / 2) - g.T;
+    heGest = {S0:he.s, px, py, ux:hePointAt(px, he.x, he.s, g.W, g.Dw), uy:hePointAt(py, he.y, he.s, g.H, g.Dh)};
+  });
+  ed.addEventListener('gesturechange', e=>{
+    e.preventDefault();
+    if(!heGest || hePtrs.size) return;
+    heApply(heGest.px, heGest.py, heGest.ux, heGest.uy, clampN(heGest.S0 * e.scale, 1, HERO_MAX_ZOOM), heGeom());
+  });
+  ed.addEventListener('gestureend', e=>{ e.preventDefault(); heGest = null; });
+
+  window.addEventListener('resize', ()=>{
+    if(ed.classList.contains('show')){ layoutHeroFrame(); paintEditor(); }
+  });
+})();
+
+// ---- Save (signed, same as the portfolio config) ----
+async function saveHero(){
+  if(he.saving || !he.iw) return;
+  if(!hasKeys()){ setHeroMsg('Add your API key & secret in Settings ⚙ first', true); return; }
+  const btn = document.getElementById('heSave');
+  he.saving = true; btn.disabled = true;
+  setHeroMsg('Saving…');
+  const cfg = {
+    version: 2,
+    public_id: he.src.public_id || null,
+    photoName: he.src.photoName || '',
+    url: he.src.url,
+    editUrl: he.src.editUrl || he.src.url,
+    scale: Math.round(he.s * 1000) / 1000,
+    x: Math.round(he.x * 10000) / 100,
+    y: Math.round(he.y * 10000) / 100,
+    updated: new Date().toISOString()
+  };
+  try{
+    const {key, secret} = getKeys();
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`invalidate=true&overwrite=true&public_id=hero-config.json&timestamp=${ts}${secret}`);
+    const form = new FormData();
+    form.append('file', new Blob([JSON.stringify(cfg)], {type:'application/json'}));
+    form.append('public_id', 'hero-config.json');
+    form.append('overwrite', 'true');
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:'POST', body:form});
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'save failed');
+    }
+    heroCfg = normHero(cfg);
+    renderHeroCard();
+    closeHeroEditor();
+    showMngStatus('ok', 'HERO SAVED — live on the site in a couple minutes');
+    if(navigator.vibrate){ navigator.vibrate(30); }
+  }catch(err){
+    setHeroMsg('Save failed — ' + String(err.message || 'check connection').slice(0, 60), true);
+  }
+  he.saving = false; btn.disabled = false;
+}
+
+loadHeroConfig();
+
 // ===== Page switching: tabs + swipe =====
 let currentPage = 'upload';
 function switchPage(p){
@@ -947,7 +1380,7 @@ function switchPage(p){
 }
 let swipeStartX = null, swipeStartY = null;
 document.addEventListener('touchstart', (e)=>{
-  if(e.target.closest('.dial, .thumbs, .names-list, .mng-list, input, .overlay')){ swipeStartX = null; return; }
+  if(e.target.closest('.dial, .thumbs, .names-list, .mng-list, input, .overlay, .hero-editor')){ swipeStartX = null; return; }
   swipeStartX = e.touches[0].clientX;
   swipeStartY = e.touches[0].clientY;
 }, {passive:true});

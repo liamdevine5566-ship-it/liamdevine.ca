@@ -28,9 +28,12 @@ nav{position:fixed;top:0;width:100%;padding:12px 24px;background:rgba(255,255,25
 .nav-logo img:hover,.nav-logo img.expanded{transform:scale(1.9);opacity:1}
 .nav-links{text-align:center;flex:1}
 nav a{margin:0 12px;text-decoration:none;color:#fff;font-weight:400;letter-spacing:.08em;font-size:.85rem;text-shadow:0 1px 3px rgba(0,0,0,.35)}
-.hero{height:100vh;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%),url('images/portraits/hijab.jpg') center/cover no-repeat;display:flex;align-items:flex-start;justify-content:flex-start;text-align:left;color:#fff}
+.hero{height:100vh;position:relative;overflow:hidden;background:#2f2f2f;display:flex;align-items:flex-start;justify-content:flex-start;text-align:left;color:#fff}
+/* Hero photo layer. Which photo, zoom and position are set in the upload app (hero-config.json). */
+.hero-bg{position:absolute;inset:0;z-index:0;background:url('images/portraits/hijab.jpg') 50% 50%/cover no-repeat;transform-origin:50% 50%;pointer-events:none;transition:opacity .6s ease}
+.hero::after{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%);pointer-events:none}
 .hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:clamp(2.2rem,6vw,5rem);max-width:80%;margin:0;text-align:left;line-height:1.15;letter-spacing:.01em}
-.hero-content{max-width:1200px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;}
+.hero-content{max-width:1200px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;padding-left:6%;padding-top:30vh;position:relative;z-index:2;}
 section{padding:130px 8%;scroll-margin-top:64px}
 .alt{background:var(--stone)}
 .wrap{max-width:1200px;margin:auto}
@@ -202,7 +205,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 <a href="#contact">CONTACT</a>
 </div>
 </nav>
-<section class="hero"><div class="hero-content"><h1>Making the Ordinary<br/>Extraordinary</h1><div class="hero-cta"><p>Now booking fall portrait sessions</p><a href="#contact">Get in Touch</a></div></div></section>
+<section class="hero"><div class="hero-bg" id="heroBg"></div><div class="hero-content"><h1>Making the Ordinary<br/>Extraordinary</h1><div class="hero-cta"><p>Now booking fall portrait sessions</p><a href="#contact">Get in Touch</a></div></div></section>
 
 <section class="fade-section" id="portraits">
 <div class="wrap">
@@ -1013,6 +1016,42 @@ lbImg.addEventListener('click',()=>{
 // to simulate a hover state, which otherwise makes the first photo
 // tapped require two taps instead of one.
 document.addEventListener('touchstart', function(){}, true);
+
+// ===== HERO IMAGE =====
+// Chosen and framed in the upload app, saved to Cloudinary as hero-config.json.
+// Read-only here: visitors can't change it. The same rule is used in the app's
+// preview, so the framing matches what was set there. If anything fails, the
+// default photo from the stylesheet stays.
+(function loadHero(){
+  const base = document.getElementById('heroBg');
+  if(!base) return;
+  fetch(`https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/hero-config.json?v=${Date.now()}`, {cache:'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(cfg => {
+      if(!cfg || typeof cfg.url !== 'string' || !/^https:\/\//.test(cfg.url)) return;
+      const num = (v, d, lo, hi) => (typeof v === 'number' && isFinite(v)) ? Math.min(hi, Math.max(lo, v)) : d;
+      const s = num(cfg.scale, 1, 1, 3), x = num(cfg.x, 50, 0, 100), y = num(cfg.y, 50, 0, 100);
+      const paint = el => {
+        el.style.backgroundImage = `url("${cfg.url.replace(/"/g, '%22')}")`;
+        el.style.backgroundPosition = `${x}% ${y}%`;
+        el.style.transformOrigin = `${x}% ${y}%`;
+        el.style.transform = `scale(${s})`;
+      };
+      // Fade the chosen photo in over the default once it has loaded
+      const img = new Image();
+      img.onload = () => {
+        const layer = base.cloneNode(false);
+        layer.removeAttribute('id');
+        layer.style.opacity = '0';
+        paint(layer);
+        base.after(layer);
+        requestAnimationFrame(() => requestAnimationFrame(() => { layer.style.opacity = '1'; }));
+        setTimeout(() => { paint(base); layer.remove(); }, 700);
+      };
+      img.src = cfg.url;
+    })
+    .catch(() => {});
+})();
 
 loadVisibility()
   .then(vis => { applyVisibility(vis); return loadAllCategories(); })
