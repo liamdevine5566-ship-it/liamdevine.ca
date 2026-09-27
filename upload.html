@@ -1831,15 +1831,32 @@ async function cloudFetch(url, options){
 // answer back, so it looks like a network failure. Re-sending would then fail
 // (the old name is already gone). So: send once, and if the reply is lost,
 // check whether the photo now answers at its new name.
-function assetExists(id, fmt){
+let probeN = 0;
+function imageAnswers(id, fmt){
   return new Promise(done=>{
     const im = new Image();
     const t = setTimeout(()=>{ im.onload = im.onerror = null; done(false); }, 6000);
     im.onload = ()=>{ clearTimeout(t); done(true); };
     im.onerror = ()=>{ clearTimeout(t); done(false); };
-    // fresh version number so a cached "not found" can never answer
-    im.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_8,h_8,c_fill/v${Date.now()}/${id}.${fmt}`;
+    // Same size/crop as the manage thumbnails (known to work on this account),
+    // with a fresh version number so a cached "not found" can never answer.
+    const v = Math.floor(Date.now()/1000) + (++probeN);
+    im.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_120,h_120,c_fill,g_auto,f_auto,q_auto/v${v}/${id}.${fmt}`;
   });
+}
+// Second opinion: the same public list the Refresh button reads
+async function listHas(id){
+  const folder = (ALL_CATEGORIES.find(c => id.split('/').includes(c.folder)) || {}).folder;
+  if(!folder) return false;
+  try{
+    const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json?v=${Date.now()}`, {cache:'no-store'});
+    if(!res.ok) return false;
+    const data = await res.json();
+    return (data.resources || []).some(x => x.public_id === id);
+  }catch(e){ return false; }
+}
+async function assetExists(id, fmt){
+  return (await imageAnswers(id, fmt)) || (await listHas(id));
 }
 async function renameAsset(r, toId){
   const {key, secret} = getKeys();
@@ -1864,7 +1881,7 @@ async function renameAsset(r, toId){
     throw new Error(j.error?.message || 'rename failed');
   }
   // Reply lost: give Cloudinary a moment, then look for the new name
-  for(const wait of [500, 1000, 1500, 2500]){
+  for(const wait of [600, 1200, 2000, 3000, 4000]){
     await new Promise(ok => setTimeout(ok, wait));
     if(await assetExists(toId, r.format)) return fresh();
   }
