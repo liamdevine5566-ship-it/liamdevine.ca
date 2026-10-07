@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
+<meta name="robots" content="noindex, nofollow"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Upload | Liam Devine Photography</title>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -758,6 +759,8 @@ function compressImage(file, maxDimension=2000, quality=0.85){
 async function doUpload(){
   const names = plannedNames();
   if(names.length === 0){ showStatus('err', 'Enter a file name.'); return; }
+  if(!hasKeys()){ showStatus('err', 'Add your Cloudinary keys first.'); return; }
+  const {key, secret} = getKeys();
 
   const btn = document.getElementById('uploadBtn');
   const label = document.getElementById('shutterLabel');
@@ -776,12 +779,19 @@ async function doUpload(){
 
       const blob = await compressImage(selectedFiles[0].file);
 
+      // Signed upload: only works with this device's secret key
+      const folder = `portfolio/${selectedCategory}`;
+      const ts = Math.floor(Date.now()/1000);
+      const sig = await sha1hex(`folder=${folder}&public_id=${names[doneCount]}&tags=${selectedCategory}&timestamp=${ts}&upload_preset=${UPLOAD_PRESET}${secret}`);
       const form = new FormData();
       form.append('file', blob);
       form.append('upload_preset', UPLOAD_PRESET);
       form.append('public_id', names[doneCount]);
-      form.append('folder', `portfolio/${selectedCategory}`);
+      form.append('folder', folder);
       form.append('tags', selectedCategory);
+      form.append('timestamp', ts);
+      form.append('api_key', key);
+      form.append('signature', sig);
 
       const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
         method: 'POST',
