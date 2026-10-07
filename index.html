@@ -102,6 +102,16 @@ nav.shrink{padding:8px 24px;background:rgba(255,255,255,.28);backdrop-filter:blu
 }
 button[type=submit]{background:#2f2f2f;color:#fff;border:none;border-radius:30px;padding:14px 26px;font-weight:bold;cursor:pointer}
 button[type=submit]:hover{background:#444}
+button[type=submit]:disabled{opacity:.6;cursor:default}
+.form-error{color:#a3392e;font-size:.95rem;margin:12px 0 0;min-height:0}
+.form-done{align-self:center;background:var(--ivory);border:1px solid #d8cdb8;border-radius:2px;padding:40px 32px;animation:formDoneIn .7s ease both}
+@keyframes formDoneIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+#contactForm{transition:opacity .35s ease}
+#contactForm.leaving{opacity:0}
+.form-done h3{font-family:'Playfair Display',Georgia,serif;font-weight:400;font-style:italic;font-size:1.9rem;margin:0 0 16px}
+.form-done p{font-size:1rem;line-height:1.7;color:#444;margin:0 0 10px}
+.form-done a{color:#2f2f2f;font-weight:400}
+.form-done-sig{font-family:'Playfair Display',Georgia,serif;font-style:italic;margin-top:18px !important}
 footer{background:#2f2f2f;color:#f6f2eb;text-align:center;padding:40px 20px}
 footer a{color:#f6f2eb;text-decoration:none}
 .pets-featured{max-width:650px;margin:0 auto 25px}
@@ -385,7 +395,7 @@ footer a{color:#f6f2eb;text-decoration:none}
 
 <section class="fade-section" id="about"><div class="wrap about"><img src="images/site/liamdevine.jpg"/><div><h2>About Liam</h2><p>I’m Liam Devine, a photographer based in London, Ontario. I photograph people, families, pets and the landscapes that catch my eye along the way. My approach is simple: create honest images that feel natural, timeless and authentic.</p></div></div></section>
 
-<section class="alt" id="contact"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p><a href="tel:+16475299924">647-529-9924</a></p><p><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p><p><a href="https://paypal.me/LiamDevine66" target="_blank">💳 PayPal</a></p></div><form action="https://api.web3forms.com/submit" method="POST"><input name="access_key" type="hidden" value="fadba13e-1fa3-48b4-b817-b9231d3e9b4e"/><input name="subject" type="hidden" id="contactSubject" value=""/><input name="name" placeholder="Your Name"/><input name="email" placeholder="Email"/><textarea name="message" id="contactMessage" placeholder="Message"></textarea><button type="submit">Send</button></form></div></section>
+<section class="alt" id="contact"><div class="wrap contact"><div><h2>Contact Liam Devine</h2><p><strong>Studio and on-location photography.</strong></p><p><a href="tel:+16475299924">647-529-9924</a></p><p><a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a></p><p><a href="https://instagram.com/liamdevinephotography" target="_blank">📷 Instagram</a></p><p><a href="https://paypal.me/LiamDevine66" target="_blank">💳 PayPal</a></p></div><form id="contactForm" action="https://api.web3forms.com/submit" method="POST"><input name="access_key" type="hidden" value="fadba13e-1fa3-48b4-b817-b9231d3e9b4e"/><input name="subject" type="hidden" id="contactSubject" value=""/><input name="from_name" type="hidden" value="liamdevine.ca"/><input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off"/><input name="name" placeholder="Your Name" required autocomplete="name"/><input name="email" type="email" placeholder="Email" required autocomplete="email"/><textarea name="message" id="contactMessage" placeholder="Message" required></textarea><button type="submit" id="contactSend">Send</button><p class="form-error" id="contactError" role="alert"></p></form><div class="form-done" id="contactDone" role="status" aria-live="polite" hidden><h3>Thank you!</h3><p>Your message has come through, and I’ll be in touch personally, usually the same day. If you’d like to talk sooner, call or text me at <a href="tel:+16475299924">647-529-9924</a>.</p><p class="form-done-sig">— Liam</p></div></div></section>
 
 <footer>
 <h3>Liam Devine Photography</h3>
@@ -1016,6 +1026,41 @@ lbImg.addEventListener('click',()=>{
 // to simulate a hover state, which otherwise makes the first photo
 // tapped require two taps instead of one.
 document.addEventListener('touchstart', function(){}, true);
+
+// ===== CONTACT FORM =====
+// Sends through Web3Forms in the background and shows a thank-you right here,
+// instead of jumping to Web3Forms' own page. If scripts fail, the form still
+// submits the old way.
+(function contactForm(){
+  const form = document.getElementById('contactForm');
+  if(!form || !window.fetch) return;
+  const btn = document.getElementById('contactSend');
+  const err = document.getElementById('contactError');
+  form.addEventListener('submit', async e=>{
+    e.preventDefault();
+    err.textContent = '';
+    const subj = document.getElementById('contactSubject');
+    if(!subj.value) subj.value = 'New enquiry from liamdevine.ca';
+    const data = Object.fromEntries(new FormData(form));
+    if(data.botcheck) return;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try{
+      const res = await fetch(form.action, {method:'POST', headers:{'Content-Type':'application/json', Accept:'application/json'}, body:JSON.stringify(data)});
+      const j = await res.json().catch(()=>({}));
+      if(!res.ok || j.success === false) throw new Error(j.message || 'send failed');
+      // fade the form out, then fade the thank-you in
+      form.classList.add('leaving');
+      await new Promise(ok => setTimeout(ok, 350));
+      form.hidden = true;
+      const done = document.getElementById('contactDone');
+      done.hidden = false;
+      done.scrollIntoView({behavior:'smooth', block:'center'});
+    }catch(ex){
+      err.innerHTML = 'Sorry, that didn’t send. Please try again, or email <a href="mailto:liamdevinephotography@gmail.com">liamdevinephotography@gmail.com</a> or call 647-529-9924.';
+      btn.disabled = false; btn.textContent = 'Send';
+    }
+  });
+})();
 
 // ===== HERO IMAGE =====
 // Chosen and framed in the upload app, saved to Cloudinary as hero-config.json.
