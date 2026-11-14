@@ -53,7 +53,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* ---- top bar ---- */
 .topbar{position:absolute;top:0;left:0;right:0;z-index:30}
-.topbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:20px}
+.topbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-block:calc(20px + env(safe-area-inset-top,0px)) 20px}
 .brand{text-decoration:none;display:flex;flex-direction:column;line-height:1.1}
 .brand b{font-family:var(--serif);font-weight:400;font-size:23px;letter-spacing:.06em}
 .brand small{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--soft)}
@@ -81,7 +81,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .tile{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0;cursor:pointer}
 .tile.t-txt{cursor:default}
 .ph{position:relative;overflow:hidden;background:#18181B;flex:1;min-height:0}
-.ph img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1.2s cubic-bezier(.2,.7,.2,1),opacity .6s}
+.ph img{width:100%;height:100%;object-fit:cover;object-position:50% 30%;display:block;transition:transform 1.2s cubic-bezier(.2,.7,.2,1),opacity .6s}
 .ph img.loading{opacity:0}
 @media(hover:hover){.tile:hover .ph img{transform:scale(1.06)}}
 .hov{position:absolute;inset:auto 0 0 0;padding:48px 16px 14px;background:linear-gradient(transparent,rgba(0,0,0,.82));transform:translateY(101%);transition:transform .6s cubic-bezier(.2,.8,.2,1);pointer-events:none}
@@ -261,9 +261,26 @@ const LABELS = {portraits:'Portraits', family:'Family', pets:'Pets', 'fine-art':
 const DEFAULT_VIS = {portraits:'site',family:'site',pets:'site','fine-art':'site',showcase:'site',wildlife:'hidden',landscapes:'hidden',street:'hidden',travel:'hidden'};
 const SIZES = ['big','tall','wide','sq'];
 // Used when a photo has no size chosen in the app — keeps every gallery looking composed
-// Built from blocks that fit together edge to edge: big+tall+tall · wide+sq+sq · sq+sq+wide · tall+big+tall · wide+wide
-const AUTO_SIZES = ['big','tall','tall','wide','sq','sq','sq','sq','wide','tall','big','tall','wide','wide'];
+// Auto sizes follow each photo's shape, so a tile never forces a tall portrait
+// into a letterbox (that's what cuts heads off). Upright photos get tall or big
+// tiles, landscape photos get wide (or big), square-ish ones get square tiles.
+function shapeOf(p){
+  if(!p.w || !p.h) return 'mid';
+  const r = p.w / p.h;
+  return r < 0.85 ? 'up' : (r > 1.2 ? 'flat' : 'mid');
+}
+function autoSize(p, i){
+  const s = shapeOf(p);
+  if(i === 0) return 'big';
+  if(s === 'up') return (i % 5 === 3) ? 'big' : 'tall';
+  if(s === 'flat') return (i % 7 === 6) ? 'big' : 'wide';
+  return (i % 6 === 5) ? 'big' : 'sq';
+}
+// The shape each tile asks Cloudinary for; it crops around faces / the subject
+const TILE_AR = {big:'1:1', tall:'1:2', wide:'2:1', sq:'1:1'};
 
+if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+if(!location.hash) window.scrollTo(0, 0);
 const $ = (s, el) => (el || document).querySelector(s);
 function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
 function dec(v){ if(!v) return ''; try{ return decodeURIComponent(v); }catch(e){ return String(v); } }
@@ -272,6 +289,9 @@ function galleryHref(folder){ return 'gallery.html?c=' + encodeURIComponent(fold
 function humanName(name){
   const w = String(name || '').replace(/[-_]+/g, ' ').trim();
   return w.charAt(0).toUpperCase() + w.slice(1);
+}
+function tileUrl(p, size, w){
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,c_fill,g_auto:faces,ar_${TILE_AR[size] || '1:1'},w_${w}/v${p.version}/${p.public_id}.${p.format}`;
 }
 function imgUrl(p, w){
   return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_${w}/v${p.version}/${p.public_id}.${p.format}`;
@@ -320,15 +340,15 @@ async function loadPhotos(folder){
 }
 
 // ---- tiles ----
-function makeImg(p, w, eager){
+function makeImg(p, w, eager, size){
   const img = el('img', 'loading');
   img.alt = p.alt;
   img.decoding = 'async';
   img.loading = eager ? 'eager' : 'lazy';
-  if(p.w && p.h){ img.width = p.w; img.height = p.h; }
+  if(!size && p.w && p.h){ img.width = p.w; img.height = p.h; }
   img.onload = () => img.classList.remove('loading');
   img.onerror = () => img.classList.remove('loading');
-  img.src = imgUrl(p, w);
+  img.src = size ? tileUrl(p, size, w) : imgUrl(p, w);
   return img;
 }
 
@@ -349,23 +369,23 @@ function renderMosaic(box, photos, texts, opts){
     box.appendChild(d);
   });
   list.forEach((p, i) => {
-    if(!opts.sizes) addTexts(i);
-    const size = opts.sizes ? opts.sizes[i % opts.sizes.length] : (p.size || AUTO_SIZES[i % AUTO_SIZES.length]);
+    if(!opts.preview) addTexts(i);
+    const size = (!opts.preview && p.size) ? p.size : autoSize(p, i);
     const fig = el('figure', 'tile rv t-' + size);
     fig.tabIndex = 0;
     fig.setAttribute('role', 'button');
     fig.setAttribute('aria-label', 'Open ' + (p.title || humanName(p.name)));
-    if(!opts.sizes && p.showTitle) fig.appendChild(el('div', 'above', p.title));
+    if(!opts.preview && p.showTitle) fig.appendChild(el('div', 'above', p.title));
     const ph = el('div', 'ph');
-    ph.appendChild(makeImg(p, size === 'big' || size === 'wide' ? 1600 : 1000, i < 2 && opts.eager));
-    if(!opts.sizes && p.showBlurb){
+    ph.appendChild(makeImg(p, size === 'big' || size === 'wide' ? 1400 : 800, i < 2 && opts.eager, size));
+    if(!opts.preview && p.showBlurb){
       const h = el('div', 'hov');
       if(p.title) h.appendChild(el('div', 'ht', p.title));
       if(p.blurb) h.appendChild(el('div', 'hb', p.blurb));
       ph.appendChild(h);
     }
     fig.appendChild(ph);
-    if(!opts.sizes && p.showCaption){
+    if(!opts.preview && p.showCaption){
       const cap = el('figcaption', 'below');
       cap.appendChild(el('span', '', p.caption || p.title));
       fig.appendChild(cap);
@@ -375,7 +395,7 @@ function renderMosaic(box, photos, texts, opts){
     fig.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
     box.appendChild(fig);
   });
-  if(!opts.sizes) addTexts(list.length);
+  if(!opts.preview) addTexts(list.length);
   watchReveals(box);
 }
 
