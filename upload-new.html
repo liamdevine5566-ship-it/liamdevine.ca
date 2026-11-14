@@ -1,0 +1,2538 @@
+<!-- app build: portfolio-v3 (tile sizes, titles/captions/blurbs, text tiles, multi-photo hero) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Upload | Liam Devine Photography</title>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="LD Upload"/>
+<link rel="apple-touch-icon" href="images/logo1.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --chassis:#121212;
+  --chassis-hi:#1c1c1a;
+  --panel:#1a1a18;
+  --hairline:rgba(245,243,239,.10);
+  --text:#f5f3ef;
+  --text-dim:rgba(245,243,239,.68);
+  --tungsten:#e8873a;
+  --tungsten-dim:rgba(232,135,58,.18);
+  --good:#7fb88a;
+  --bad:#e0665a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--chassis);color:var(--text);font-family:'Space Grotesk',sans-serif;min-height:100vh;overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
+.mono{font-family:'JetBrains Mono',monospace}
+.wrap{max-width:480px;margin:0 auto;padding:10px 20px 20px;padding-top:calc(12px + env(safe-area-inset-top));min-height:100vh}
+
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:8px;height:8px;border-radius:50%;background:var(--tungsten);box-shadow:0 0 8px var(--tungsten)}
+h1{font-size:1.15rem;font-weight:500;margin:0;letter-spacing:.02em}
+.gear{background:none;border:1px solid var(--hairline);border-radius:50%;width:38px;height:38px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.15rem}
+
+.status-line{font-size:.82rem;color:var(--text-dim);margin:8px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--hairline);display:flex;justify-content:space-between}
+.status-line .dot{color:var(--good)}
+.status-line.off .dot{color:var(--bad)}
+
+.section-label{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between}
+
+.dial-wrap{position:relative;margin-bottom:12px}
+.dial-wrap::after{content:'';position:absolute;top:0;right:0;bottom:4px;width:28px;background:linear-gradient(to right, transparent, var(--chassis));pointer-events:none}
+.dial{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.dial::-webkit-scrollbar{display:none}
+.dial-item{flex:0 0 auto;padding:9px 16px;border-radius:999px;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);font-size:.96rem;white-space:nowrap;cursor:pointer;transition:all .2s ease}
+.dial-item.selected{border-color:var(--tungsten);color:var(--tungsten);background:rgba(232,135,58,.28);box-shadow:inset 0 0 0 1px var(--tungsten)}
+
+/* Viewfinder */
+.viewfinder{position:relative;width:100%;height:clamp(140px,19vh,230px);border-radius:4px;background:var(--panel);margin-bottom:12px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.viewfinder.has-image{height:auto;min-height:180px;max-height:38vh}
+.viewfinder img{width:100%;height:100%;object-fit:contain;display:block;max-height:38vh}
+.bracket{position:absolute;width:22px;height:22px;border-color:var(--tungsten);opacity:.55;transition:opacity .2s ease}
+.viewfinder:hover .bracket{opacity:.9}
+.bracket.tl{top:14px;left:14px;border-top:2px solid;border-left:2px solid}
+.bracket.tr{top:14px;right:14px;border-top:2px solid;border-right:2px solid}
+.bracket.bl{bottom:14px;left:14px;border-bottom:2px solid;border-left:2px solid}
+.bracket.br{bottom:14px;right:14px;border-bottom:2px solid;border-right:2px solid}
+.vf-empty{color:var(--text-dim);font-size:.9rem;text-align:center;padding:0 40px}
+.vf-empty .icon{font-size:1.8rem;display:block;margin-bottom:10px;opacity:.6}
+.vf-count{display:none;position:absolute;top:12px;right:44px;background:rgba(0,0,0,.55);border:1px solid var(--hairline);color:var(--text);font-size:.7rem;letter-spacing:.08em;padding:4px 10px;border-radius:999px;z-index:2}
+.thumbs{display:none;gap:8px;overflow-x:auto;margin:-6px 0 14px;padding-bottom:4px;scrollbar-width:none}
+.thumbs.show{display:flex}
+.thumbs::-webkit-scrollbar{display:none}
+.thumb{flex:0 0 auto;position:relative;width:58px;height:58px;border-radius:4px;overflow:hidden;border:1px solid var(--hairline);cursor:pointer}
+.thumb.current{border-color:var(--tungsten)}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .rm{position:absolute;top:0;right:0;width:20px;height:20px;background:rgba(0,0,0,.65);color:var(--text);font-size:.8rem;line-height:20px;text-align:center;border-bottom-left-radius:4px}
+input[type=file]{display:none}
+
+label.field-label{display:block;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+input[type=text]{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px}
+input[type=text]:focus{outline:none;border-color:var(--tungsten)}
+#filename,#renameField{text-transform:lowercase}
+.hint{font-size:.85rem;color:var(--text-dim);margin-bottom:10px}
+
+/* Shutter button */
+.shutter-row{display:flex;justify-content:center;margin:2px 0 8px}
+.shutter{width:62px;height:62px;border-radius:50%;background:radial-gradient(circle at 35% 30%, #6fa87c, #3f6b4c 72%);border:3px solid rgba(127,184,138,.45);cursor:pointer;position:relative;transition:transform .12s ease, border-color .2s ease, box-shadow .2s ease}
+.shutter::after{content:'';position:absolute;inset:7px;border-radius:50%;border:2px solid rgba(16,20,16,.55);opacity:1}
+.shutter:active:not(:disabled){transform:scale(.94)}
+.shutter:disabled{opacity:.35;cursor:default}
+.shutter.ready{border-color:rgba(127,184,138,.85);box-shadow:0 0 22px rgba(127,184,138,.4)}
+.shutter-label.ready{color:var(--good)}
+/* Folder name list */
+.names-panel{margin:-4px 0 14px;display:none}
+.names-panel.show{display:block}
+.names-toggle{cursor:pointer;user-select:none;-webkit-user-select:none}
+#namesChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
+#keysChevron{display:inline-block;color:var(--tungsten);margin-left:2px}
+#keysSummary.ok{color:var(--good)}
+.text-btn.armed{color:var(--bad);border-color:rgba(224,102,90,.5)}
+#mngRefresh{color:var(--tungsten);cursor:pointer}
+.names-list{max-height:118px;overflow-y:auto;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:2}
+.names-list .name-row.dupe{color:var(--bad)}
+input[type=text].taken{border-color:var(--bad)}
+.hint.warn{color:var(--bad)}
+.shutter-label{text-align:center;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-top:6px}
+
+button.text-btn,a.text-btn{display:block;margin:8px auto 0;background:none;border:1px solid var(--hairline);border-radius:999px;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;cursor:pointer;padding:9px 22px}
+a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color:rgba(127,184,138,.4)}
+
+.status{margin:0 0 14px;padding:11px;border-radius:4px;font-size:.9rem;text-align:center;display:none;font-family:'JetBrains Mono',monospace}
+.status.show{display:block}
+.status.ok{background:rgba(127,184,138,.12);color:var(--good)}
+.status.err{background:rgba(224,102,90,.12);color:var(--bad)}
+.status.busy{background:var(--panel);color:var(--text-dim)}
+
+.overlay{position:fixed;inset:0;background:var(--chassis);z-index:50;display:none;padding:24px 20px;padding-top:calc(24px + env(safe-area-inset-top));padding-bottom:40px;overflow-y:auto}
+.overlay.show{display:block}
+.overlay h2{font-size:1.1rem;font-weight:500;margin-top:0}
+.overlay p{font-size:.85rem;line-height:1.5;color:var(--text-dim)}
+.overlay input[type=text]{margin-bottom:16px}
+.overlay-actions{display:flex;gap:10px}
+.overlay-actions button{flex:1;padding:13px;border-radius:4px;font-family:'Space Grotesk';font-size:.85rem;cursor:pointer;border:1px solid var(--hairline);background:transparent;color:var(--text)}
+.overlay-actions button.save{background:var(--tungsten);color:#161412;border-color:var(--tungsten);font-weight:500}
+
+/* Portfolio Manager */
+.vis-list{display:flex;flex-direction:column;gap:6px}
+.vis-list.locked{opacity:.45;pointer-events:none}
+.vis-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:7px 8px 7px 12px}
+.vis-row .lbl{font-size:.86rem;color:var(--text)}
+.vis-seg{display:flex;gap:4px;flex:0 0 auto}
+.vis-seg button{border:1px solid var(--hairline);background:transparent;color:var(--text-dim);border-radius:999px;padding:7px 11px;font-family:'Space Grotesk';font-size:.72rem;letter-spacing:.04em;cursor:pointer;transition:all .15s ease}
+.vis-seg button.on-hidden{border-color:var(--text-dim);color:var(--text);background:rgba(245,243,239,.08)}
+.vis-seg button.on-app{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
+.vis-seg button.on-site{border-color:rgba(127,184,138,.6);color:var(--good);background:rgba(127,184,138,.14)}
+
+/* Upload success confirmation */
+.done-flash{position:fixed;inset:0;background:rgba(10,14,11,.94);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;transition:opacity .25s ease}
+.done-flash.show{display:flex}
+.done-flash.visible{opacity:1}
+.done-ring{width:96px;height:96px;border-radius:50%;border:3px solid var(--good);display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px rgba(127,184,138,.35)}
+.done-ring svg{width:44px;height:44px;stroke:var(--good);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48;stroke-dashoffset:48;transition:stroke-dashoffset .4s ease .15s}
+.done-flash.visible .done-ring svg{stroke-dashoffset:0}
+.done-msg{font-size:1rem;color:var(--text);letter-spacing:.04em}
+.done-sub{font-size:.8rem;color:var(--text-dim)}
+
+/* Mode tabs */
+.tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:4px;margin-bottom:12px}
+.tab{flex:1;padding:10px;border:none;border-radius:999px;background:transparent;color:var(--text-dim);font-family:'Space Grotesk';font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s ease}
+.tab.active{background:var(--tungsten-dim);color:var(--tungsten)}
+
+/* Manage page */
+.keys-note{border:1px solid var(--hairline);border-left:3px solid var(--tungsten);border-radius:4px;background:var(--panel);padding:14px;font-size:.88rem;line-height:1.6;color:var(--text-dim);margin-bottom:18px}
+.mng-list{display:flex;flex-direction:column;gap:7px}
+.mng-empty{color:var(--text-dim);font-size:.88rem;text-align:center;padding:30px 0}
+.mng-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-radius:4px;padding:7px 9px}
+.mng-row img{width:52px;height:52px;object-fit:cover;border-radius:3px;flex:0 0 auto;background:var(--chassis-hi);touch-action:none;cursor:grab}
+.mng-row.dragging img,.grip:active{cursor:grabbing}
+.mng-name{font-size:.84rem;color:var(--text);word-break:break-all}
+.mng-row > .mng-name{flex:1}
+.mng-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.mng-actions{display:flex;gap:6px}
+.mng-btn{border:1px solid var(--hairline);background:transparent;color:var(--text-dim);border-radius:4px;padding:9px 8px;font-family:'Space Grotesk';font-size:.78rem;cursor:pointer}
+.mng-btn.danger{color:var(--bad);border-color:rgba(224,102,90,.4)}
+.overlay-actions button.danger{background:var(--bad);border-color:var(--bad);color:#1a0e0c}
+.del-preview{margin-bottom:6px}
+.del-preview img{width:110px;height:110px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline)}
+/* Shared photo header for Rename / Category / Remove overlays */
+.ov-photo{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:16px}
+.ov-photo img{width:104px;height:104px;object-fit:cover;border-radius:4px;border:1px solid var(--hairline);background:var(--chassis-hi)}
+.ov-photo .ov-name{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--text);word-break:break-all;text-align:center}
+.ov-current{text-align:center;font-size:.82rem;color:var(--text-dim);margin:-8px 0 4px}
+/* Category picker: full-width tappable rows with a radio dot */
+.cat-list{display:flex;flex-direction:column;gap:8px;margin:6px 0 4px}
+.cat-row{display:flex;align-items:center;gap:12px;padding:14px 14px;border:1px solid var(--hairline);border-radius:6px;background:var(--panel);cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.cat-row .radio{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--text-dim);position:relative;transition:border-color .15s ease}
+.cat-row .lbl{font-size:1rem;color:var(--text)}
+.cat-row.sel{border-color:var(--tungsten);background:rgba(232,135,58,.14)}
+.cat-row.sel .radio{border-color:var(--tungsten)}
+.cat-row.sel .radio::after{content:'';position:absolute;inset:3px;border-radius:50%;background:var(--tungsten)}
+.cat-row.current{opacity:.4;cursor:default;pointer-events:none}
+.cat-row.current .lbl{color:var(--text-dim)}
+
+/* Drag to reorder */
+.order-bar{display:flex;gap:8px;margin-bottom:12px}
+.order-bar .mng-btn{flex:1;padding:11px}
+.mng-btn.save-order{background:rgba(127,184,138,.15);border-color:rgba(127,184,138,.5);color:var(--good)}
+.mng-row{position:relative}
+.mng-row.dragging{border-color:var(--tungsten);box-shadow:0 10px 26px rgba(0,0,0,.55),0 0 14px rgba(232,135,58,.3);opacity:.97;z-index:5;will-change:transform}
+.grip{flex:0 0 auto;width:24px;height:52px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.05rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+
+/* ===== Hero Shot ===== */
+/* .hero-frame mirrors the website's hero exactly (cover + position/origin + scale), so the preview is what visitors see */
+.hero-frame{position:relative;overflow:hidden;background:var(--chassis-hi);container-type:inline-size;user-select:none;-webkit-user-select:none}
+.hero-frame .hf-img{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;will-change:transform}
+.hero-frame .hf-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(11,11,12,1) 0%,rgba(11,11,12,.5) 34%,rgba(0,0,0,0) 62%),linear-gradient(90deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 60%);pointer-events:none}
+.hero-frame .hf-text{position:absolute;left:5%;bottom:16%;z-index:2;font-family:Georgia,'Times New Roman',serif;color:#fff;font-size:6.4cqw;line-height:1;pointer-events:none}
+.hero-frame .hf-text i{color:#D9A441}
+.hero-frame.phone .hf-text{bottom:22%;font-size:11cqw}
+.hero-mini .hf-text{display:none}
+.hero-frame .hf-grid{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .2s ease;
+  background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px)),
+             linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
+.hero-frame.gesturing .hf-grid{opacity:1}
+
+.hero-card{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--hairline);border-radius:6px;padding:10px;margin-bottom:14px}
+.hero-mini{flex:0 0 auto;width:128px;aspect-ratio:16/10;border-radius:3px;cursor:pointer}
+.hero-card-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.hero-card-label{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim)}
+.hero-card-name{font-size:.84rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero-card-actions{display:flex;gap:6px;margin-top:4px}
+.hero-card-actions .mng-btn{flex:1}
+
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.hero-grid .mng-empty{grid-column:1/-1}
+.hero-pick{position:relative;padding:0;border:1px solid var(--hairline);border-radius:4px;overflow:hidden;aspect-ratio:1;background:var(--chassis-hi);cursor:pointer}
+.hero-pick img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-pick:active{transform:scale(.96)}
+.hero-pick.current{border-color:var(--tungsten);box-shadow:inset 0 0 0 2px var(--tungsten)}
+.hero-pick.current::after{content:'HERO';position:absolute;left:5px;bottom:5px;font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;padding:2px 6px;border-radius:999px;background:var(--tungsten);color:#161412}
+
+.hero-editor{position:fixed;inset:0;z-index:60;background:#0b0b0b;display:none;flex-direction:column;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);touch-action:none;overscroll-behavior:contain}
+.hero-editor.show{display:flex}
+.he-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px}
+.he-btn{background:none;border:none;color:var(--text);font-family:'Space Grotesk';font-size:1rem;padding:10px 6px;cursor:pointer}
+.he-btn.he-save{color:var(--tungsten);font-weight:600}
+.he-btn:disabled{opacity:.35;cursor:default}
+.he-title{flex:1;min-width:0;text-align:center;font-size:.8rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.he-seg{align-self:center;display:flex;gap:4px;background:var(--panel);border:1px solid var(--hairline);border-radius:999px;padding:3px}
+.he-seg button{border:none;background:transparent;color:var(--text-dim);font-family:'Space Grotesk';font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:7px 16px;border-radius:999px;cursor:pointer}
+.he-seg button.on{background:var(--tungsten-dim);color:var(--tungsten)}
+.he-stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px 16px;cursor:grab}
+.he-stage:active{cursor:grabbing}
+#heFrame{border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.2),0 20px 50px rgba(0,0,0,.6)}
+.he-foot{padding:4px 16px 18px;text-align:center}
+.he-msg{font-size:.82rem;color:var(--text-dim);min-height:1.2em;margin-bottom:10px}
+.he-msg.err{color:var(--bad)}
+.he-foot-row{display:flex;align-items:center;justify-content:center;gap:14px}
+.he-zoom{font-size:.8rem;color:var(--text-dim);min-width:3.5em}
+
+/* ===== v3: hero photos strip ===== */
+.hero-card{flex-direction:column;align-items:stretch}
+.hero-slides{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
+.hero-slide.hero-mini{width:auto;min-width:0}
+.hero-slide{position:relative;aspect-ratio:16/10;border-radius:3px;cursor:pointer;border:1px solid var(--hairline);padding:0;background:var(--chassis-hi)}
+.hero-slide .hs-n{position:absolute;left:4px;top:4px;z-index:3;font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:1px 6px;border-radius:999px;background:rgba(0,0,0,.6);color:var(--text)}
+.hero-add{aspect-ratio:16/10;border:1px dashed rgba(232,135,58,.6);border-radius:3px;background:transparent;color:var(--tungsten);font-family:'Space Grotesk';font-size:.78rem;cursor:pointer}
+.he-foot-row .mng-btn.danger{margin-left:0}
+
+/* ===== v3: photo details ===== */
+.mng-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:-2px}
+.mng-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid var(--hairline);color:var(--text-dim)}
+.mng-tag.on{border-color:rgba(232,135,58,.6);color:var(--tungsten)}
+.seg{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.seg button{flex:1 1 auto;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);border-radius:999px;padding:10px 12px;font-family:'Space Grotesk';font-size:.8rem;cursor:pointer;min-height:42px}
+.seg button.on{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
+.size-demo{display:flex;align-items:flex-end;gap:6px;height:46px;margin:2px 0 14px}
+.size-demo span{display:block;border:1px solid var(--hairline);border-radius:2px;background:var(--chassis-hi)}
+.size-demo span.on{border-color:var(--tungsten);background:var(--tungsten-dim)}
+.overlay textarea{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px;resize:vertical;min-height:84px}
+.overlay textarea:focus,.overlay input.plain:focus{outline:none;border-color:var(--tungsten)}
+.overlay input.plain{font-family:'Space Grotesk',sans-serif;text-transform:none}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:0 0 18px;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);font-size:.88rem;color:var(--text);cursor:pointer}
+.sw input{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:46px;height:28px;border-radius:999px;background:rgba(245,243,239,.15);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.sw input::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--text);transition:transform .2s}
+.sw input:checked{background:var(--tungsten)}
+.sw input:checked::after{transform:translateX(18px)}
+.count{float:right;font-family:'JetBrains Mono',monospace;letter-spacing:0;text-transform:none}
+
+/* ===== v3: text tiles ===== */
+.tt-box{margin-top:18px;border-top:1px solid var(--hairline);padding-top:14px}
+.tt-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-left:3px solid var(--tungsten);border-radius:4px;padding:9px 10px;margin-bottom:7px}
+.tt-row.off{opacity:.5}
+.tt-row .tt-body{flex:1;min-width:0}
+.tt-row .tt-t{font-size:.92rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-row .tt-p{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-dim)}
+.num-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.num-row button{width:44px;height:44px;border-radius:4px;border:1px solid var(--hairline);background:var(--panel);color:var(--text);font-size:1.2rem;cursor:pointer}
+.num-row .num{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="brand">
+<span class="brand-dot"></span>
+<h1>UPLOAD</h1>
+</div>
+<button class="gear" onclick="openSettings()">&#9881;</button>
+</header>
+
+<div class="status-line mono" id="statusLine"><span><span class="dot">&#9679;</span> liamdevine.ca &middot; <span id="connState">checking…</span><span id="siteViews"></span></span><span id="clock"></span></div>
+
+<div class="tabs">
+<button class="tab active" id="tabUpload" onclick="switchPage('upload')">Upload</button>
+<button class="tab" id="tabManage" onclick="switchPage('manage')">Manage</button>
+</div>
+
+<div id="uploadView">
+<div class="section-label"><span>Category</span><span id="catCount" class="mono"></span></div>
+<div class="dial-wrap"><div class="dial" id="categories"></div></div>
+
+<div class="names-panel" id="namesPanel">
+<div class="section-label names-toggle" onclick="toggleNames()"><span>Already in this folder <span id="namesChevron">&#9662;</span></span><span id="namesCount" class="mono"></span></div>
+<div class="names-list mono" id="namesList"></div>
+</div>
+
+<div class="status" id="status"></div>
+
+<div class="viewfinder" id="viewfinder" onclick="document.getElementById('fileInput').click()">
+<div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+<div class="vf-count mono" id="vfCount"></div>
+<div class="vf-empty" id="vfEmpty"><span class="icon">&#9678;</span>Tap to load photos</div>
+<img id="preview" style="display:none"/>
+</div>
+<div class="thumbs" id="thumbs"></div>
+<input type="file" id="fileInput" accept="image/*" multiple/>
+
+<label class="field-label">File name</label>
+<input type="text" id="filename" placeholder="e.g. tree-sunset" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+<div class="hint mono">a–z, 0–9, dashes only &middot; extension added automatically</div>
+
+<div class="shutter-row">
+<button class="shutter" id="uploadBtn" disabled onclick="doUpload()"></button>
+</div>
+<div class="shutter-label" id="shutterLabel">Select category &amp; photo</div>
+
+<button class="text-btn" onclick="resetForm()">Clear</button>
+<a class="text-btn" id="viewSiteBtn" href="https://liamdevine.ca/" target="_blank" rel="noopener" style="display:none">View on site &#8599;</a>
+</div><!-- /uploadView -->
+
+<div id="manageView" style="display:none">
+<div class="hero-card">
+<div class="hero-card-body">
+<span class="hero-card-label">Hero photos</span>
+<span class="hero-card-name mono" id="heroName">loading…</span>
+<div class="hero-slides" id="heroSlidesBox"></div>
+<span class="hint mono" style="margin:6px 0 0;font-size:.74rem">Up to 4 · they slowly crossfade · tap one to frame, replace or remove</span>
+</div>
+</div>
+
+<div class="section-label"><span>Category</span><span class="names-toggle mono" id="mngRefresh" onclick="refreshMng()" style="display:none">&#8635; refresh</span></div>
+<div class="dial-wrap"><div class="dial" id="mngCategories"></div></div>
+
+<div class="status" id="mngStatus"></div>
+
+<div class="keys-note" id="keysNote" style="display:none">
+Rename &amp; remove are locked on this device.<br/>
+Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes app) — one time only.
+</div>
+
+<div class="order-bar" id="orderSaveBar" style="display:none">
+<button class="mng-btn" onclick="cancelOrderEdit()">Cancel</button>
+<button class="mng-btn save-order" id="saveOrderBtn" onclick="saveOrder()">Save order</button>
+</div>
+
+<div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
+
+<div class="tt-box" id="ttBox" style="display:none">
+<div class="section-label"><span>Text tiles</span><span class="names-toggle mono" style="color:var(--tungsten)" onclick="openTextTile(-1)">+ add</span></div>
+<p class="hint" style="margin-top:-2px;font-size:.8rem">A title or blurb that sits between photos on this gallery's page.</p>
+<div id="ttList"></div>
+</div>
+</div><!-- /manageView -->
+</div>
+
+<div class="overlay" id="heroPickerOverlay">
+<h2>Choose the hero photo</h2>
+<p>From the categories that are live on the site. Tap one to frame it.</p>
+<div class="dial-wrap"><div class="dial" id="heroPickCats"></div></div>
+<div class="hero-grid" id="heroPickGrid"></div>
+<div class="overlay-actions" style="margin-top:18px">
+<button onclick="closeHeroPicker()">Cancel</button>
+</div>
+</div>
+
+<div class="hero-editor" id="heroEditor">
+<div class="he-bar">
+<button class="he-btn" onclick="closeHeroEditor()">Cancel</button>
+<span class="he-title mono" id="heTitle"></span>
+<button class="he-btn he-save" id="heSave" onclick="saveHero()">Save</button>
+</div>
+<div class="he-seg">
+<button id="heSegDesktop" class="on" onclick="setHeroMode('desktop')">Computer</button>
+<button id="heSegPhone" onclick="setHeroMode('phone')">Phone</button>
+</div>
+<div class="he-stage" id="heStage">
+<div class="hero-frame desktop" id="heFrame"><div class="hf-img" id="heImg"></div><div class="hf-shade"></div><div class="hf-text">Making the ordinary<br/><i>extraordinary</i></div><div class="hf-grid"></div></div>
+</div>
+<div class="he-foot">
+<div class="he-msg" id="heMsg">Pinch to zoom · drag to reposition</div>
+<div class="he-foot-row">
+<span class="he-zoom mono" id="heZoom">1.0×</span>
+<button class="mng-btn" onclick="resetHeroPos()">Reset</button>
+<button class="mng-btn" id="heReplace" onclick="replaceHeroSlide()">Replace</button>
+<button class="mng-btn danger" id="heRemove" onclick="removeHeroSlide()">Remove</button>
+</div>
+</div>
+</div>
+
+
+<div class="done-flash" id="doneFlash">
+<div class="done-ring"><svg viewBox="0 0 24 24"><polyline points="4,13 10,19 20,6"/></svg></div>
+<div class="done-msg mono" id="doneMsg">UPLOADED</div>
+<div class="done-sub">live on the site in a couple minutes</div>
+</div>
+
+<div class="overlay" id="settingsOverlay">
+<h2>Settings</h2>
+
+<div class="section-label"><span>Portfolio Manager</span><span class="mono" id="visState"></span></div>
+<div class="vis-list" id="visList"></div>
+<p style="margin-top:6px"><span style="color:var(--text)">Hidden</span> — photos kept safe, shown nowhere &middot; <span style="color:var(--tungsten)">App</span> — build &amp; manage privately here &middot; <span style="color:var(--good)">Site</span> — live on liamdevine.ca</p>
+
+<div class="section-label names-toggle" style="margin-top:18px" onclick="toggleKeysPanel()"><span>Device keys <span id="keysChevron">&#9656;</span></span><span class="mono" id="keysSummary"></span></div>
+
+<div id="keysPanel" style="display:none">
+<p>Uploads never need keys. To unlock <span style="color:var(--text)">rename, remove &amp; visibility</span> on this device, enter your Cloudinary API key and secret (in your Notes app). They're saved only on this phone or computer — never in the site code.</p>
+<div class="status mono" style="display:block;background:var(--panel);color:var(--text-dim);margin-bottom:16px">Cloud: <span class="mono" style="color:var(--text)">dywzapiql</span> &middot; <span id="keyState"></span></div>
+<label class="field-label">API key</label>
+<input type="text" id="apiKeyField" placeholder="123456789012345" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+<label class="field-label">API secret</label>
+<input type="text" id="apiSecretField" placeholder="paste secret here" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+<div class="overlay-actions">
+<button class="save" onclick="saveKeys()">Save keys</button>
+</div>
+<button class="text-btn" id="forgetBtn" onclick="clearKeys()" style="margin-top:14px">Forget keys on this device</button>
+</div>
+
+<div class="overlay-actions" style="margin-top:20px">
+<button onclick="closeSettings()">Close</button>
+</div>
+</div>
+
+<div class="overlay" id="renameOverlay">
+<h2>Rename photo</h2>
+<div class="ov-photo"><img id="renameThumb"/><span class="ov-name" id="renameFrom"></span></div>
+<label class="field-label">New name</label>
+<input type="text" id="renameField" placeholder="new-name" autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false"/>
+<div class="hint mono" id="renameHint">a&ndash;z, 0&ndash;9, dashes only</div>
+<div class="overlay-actions">
+<button onclick="closeRename()">Cancel</button>
+<button class="save" id="renameGo" onclick="doRename()">Rename</button>
+</div>
+</div>
+
+<div class="overlay" id="moveOverlay">
+<h2>Change category</h2>
+<div class="ov-photo"><img id="moveThumb"/><span class="ov-name" id="moveName"></span></div>
+<label class="field-label">Move to</label>
+<div class="cat-list" id="moveDial"></div>
+<div class="hint mono" id="moveHint"></div>
+<div class="overlay-actions">
+<button onclick="closeMove()">Cancel</button>
+<button class="save" id="moveGo" onclick="doMove()">Move</button>
+</div>
+</div>
+
+<div class="overlay" id="detailsOverlay">
+<h2>Photo details</h2>
+<div class="ov-photo"><img id="detThumb" alt=""/><span class="ov-name" id="detName"></span></div>
+
+<label class="field-label" id="detSizeLabel">Tile size on the website</label>
+<div class="seg" id="detSize"></div>
+<div class="size-demo" id="detDemo" aria-hidden="true"></div>
+
+<label class="field-label" for="detTitle">Title <span class="count" id="detTitleN"></span></label>
+<input type="text" class="plain" id="detTitle" maxlength="80" placeholder="e.g. Quiet light" autocomplete="off"/>
+<label class="sw" id="detShowTRow" for="detShowT"><span id="detShowTText">Show title above the photo</span><input type="checkbox" id="detShowT"/></label>
+
+<label class="field-label" for="detCaption" id="detCapLabel">Caption <span class="count" id="detCaptionN"></span></label>
+<input type="text" class="plain" id="detCaption" maxlength="140" placeholder="e.g. Natural light portrait · Springbank Park" autocomplete="off"/>
+<label class="sw" id="detShowCRow" for="detShowC"><span>Show caption under the photo</span><input type="checkbox" id="detShowC"/></label>
+
+<label class="field-label" for="detBlurb" id="detBlurbLabel">Blurb <span class="count" id="detBlurbN"></span></label>
+<textarea id="detBlurb" maxlength="240" rows="3" placeholder="A sentence or two about the shot"></textarea>
+<label class="sw" id="detShowBRow" for="detShowB"><span>Show blurb over the photo<br/><span style="font-size:.74rem;color:var(--text-dim)">appears on hover, and always on phones</span></span><input type="checkbox" id="detShowB"/></label>
+
+<p class="hint" id="detNote" style="font-size:.8rem"></p>
+<div class="overlay-actions">
+<button onclick="closeDetails()">Cancel</button>
+<button class="save" id="detGo" onclick="saveDetails()">Save</button>
+</div>
+</div>
+
+<div class="overlay" id="ttOverlay">
+<h2 id="ttHead">Text tile</h2>
+<label class="field-label" for="ttTitle">Title</label>
+<input type="text" class="plain" id="ttTitle" maxlength="80" placeholder="e.g. Baxter at the shore" autocomplete="off"/>
+<label class="field-label" for="ttBlurb">Blurb</label>
+<textarea id="ttBlurb" maxlength="240" rows="3" placeholder="A sentence or two"></textarea>
+<label class="field-label">Position</label>
+<div class="num-row"><button type="button" onclick="ttNudge(-1)" aria-label="Earlier">&minus;</button><span class="num" id="ttPos"></span><button type="button" onclick="ttNudge(1)" aria-label="Later">+</button></div>
+<label class="sw" for="ttOn"><span>Show on the website</span><input type="checkbox" id="ttOn"/></label>
+<div class="overlay-actions">
+<button onclick="closeTextTile()">Cancel</button>
+<button class="save" id="ttGo" onclick="saveTextTile()">Save</button>
+</div>
+<button class="text-btn armed" id="ttDel" onclick="deleteTextTile()" style="margin-top:16px">Delete this text tile</button>
+</div>
+
+<div class="overlay" id="deleteOverlay">
+<h2>Remove photo?</h2>
+<div class="ov-photo"><img id="deleteThumb"/><span class="ov-name" id="deleteName"></span></div>
+<p>This takes it off the website for good. There's no undo.</p>
+<div class="overlay-actions">
+<button onclick="closeDelete()">Cancel</button>
+<button class="save danger" id="deleteGo" onclick="doDestroy()">Remove</button>
+</div>
+</div>
+
+<script>
+const CLOUD_NAME = 'dywzapiql';
+const UPLOAD_PRESET = 'liam_uploads';
+
+// ===== PORTFOLIO MANAGER =====
+// Master list — every category always exists, nothing is ever deleted.
+// Each has a visibility state: 'hidden' (photos kept, shown nowhere),
+// 'app' (build & manage privately here), 'site' (live on liamdevine.ca).
+// The states live in a tiny config file on Cloudinary so the website and
+// every device stay in sync. Custom categories later = new entries here.
+const ALL_CATEGORIES = [
+  {label:'Portraits', folder:'portraits'},
+  {label:'Family', folder:'family'},
+  {label:'Pets', folder:'pets'},
+  {label:'Fine Art', folder:'fine-art'},
+  {label:'Speed & Motion', folder:'showcase'},
+  {label:'Wildlife', folder:'wildlife'},
+  {label:'Landscapes', folder:'landscapes'},
+  {label:'Street Photography', folder:'street'},
+  {label:'Travel', folder:'travel'}
+];
+const DEFAULT_VIS = {portraits:'site',family:'site',pets:'site','fine-art':'site',showcase:'site',wildlife:'hidden',landscapes:'hidden',street:'hidden',travel:'hidden'};
+const CONFIG_URL = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/portfolio-config.json`;
+let catVis = Object.assign({}, DEFAULT_VIS);
+// Text tiles per category: {portraits:[{id,title,blurb,after,on}], …} — kept in the same config file
+let siteTexts = {};
+let configLoaded = false;
+
+function visibleCats(){
+  return ALL_CATEGORIES.filter(c => catVis[c.folder] !== 'hidden');
+}
+
+async function loadConfig(){
+  try{
+    const res = await fetch(CONFIG_URL + '?v=' + Date.now(), {cache:'no-store'});
+    if(res.ok){
+      const cfg = await res.json();
+      (cfg.categories || []).forEach(c => { if(c.folder in catVis) catVis[c.folder] = c.visibility; });
+      if(cfg.texts && typeof cfg.texts === 'object') siteTexts = cfg.texts;
+    }
+    if(res.ok || res.status === 404) configLoaded = true;
+  }catch(e){ /* offline or no config yet — defaults stand */ }
+  if(selectedCategory && catVis[selectedCategory] === 'hidden'){ selectedCategory = null; }
+  if(mngCategory && catVis[mngCategory] === 'hidden'){ mngCategory = null; }
+  renderCategories();
+  if(currentPage === 'manage'){ renderManage(); }
+}
+
+let selectedCategory = null;
+let selectedFiles = [];   // [{file, url}]
+let previewIndex = 0;
+
+function renderCategories(){
+  const box = document.getElementById('categories');
+  box.innerHTML = '';
+  const cats = visibleCats();
+  cats.forEach(cat=>{
+    const btn = document.createElement('div');
+    btn.className = 'dial-item' + (selectedCategory === cat.folder ? ' selected' : '');
+    btn.textContent = cat.label;
+    btn.onclick = () => { selectedCategory = cat.folder; renderCategories(); loadNames(cat.folder); updateState(); };
+    box.appendChild(btn);
+  });
+  document.getElementById('catCount').textContent = selectedCategory ? '1/1' : `0/${cats.length}`;
+}
+renderCategories();
+loadConfig();
+
+// ===== Folder name list (uses the same public feed as the website — no secrets) =====
+const nameCache = {};
+const resCache = {};
+
+function sortRes(arr){
+  return arr.sort((a,b)=> (a.order - b.order) || a.name.localeCompare(b.name));
+}
+
+async function fetchFolder(folder){
+  if(resCache[folder]) return resCache[folder];
+  const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json?v=${Date.now()}`, {cache:'no-store'});
+  if(res.status === 404){
+    resCache[folder] = [];
+  } else if(res.ok){
+    const data = await res.json();
+    const ordOf = (r)=>{
+      const c = r.context && (r.context.custom || r.context);
+      const n = parseInt(c && c.order, 10);
+      return isNaN(n) ? Infinity : n;
+    };
+    resCache[folder] = sortRes((data.resources || [])
+      .map(r => ({public_id: r.public_id, version: r.version, format: r.format, name: r.public_id.split('/').pop(), order: ordOf(r), d: parseDetails(r.context && (r.context.custom || r.context))})));
+  } else {
+    throw new Error('list error');
+  }
+  nameCache[folder] = resCache[folder].map(r=>r.name);
+  return resCache[folder];
+}
+
+function mngThumb(r){
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_120,h_120,c_fill,g_auto,f_auto,q_auto/v${r.version}/${r.public_id}.${r.format}`;
+}
+
+// Show/hide the folder list — remembers your choice
+let namesOpen = false;
+try{ namesOpen = localStorage.getItem('namesOpen') === '1'; }catch(e){}
+function toggleNames(){
+  namesOpen = !namesOpen;
+  try{ localStorage.setItem('namesOpen', namesOpen ? '1' : '0'); }catch(e){}
+  applyNamesOpen();
+}
+function applyNamesOpen(){
+  document.getElementById('namesList').style.display = namesOpen ? 'block' : 'none';
+  document.getElementById('namesChevron').innerHTML = namesOpen ? '&#9662;' : '&#9656;';
+}
+applyNamesOpen();
+
+function sanitizeName(v){
+  return v.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+async function loadNames(folder){
+  const panel = document.getElementById('namesPanel');
+  const list = document.getElementById('namesList');
+  panel.classList.add('show');
+  if(nameCache[folder]){ renderNames(); return; }
+  list.innerHTML = '<div class="name-row">loading&hellip;</div>';
+  document.getElementById('namesCount').textContent = '';
+  try{
+    await fetchFolder(folder);
+  }catch(err){
+    list.innerHTML = '<div class="name-row">couldn\'t load the list — check connection</div>';
+    return;
+  }
+  renderNames();
+}
+
+function renderNames(){
+  const names = nameCache[selectedCategory];
+  const list = document.getElementById('namesList');
+  if(!names){ return; }
+  document.getElementById('namesCount').textContent = names.length + ' photo' + (names.length === 1 ? '' : 's');
+  if(names.length === 0){
+    list.innerHTML = '<div class="name-row">empty — no photos yet</div>';
+    return;
+  }
+  const planned = new Set(plannedNames());
+  list.innerHTML = '';
+  names.forEach(n=>{
+    const row = document.createElement('div');
+    row.className = 'name-row' + (planned.has(n) ? ' dupe' : '');
+    row.textContent = n;
+    list.appendChild(row);
+  });
+}
+
+function isDuplicate(){
+  if(selectedFiles.length > 1) return false; // batches auto-number around taken names
+  const names = nameCache[selectedCategory];
+  const typed = sanitizeName(document.getElementById('filename').value);
+  return Array.isArray(names) && typed.length > 0 && names.includes(typed);
+}
+
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const files = Array.from(e.target.files || []);
+  if(files.length === 0) return;
+  files.forEach(f=>{
+    const alreadyIn = selectedFiles.some(s => s.file.name === f.name && s.file.size === f.size);
+    if(!alreadyIn){ selectedFiles.push({file:f, url:URL.createObjectURL(f)}); }
+  });
+  e.target.value = '';
+  previewIndex = selectedFiles.length ? selectedFiles.length - 1 : 0;
+
+  const nameField = document.getElementById('filename');
+  if(!nameField.value && selectedFiles.length){
+    const base = selectedFiles[0].file.name.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    nameField.value = base;
+  }
+  renderPreview();
+  renderThumbs();
+  renderNames();
+  updateState();
+});
+
+function renderPreview(){
+  const preview = document.getElementById('preview');
+  const empty = document.getElementById('vfEmpty');
+  const vf = document.getElementById('viewfinder');
+  const chip = document.getElementById('vfCount');
+  if(selectedFiles.length === 0){
+    preview.style.display = 'none';
+    preview.removeAttribute('src');
+    empty.style.display = 'block';
+    vf.classList.remove('has-image');
+    chip.style.display = 'none';
+    return;
+  }
+  if(previewIndex >= selectedFiles.length) previewIndex = selectedFiles.length - 1;
+  preview.src = selectedFiles[previewIndex].url;
+  preview.style.display = 'block';
+  empty.style.display = 'none';
+  vf.classList.add('has-image');
+  if(selectedFiles.length > 1){
+    chip.style.display = 'block';
+    chip.textContent = (previewIndex+1) + ' / ' + selectedFiles.length;
+  } else {
+    chip.style.display = 'none';
+  }
+}
+
+function renderThumbs(){
+  const box = document.getElementById('thumbs');
+  box.classList.toggle('show', selectedFiles.length > 1);
+  box.innerHTML = '';
+  if(selectedFiles.length < 2) return;
+  selectedFiles.forEach((s, i)=>{
+    const t = document.createElement('div');
+    t.className = 'thumb' + (i === previewIndex ? ' current' : '');
+    const im = document.createElement('img');
+    im.src = s.url;
+    t.appendChild(im);
+    const rm = document.createElement('span');
+    rm.className = 'rm';
+    rm.textContent = '\u00d7';
+    rm.onclick = (ev)=>{ ev.stopPropagation(); removePhoto(i); };
+    t.appendChild(rm);
+    t.onclick = ()=>{ previewIndex = i; renderPreview(); renderThumbs(); };
+    box.appendChild(t);
+  });
+}
+
+function removePhoto(i){
+  URL.revokeObjectURL(selectedFiles[i].url);
+  selectedFiles.splice(i, 1);
+  if(previewIndex >= selectedFiles.length) previewIndex = Math.max(0, selectedFiles.length - 1);
+  renderPreview();
+  renderThumbs();
+  renderNames();
+  updateState();
+}
+
+// Names the photos will actually get: typed name as-is for one photo,
+// auto-numbered (name-01, name-02…) for several, skipping numbers already used.
+function plannedNames(){
+  const base = sanitizeName(document.getElementById('filename').value);
+  if(!base || selectedFiles.length === 0) return [];
+  if(selectedFiles.length === 1) return [base];
+  const existing = new Set(nameCache[selectedCategory] || []);
+  const names = [];
+  let i = 1;
+  while(names.length < selectedFiles.length && i < 1000){
+    const n = base + '-' + String(i).padStart(2,'0');
+    if(!existing.has(n)) names.push(n);
+    i++;
+  }
+  return names;
+}
+// Typing must feel native. iOS dictation misbehaves (doubled words, jumpy
+// cursor) when the page re-renders on every keystroke while it's still
+// composing. So: the field itself is left completely alone, and the
+// duplicate-check / shutter-state UI catches up after a short pause in
+// typing — never during dictation.
+let nameUiTimer = null, nameComposing = false;
+const nameField = document.getElementById('filename');
+nameField.addEventListener('compositionstart', ()=>{ nameComposing = true; });
+nameField.addEventListener('compositionend', ()=>{ nameComposing = false; scheduleNameUI(); });
+nameField.addEventListener('input', scheduleNameUI);
+function scheduleNameUI(){
+  clearTimeout(nameUiTimer);
+  if(nameComposing) return;
+  nameUiTimer = setTimeout(()=>{ renderNames(); updateState(); }, 250);
+}
+
+function updateState(){
+  const field = document.getElementById('filename');
+  const hint = document.querySelector('.hint');
+  const nameOk = field.value.trim().length > 0;
+  const dupe = isDuplicate();
+
+  field.classList.toggle('taken', dupe);
+  if(dupe){
+    hint.classList.add('warn');
+    hint.textContent = 'That name is already taken in this folder — pick another';
+  } else {
+    hint.classList.remove('warn');
+    hint.innerHTML = 'a\u2013z, 0\u20139, dashes only \u00b7 extension added automatically';
+  }
+
+  const ready = selectedCategory && selectedFiles.length > 0 && nameOk && !dupe;
+  const btn = document.getElementById('uploadBtn');
+  btn.disabled = !ready;
+  btn.classList.toggle('ready', !!ready);
+
+  if(!dupe && selectedFiles.length > 1 && nameOk){
+    const plan = plannedNames();
+    hint.textContent = 'Will upload as: ' + plan[0] + ' \u2026 ' + plan[plan.length-1];
+  }
+
+  const label = document.getElementById('shutterLabel');
+  label.classList.toggle('ready', !!ready);
+  if(dupe){ label.textContent = 'Name already taken'; }
+  else if(ready){ label.textContent = selectedFiles.length > 1 ? 'Ready \u2014 upload ' + selectedFiles.length + ' photos' : 'Ready \u2014 tap to upload'; }
+  else { label.textContent = ''; }
+}
+
+function showSuccess(count){
+  const flash = document.getElementById('doneFlash');
+  document.getElementById('doneMsg').textContent = count > 1 ? `ALL ${count} UPLOADED` : 'UPLOADED';
+  flash.classList.add('show');
+  requestAnimationFrame(()=> flash.classList.add('visible'));
+  if(navigator.vibrate){ navigator.vibrate(60); }
+  setTimeout(()=>{
+    flash.classList.remove('visible');
+    setTimeout(()=> flash.classList.remove('show'), 300);
+  }, 2200);
+}
+
+function showStatus(kind, msg){
+  const el = document.getElementById('status');
+  el.className = 'status show ' + kind;
+  el.textContent = msg;
+}
+
+function compressImage(file, maxDimension=2000, quality=0.85){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e)=>{ img.src = e.target.result; };
+    reader.onerror = reject;
+    img.onload = ()=>{
+      let { width, height } = img;
+      if(width > maxDimension || height > maxDimension){
+        if(width > height){ height = Math.round(height*(maxDimension/width)); width = maxDimension; }
+        else { width = Math.round(width*(maxDimension/height)); height = maxDimension; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob)=>{
+        if(!blob){ reject(new Error('Compression failed')); return; }
+        resolve(blob);
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function doUpload(){
+  const names = plannedNames();
+  if(names.length === 0){ showStatus('err', 'Enter a file name.'); return; }
+  if(!hasKeys()){ showStatus('err', 'Add your Cloudinary keys first.'); return; }
+  const {key, secret} = getKeys();
+
+  const btn = document.getElementById('uploadBtn');
+  const label = document.getElementById('shutterLabel');
+  document.getElementById('viewSiteBtn').style.display = 'none';
+  btn.disabled = true;
+  btn.classList.remove('ready');
+
+  const total = selectedFiles.length;
+  let doneCount = 0;
+
+  try{
+    while(selectedFiles.length > 0){
+      const n = doneCount + 1;
+      label.textContent = total > 1 ? `Uploading ${n} of ${total}\u2026` : 'Uploading\u2026';
+      showStatus('busy', total > 1 ? `UPLOADING ${n}/${total}\u2026` : 'UPLOADING\u2026');
+
+      const blob = await compressImage(selectedFiles[0].file);
+
+      // Signed upload: only works with this device's secret key
+      const folder = `portfolio/${selectedCategory}`;
+      const ts = Math.floor(Date.now()/1000);
+      const sig = await sha1hex(`folder=${folder}&public_id=${names[doneCount]}&tags=${selectedCategory}&timestamp=${ts}&upload_preset=${UPLOAD_PRESET}${secret}`);
+      const form = new FormData();
+      form.append('file', blob);
+      form.append('upload_preset', UPLOAD_PRESET);
+      form.append('public_id', names[doneCount]);
+      form.append('folder', folder);
+      form.append('tags', selectedCategory);
+      form.append('timestamp', ts);
+      form.append('api_key', key);
+      form.append('signature', sig);
+
+      const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: form
+      });
+
+      if(!res.ok){
+        const errBody = await res.text();
+        let msg = '';
+        try{ msg = (JSON.parse(errBody).error?.message || '').slice(0,50); }catch(e){}
+        throw new Error(msg || 'upload failed');
+      }
+
+      // Success: record the photo, drop the file from the queue
+      const uploaded = await res.json();
+      if(Array.isArray(nameCache[selectedCategory]) && !nameCache[selectedCategory].includes(names[doneCount])){
+        nameCache[selectedCategory].push(names[doneCount]);
+        nameCache[selectedCategory].sort((a,b)=>a.localeCompare(b));
+      }
+      if(Array.isArray(resCache[selectedCategory])){
+        resCache[selectedCategory].push({public_id: uploaded.public_id, version: uploaded.version, format: uploaded.format, name: names[doneCount], order: Infinity});
+        sortRes(resCache[selectedCategory]);
+      }
+      URL.revokeObjectURL(selectedFiles[0].url);
+      selectedFiles.shift();
+      doneCount++;
+    }
+
+    showStatus('ok', total > 1 ? `ALL ${total} UPLOADED \u2014 live in a couple minutes` : 'UPLOADED \u2014 live in a couple minutes');
+    // Deep-link straight to the gallery section the photos went into
+    const sectionIds = {'portraits':'portraits','family':'family','pets':'pets','fine-art':'personal','showcase':'showcase','wildlife':'wildlife','landscapes':'landscapes','street':'street','travel':'travel'};
+    const vs = document.getElementById('viewSiteBtn');
+    vs.href = 'https://liamdevine.ca/#' + (sectionIds[selectedCategory] || '');
+    vs.style.display = 'block';
+    showSuccess(total);
+    resetForm(true);
+  }catch(err){
+    const left = selectedFiles.length;
+    renderPreview();
+    renderThumbs();
+    renderNames();
+    updateState();
+    showStatus('err', doneCount > 0
+      ? `${doneCount} UPLOADED, ${left} FAILED \u2014 tap to retry the rest`
+      : 'UPLOAD FAILED \u2014 check connection and retry');
+  }
+}
+
+function resetForm(keepCategory){
+  selectedFiles.forEach(s => URL.revokeObjectURL(s.url));
+  selectedFiles = [];
+  previewIndex = 0;
+  if(!keepCategory){
+    selectedCategory = null;
+    document.getElementById('namesPanel').classList.remove('show');
+    document.getElementById('viewSiteBtn').style.display = 'none';
+  }
+  document.getElementById('fileInput').value = '';
+  document.getElementById('filename').value = '';
+  renderPreview();
+  renderThumbs();
+  renderCategories();
+  if(keepCategory){ renderNames(); }
+  updateState();
+}
+
+function openSettings(){
+  const keys = getKeys();
+  document.getElementById('apiKeyField').value = keys.key;
+  document.getElementById('apiSecretField').value = keys.secret ? '\u2022\u2022\u2022\u2022\u2022\u2022 (saved)' : '';
+  document.getElementById('keyState').textContent = keys.key && keys.secret ? 'keys saved' : 'no keys';
+  keysPanelOpen = false;   // keys stay tucked away every time Settings opens
+  disarmForget();
+  applyKeysPanel();
+  refreshKeysSummary();
+  renderVisList();
+  document.getElementById('settingsOverlay').classList.add('show');
+}
+function closeSettings(){ document.getElementById('settingsOverlay').classList.remove('show'); }
+
+// ===== Collapsible device-keys panel =====
+// The keys are one-time setup; the manager is the daily control.
+// Keeping the credentials folded away avoids accidental taps on them.
+let keysPanelOpen = false;
+function toggleKeysPanel(){
+  keysPanelOpen = !keysPanelOpen;
+  if(!keysPanelOpen){ disarmForget(); }
+  applyKeysPanel();
+}
+function applyKeysPanel(){
+  document.getElementById('keysPanel').style.display = keysPanelOpen ? 'block' : 'none';
+  document.getElementById('keysChevron').innerHTML = keysPanelOpen ? '&#9662;' : '&#9656;';
+}
+function refreshKeysSummary(){
+  const el = document.getElementById('keysSummary');
+  const ok = hasKeys();
+  el.textContent = ok ? 'saved \u2713' : 'not set';
+  el.classList.toggle('ok', ok);
+}
+
+// ===== Portfolio Manager =====
+// Tap Hidden / App / Site per category. Applies in the app instantly;
+// the shared config saves to Cloudinary a moment later (needs device keys),
+// and the website picks it up on its next load.
+const VIS_STATES = [
+  {v:'hidden', label:'Hidden'},
+  {v:'app',    label:'App'},
+  {v:'site',   label:'Site'}
+];
+let visSaveTimer = null;
+
+function renderVisList(){
+  const box = document.getElementById('visList');
+  const unlocked = hasKeys();
+  box.classList.toggle('locked', !unlocked);
+  document.getElementById('visState').textContent = unlocked ? '' : 'enter keys below to unlock';
+  box.innerHTML = '';
+  ALL_CATEGORIES.forEach(cat=>{
+    const row = document.createElement('div');
+    row.className = 'vis-row';
+    const lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = cat.label;
+    row.appendChild(lbl);
+    const seg = document.createElement('div');
+    seg.className = 'vis-seg';
+    VIS_STATES.forEach(s=>{
+      const b = document.createElement('button');
+      b.textContent = s.label;
+      if(catVis[cat.folder] === s.v){ b.className = 'on-' + s.v; }
+      b.onclick = ()=> setVis(cat.folder, s.v);
+      seg.appendChild(b);
+    });
+    row.appendChild(seg);
+    box.appendChild(row);
+  });
+}
+
+function setVis(folder, v){
+  if(catVis[folder] === v) return;
+  catVis[folder] = v;
+  if(v === 'hidden'){
+    if(selectedCategory === folder){ selectedCategory = null; document.getElementById('namesPanel').classList.remove('show'); updateState(); }
+    if(mngCategory === folder){ mngCategory = null; }
+  }
+  renderVisList();
+  renderCategories();
+  if(currentPage === 'manage'){ renderManage(); if(!mngCategory){ document.getElementById('mngList').innerHTML = '<div class="mng-empty">Pick a category above</div>'; document.getElementById('mngRefresh').style.display='none'; } }
+  document.getElementById('visState').textContent = 'saving\u2026';
+  clearTimeout(visSaveTimer);
+  visSaveTimer = setTimeout(saveConfig, 900);
+}
+
+async function saveConfig(){
+  const {key, secret} = getKeys();
+  const state = document.getElementById('visState');
+  try{
+    // Never overwrite text tiles we haven't seen: if the config didn't load earlier, read it now
+    if(!configLoaded){
+      const r0 = await fetch(CONFIG_URL + '?v=' + Date.now(), {cache:'no-store'});
+      if(r0.ok){ const c0 = await r0.json(); if(c0.texts && typeof c0.texts === 'object') siteTexts = Object.assign({}, c0.texts, siteTexts); }
+      else if(r0.status !== 404){ throw new Error('config unreadable'); }
+      configLoaded = true;
+    }
+    const json = JSON.stringify({
+      version: 2,
+      updated: new Date().toISOString(),
+      categories: ALL_CATEGORIES.map(c => ({label:c.label, folder:c.folder, visibility:catVis[c.folder]})),
+      texts: siteTexts
+    });
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`invalidate=true&overwrite=true&public_id=portfolio-config.json&timestamp=${ts}${secret}`);
+    const form = new FormData();
+    form.append('file', new Blob([json], {type:'application/json'}));
+    form.append('public_id', 'portfolio-config.json');
+    form.append('overwrite', 'true');
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:'POST', body:form});
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'save failed');
+    }
+    state.textContent = 'saved \u2014 site updates in a couple minutes';
+    setTimeout(()=>{ if(state.textContent.indexOf('saved') === 0) state.textContent = ''; }, 4000);
+    return true;
+  }catch(err){
+    state.textContent = 'SAVE FAILED \u2014 check keys & connection';
+    return false;
+  }
+}
+
+// ===== Device keys (stored only in this browser, never in the site code) =====
+function getKeys(){
+  try{ return {key: localStorage.getItem('cld_key') || '', secret: localStorage.getItem('cld_secret') || ''}; }
+  catch(e){ return {key:'', secret:''}; }
+}
+function hasKeys(){ const k = getKeys(); return k.key.length > 0 && k.secret.length > 0; }
+function saveKeys(){
+  const key = document.getElementById('apiKeyField').value.trim();
+  const secretRaw = document.getElementById('apiSecretField').value.trim();
+  try{
+    if(key){ localStorage.setItem('cld_key', key); }
+    if(secretRaw && !secretRaw.startsWith('\u2022')){ localStorage.setItem('cld_secret', secretRaw); }
+  }catch(e){ alert('This browser blocked saving. Try turning off private browsing.'); return; }
+  document.getElementById('keyState').textContent = hasKeys() ? 'keys saved' : 'no keys';
+  refreshKeysSummary();
+  keysPanelOpen = false;
+  applyKeysPanel();
+  renderVisList();
+  renderManage();
+}
+
+// Forget keys needs a deliberate double-tap — one stray touch can't wipe them.
+let forgetArmed = false, forgetTimer = null;
+function disarmForget(){
+  forgetArmed = false;
+  clearTimeout(forgetTimer);
+  const btn = document.getElementById('forgetBtn');
+  btn.textContent = 'Forget keys on this device';
+  btn.classList.remove('armed');
+}
+function clearKeys(){
+  if(!forgetArmed){
+    forgetArmed = true;
+    const btn = document.getElementById('forgetBtn');
+    btn.textContent = 'Tap again to forget keys';
+    btn.classList.add('armed');
+    forgetTimer = setTimeout(disarmForget, 3000);
+    return;
+  }
+  disarmForget();
+  try{
+    localStorage.removeItem('cld_key'); localStorage.removeItem('cld_secret');
+  }catch(e){}
+  document.getElementById('apiKeyField').value = '';
+  document.getElementById('apiSecretField').value = '';
+  document.getElementById('keyState').textContent = 'no keys';
+  refreshKeysSummary();
+  renderVisList();
+  renderManage();
+}
+
+// One-time cleanup: the Bluesky feature was removed — wipe any credentials
+// and caption templates it saved on this device.
+try{
+  localStorage.removeItem('bsky_handle');
+  localStorage.removeItem('bsky_pass');
+  localStorage.removeItem('bsky_on');
+  Object.keys(localStorage).filter(k=>k.indexOf('bsky_tpl_')===0).forEach(k=>localStorage.removeItem(k));
+}catch(e){}
+
+// ===== Hero Shot: pick a portfolio photo, then pinch / drag to frame it =====
+// Saved as hero-config.json on Cloudinary (same pattern as portfolio-config.json).
+// The website draws the hero with exactly the same rule used in this preview:
+//   background-size:cover; background-position:X% Y%; transform-origin:X% Y%; transform:scale(S)
+// X / Y (0–100) choose which part of the photo stays in view, S (1–3) is the zoom.
+// Because nothing is stored in pixels, one setting works on phones and computers.
+const HERO_CONFIG_URL = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/hero-config.json`;
+const HERO_DEFAULT = {url:'https://liamdevine.ca/images/portraits/hijab.jpg', photoName:'hijab (site default)', scale:1, x:50, y:50};
+const HERO_MAX_ZOOM = 3;
+let heroCfg = null;
+let heroPickCat = null;
+const he = {src:null, iw:0, ih:0, s:1, x:.5, y:.5, mode:'desktop', saving:false, token:0, idx:0};
+const clampN = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+function heroPhotoUrl(r, w){
+  return `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_auto,w_${w}/v${r.version}/${r.public_id}.${r.format}`;
+}
+function paintHero(el, url, s, x, y){
+  el.style.backgroundImage = `url("${url}")`;
+  el.style.backgroundPosition = `${x}% ${y}%`;
+  el.style.transformOrigin = `${x}% ${y}%`;
+  el.style.transform = `scale(${s})`;
+}
+// One hero photo (a "slide"): which photo + its framing
+function normOne(s){
+  if(!s || !s.url) return Object.assign({}, HERO_DEFAULT);
+  const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d;
+  return {
+    public_id: s.public_id || null, photoName: s.photoName || '', url: s.url, editUrl: s.editUrl || s.url,
+    scale: clampN(num(s.scale, 1), 1, HERO_MAX_ZOOM),
+    x: clampN(num(s.x, 50), 0, 100),
+    y: clampN(num(s.y, 50), 0, 100)
+  };
+}
+// hero-config.json v3 holds up to 4 slides; older single-photo files still read fine
+function normHero(cfg){
+  let slides = (cfg && Array.isArray(cfg.slides)) ? cfg.slides.filter(s => s && s.url).map(normOne) : [];
+  if(!slides.length) slides = [normOne(cfg)];
+  return {slides: slides.slice(0, 4)};
+}
+
+async function loadHeroConfig(){
+  try{
+    const res = await fetch(HERO_CONFIG_URL + '?v=' + Date.now(), {cache:'no-store'});
+    heroCfg = normHero(res.ok ? await res.json() : null);
+  }catch(e){ heroCfg = normHero(null); }
+  renderHeroCard();
+}
+function renderHeroCard(){
+  const slides = (heroCfg || normHero(null)).slides;
+  const box = document.getElementById('heroSlidesBox');
+  box.innerHTML = '';
+  slides.forEach((s, i)=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hero-slide hero-frame hero-mini';
+    b.setAttribute('aria-label', 'Hero photo ' + (i + 1) + ': ' + (s.photoName || ''));
+    const im = document.createElement('div'); im.className = 'hf-img';
+    const sh = document.createElement('div'); sh.className = 'hf-shade';
+    const n = document.createElement('span'); n.className = 'hs-n'; n.textContent = i + 1;
+    b.appendChild(im); b.appendChild(sh); b.appendChild(n);
+    paintHero(im, s.editUrl || s.url, s.scale, s.x, s.y);
+    b.onclick = ()=> openHeroEditor(null, i);
+    box.appendChild(b);
+  });
+  if(slides.length < 4){
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'hero-add';
+    add.textContent = '+ Add';
+    add.onclick = ()=>{ he.idx = slides.length; openHeroPicker(); };
+    box.appendChild(add);
+  }
+  document.getElementById('heroName').textContent = slides.map(s => s.photoName || '—').join(' · ');
+}
+
+// ---- Picker: only categories that are live on the site ----
+function heroCats(){
+  const live = ALL_CATEGORIES.filter(c => catVis[c.folder] === 'site');
+  return live.length ? live : visibleCats();
+}
+function openHeroPicker(){
+  const cats = heroCats();
+  const sl = (heroCfg || normHero(null)).slides;
+  const ref = sl[he.idx] || sl[0];
+  const cur = ref && ref.public_id ? ref.public_id.split('/').slice(-2, -1)[0] : null;
+  if(!heroPickCat || !cats.some(c => c.folder === heroPickCat)){
+    heroPickCat = cats.some(c => c.folder === cur) ? cur : (cats[0] || {}).folder || null;
+  }
+  renderHeroPickCats();
+  document.getElementById('heroPickerOverlay').classList.add('show');
+  loadHeroPickGrid();
+}
+function closeHeroPicker(){ document.getElementById('heroPickerOverlay').classList.remove('show'); }
+function renderHeroPickCats(){
+  const box = document.getElementById('heroPickCats');
+  box.innerHTML = '';
+  heroCats().forEach(cat=>{
+    const b = document.createElement('div');
+    b.className = 'dial-item' + (heroPickCat === cat.folder ? ' selected' : '');
+    b.textContent = cat.label;
+    b.onclick = ()=>{ heroPickCat = cat.folder; renderHeroPickCats(); loadHeroPickGrid(); };
+    box.appendChild(b);
+  });
+}
+async function loadHeroPickGrid(){
+  const grid = document.getElementById('heroPickGrid');
+  const want = heroPickCat;
+  if(!want){ grid.innerHTML = '<div class="mng-empty">No categories are live on the site yet</div>'; return; }
+  if(!resCache[want]){ grid.innerHTML = '<div class="mng-empty">loading…</div>'; }
+  try{ await fetchFolder(want); }
+  catch(e){ if(heroPickCat === want) grid.innerHTML = '<div class="mng-empty">couldn\'t load — check connection</div>'; return; }
+  if(heroPickCat !== want) return;
+  const items = resCache[want] || [];
+  if(items.length === 0){ grid.innerHTML = '<div class="mng-empty">no photos in this category</div>'; return; }
+  grid.innerHTML = '';
+  items.forEach(r=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hero-pick' + (heroCfg && heroCfg.slides.some(s => s.public_id === r.public_id) ? ' current' : '');
+    const im = document.createElement('img');
+    im.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_300,h_300,c_fill,g_auto,f_auto,q_auto/v${r.version}/${r.public_id}.${r.format}`;
+    im.alt = r.name;
+    im.loading = 'lazy';
+    b.appendChild(im);
+    b.onclick = ()=>{
+      closeHeroPicker();
+      openHeroEditor({public_id:r.public_id, photoName:r.name, url:heroPhotoUrl(r, 2400), editUrl:heroPhotoUrl(r, 1600)});
+    };
+    grid.appendChild(b);
+  });
+}
+
+// ---- Editor ----
+function setHeroMsg(msg, isErr){
+  const el = document.getElementById('heMsg');
+  el.textContent = msg || 'Pinch to zoom · drag to reposition';
+  el.classList.toggle('err', !!isErr);
+}
+function openHeroEditor(src, idx){
+  if(typeof idx === 'number') he.idx = idx;
+  const slides = (heroCfg || normHero(null)).slides;
+  const exists = he.idx < slides.length;
+  const cur = slides[he.idx] || normOne(null);
+  const same = !src || (exists && (src.public_id ? src.public_id === cur.public_id : src.url === cur.url));
+  document.getElementById('heReplace').style.display = exists ? '' : 'none';
+  const rm = document.getElementById('heRemove');
+  rm.style.display = (exists && slides.length > 1) ? '' : 'none';
+  rm.textContent = 'Remove'; rm.dataset.armed = '';
+  he.src = src || {public_id:cur.public_id || null, photoName:cur.photoName, url:cur.url, editUrl:cur.editUrl || cur.url};
+  he.s = same ? cur.scale : 1;
+  he.x = same ? cur.x / 100 : .5;
+  he.y = same ? cur.y / 100 : .5;
+  he.iw = 0; he.ih = 0;
+  const token = ++he.token;
+  document.getElementById('heTitle').textContent = he.src.photoName || '';
+  document.getElementById('heSave').disabled = true;
+  document.getElementById('heImg').style.backgroundImage = 'none';
+  setHeroMsg('Loading photo…');
+  document.getElementById('heroEditor').classList.add('show');
+  layoutHeroFrame();
+  const img = new Image();
+  img.onload = ()=>{
+    if(token !== he.token) return;
+    he.iw = img.naturalWidth; he.ih = img.naturalHeight;
+    layoutHeroFrame();
+    paintEditor();
+    document.getElementById('heSave').disabled = false;
+    setHeroMsg();
+  };
+  img.onerror = ()=>{ if(token === he.token) setHeroMsg('Couldn\'t load this photo — check connection', true); };
+  img.src = he.src.editUrl || he.src.url;
+}
+function closeHeroEditor(){
+  he.token++;
+  hePtrs.clear(); heG = null; heGest = null;
+  document.getElementById('heroEditor').classList.remove('show');
+}
+function setHeroMode(m){
+  he.mode = m;
+  document.getElementById('heSegDesktop').classList.toggle('on', m === 'desktop');
+  document.getElementById('heSegPhone').classList.toggle('on', m === 'phone');
+  layoutHeroFrame();
+}
+// Size the preview frame to the shape of the real hero: a computer screen or a phone held upright
+function layoutHeroFrame(){
+  const stage = document.getElementById('heStage');
+  const frame = document.getElementById('heFrame');
+  const a = he.mode === 'phone' ? 9/19.5 : 16/10;
+  const cs = getComputedStyle(stage);
+  const aw = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const ah = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  const w = Math.max(40, Math.min(aw, ah * a));
+  frame.style.width = Math.floor(w) + 'px';
+  frame.style.height = Math.floor(w / a) + 'px';
+  frame.classList.toggle('phone', he.mode === 'phone');
+  frame.classList.toggle('desktop', he.mode !== 'phone');
+}
+function paintEditor(){
+  if(!he.src) return;
+  paintHero(document.getElementById('heImg'), he.src.editUrl || he.src.url, he.s, he.x * 100, he.y * 100);
+  document.getElementById('heZoom').textContent = he.s.toFixed(1) + '×';
+}
+function resetHeroPos(){
+  if(!he.iw) return;
+  const img = document.getElementById('heImg');
+  img.style.transition = 'transform .25s ease, background-position .25s ease, transform-origin .25s ease';
+  he.s = 1; he.x = .5; he.y = .5;
+  paintEditor();
+  setTimeout(()=>{ img.style.transition = ''; }, 280);
+}
+
+// ---- Gesture math ----
+// With the rule above, a point u (px across the cover-fitted photo) lands on screen at
+//   X·(W − S·Dw) + S·u     (and the same vertically)
+// so for any finger position we can solve for the X that keeps the grabbed point under it.
+function heGeom(){
+  const f = document.getElementById('heFrame').getBoundingClientRect();
+  const c = Math.max(f.width / he.iw, f.height / he.ih);
+  return {L:f.left, T:f.top, W:f.width, H:f.height, Dw:he.iw * c, Dh:he.ih * c};
+}
+const hePointAt = (p, X, S, W, D) => (p - X * (W - S * D)) / S;
+function heSolve(p, u, S, W, D, fallback){
+  const den = W - S * D;
+  return Math.abs(den) < 0.5 ? fallback : clampN((p - S * u) / den, 0, 1);
+}
+// Move so photo point (ux,uy) sits at frame point (px,py) at zoom S
+function heApply(px, py, ux, uy, S, g){
+  he.s = S;
+  he.x = heSolve(px, ux, S, g.W, g.Dw, he.x);
+  he.y = heSolve(py, uy, S, g.H, g.Dh, he.y);
+  paintEditor();
+}
+
+const hePtrs = new Map();
+let heG = null, heGest = null;
+function hePts(){ return [...hePtrs.values()].slice(0, 2); }
+function heCentre(pts, g){
+  return {x: pts.reduce((a, p) => a + p.x, 0) / pts.length - g.L, y: pts.reduce((a, p) => a + p.y, 0) / pts.length - g.T};
+}
+function heSnapshot(){
+  if(!he.iw || hePtrs.size === 0){ heG = null; return; }
+  const g = heGeom(), pts = hePts(), c = heCentre(pts, g);
+  heG = {
+    S0: he.s,
+    d0: pts.length > 1 ? Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) : 0,
+    ux: hePointAt(c.x, he.x, he.s, g.W, g.Dw),
+    uy: hePointAt(c.y, he.y, he.s, g.H, g.Dh)
+  };
+}
+function heMove(){
+  if(!heG) return;
+  const g = heGeom(), pts = hePts(), c = heCentre(pts, g);
+  let S = heG.S0;
+  if(pts.length > 1 && heG.d0 > 0){
+    S = clampN(heG.S0 * Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y) / heG.d0, 1, HERO_MAX_ZOOM);
+  }
+  heApply(c.x, c.y, heG.ux, heG.uy, S, g);
+}
+
+(function wireHeroEditor(){
+  const ed = document.getElementById('heroEditor');
+  const stage = document.getElementById('heStage');
+  const frame = document.getElementById('heFrame');
+  // Fingers / mouse: one pointer drags, two pointers pinch (and drag) together
+  stage.addEventListener('pointerdown', e=>{
+    if(!he.iw) return;
+    e.preventDefault();
+    try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+    hePtrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    heSnapshot();
+    frame.classList.add('gesturing');
+  });
+  stage.addEventListener('pointermove', e=>{
+    if(!hePtrs.has(e.pointerId)) return;
+    hePtrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    heMove();
+  });
+  const lift = e=>{
+    if(!hePtrs.delete(e.pointerId)) return;
+    heSnapshot();
+    if(hePtrs.size === 0) frame.classList.remove('gesturing');
+  };
+  stage.addEventListener('pointerup', lift);
+  stage.addEventListener('pointercancel', lift);
+  stage.addEventListener('lostpointercapture', lift);
+
+  // Mac trackpad / mouse wheel: pinch (ctrl+wheel) zooms at the cursor, two-finger scroll moves the photo
+  stage.addEventListener('wheel', e=>{
+    if(!he.iw) return;
+    e.preventDefault();
+    const k = e.deltaMode === 1 ? 16 : 1;
+    const g = heGeom(), px = e.clientX - g.L, py = e.clientY - g.T;
+    const ux = hePointAt(px, he.x, he.s, g.W, g.Dw), uy = hePointAt(py, he.y, he.s, g.H, g.Dh);
+    if(e.ctrlKey){
+      heApply(px, py, ux, uy, clampN(he.s * Math.exp(-e.deltaY * k * 0.01), 1, HERO_MAX_ZOOM), g);
+    } else {
+      heApply(px - e.deltaX * k, py - e.deltaY * k, ux, uy, he.s, g);
+    }
+  }, {passive:false});
+
+  // Double-click / double-tap: zoom to 2× there, or back to 1×
+  stage.addEventListener('dblclick', e=>{
+    if(!he.iw) return;
+    const g = heGeom(), px = e.clientX - g.L, py = e.clientY - g.T;
+    const ux = hePointAt(px, he.x, he.s, g.W, g.Dw), uy = hePointAt(py, he.y, he.s, g.H, g.Dh);
+    const img = document.getElementById('heImg');
+    img.style.transition = 'transform .22s ease, background-position .22s ease, transform-origin .22s ease';
+    heApply(px, py, ux, uy, he.s > 1.05 ? 1 : 2, g);
+    setTimeout(()=>{ img.style.transition = ''; }, 240);
+  });
+
+  // Safari on Mac sends trackpad pinches as gesture events; on iPhone we ignore them
+  // (pointers already handle it) but still block Safari's own page zoom.
+  ed.addEventListener('gesturestart', e=>{
+    e.preventDefault();
+    if(hePtrs.size || !he.iw) return;
+    const g = heGeom();
+    const px = (e.clientX || g.L + g.W / 2) - g.L, py = (e.clientY || g.T + g.H / 2) - g.T;
+    heGest = {S0:he.s, px, py, ux:hePointAt(px, he.x, he.s, g.W, g.Dw), uy:hePointAt(py, he.y, he.s, g.H, g.Dh)};
+  });
+  ed.addEventListener('gesturechange', e=>{
+    e.preventDefault();
+    if(!heGest || hePtrs.size) return;
+    heApply(heGest.px, heGest.py, heGest.ux, heGest.uy, clampN(heGest.S0 * e.scale, 1, HERO_MAX_ZOOM), heGeom());
+  });
+  ed.addEventListener('gestureend', e=>{ e.preventDefault(); heGest = null; });
+
+  window.addEventListener('resize', ()=>{
+    if(ed.classList.contains('show')){ layoutHeroFrame(); paintEditor(); }
+  });
+})();
+
+// ---- Save (signed, same as the portfolio config) ----
+async function saveHero(){
+  if(he.saving || !he.iw) return;
+  if(!hasKeys()){ setHeroMsg('Add your API key & secret in Settings ⚙ first', true); return; }
+  const btn = document.getElementById('heSave');
+  he.saving = true; btn.disabled = true;
+  setHeroMsg('Saving…');
+  const slide = {
+    public_id: he.src.public_id || null,
+    photoName: he.src.photoName || '',
+    url: he.src.url,
+    editUrl: he.src.editUrl || he.src.url,
+    scale: Math.round(he.s * 1000) / 1000,
+    x: Math.round(he.x * 10000) / 100,
+    y: Math.round(he.y * 10000) / 100
+  };
+  const slides = (heroCfg || normHero(null)).slides.slice();
+  if(he.idx >= slides.length) slides.push(slide); else slides[he.idx] = slide;
+  try{
+    await writeHero(slides);
+    closeHeroEditor();
+    showMngStatus('ok', 'HERO SAVED — live on the site in a couple minutes');
+    if(navigator.vibrate){ navigator.vibrate(30); }
+  }catch(err){
+    setHeroMsg('Save failed — ' + String(err.message || 'check connection').slice(0, 60), true);
+  }
+  he.saving = false; btn.disabled = false;
+}
+
+function replaceHeroSlide(){ closeHeroEditor(); openHeroPicker(); }
+async function removeHeroSlide(){
+  const rm = document.getElementById('heRemove');
+  if(he.saving) return;
+  if(!hasKeys()){ setHeroMsg('Add your API key & secret in Settings ⚙ first', true); return; }
+  if(rm.dataset.armed !== '1'){ rm.dataset.armed = '1'; rm.textContent = 'Tap again to remove'; return; }
+  const slides = (heroCfg || normHero(null)).slides.filter((_, i) => i !== he.idx);
+  if(!slides.length) return;
+  he.saving = true; setHeroMsg('Removing…');
+  try{
+    await writeHero(slides);
+    closeHeroEditor();
+    showMngStatus('ok', 'HERO PHOTO REMOVED — live in a couple minutes');
+  }catch(err){
+    setHeroMsg('Remove failed — ' + String(err.message || 'check connection').slice(0, 60), true);
+  }
+  he.saving = false; rm.dataset.armed = ''; rm.textContent = 'Remove';
+}
+
+// Writes every hero photo. The first one is also copied to the top level so an
+// older homepage (single hero) keeps working during the switch-over.
+async function writeHero(slides){
+  const cfg = Object.assign({}, slides[0], {version: 3, slides: slides.slice(0, 4), updated: new Date().toISOString()});
+  {
+    const {key, secret} = getKeys();
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`invalidate=true&overwrite=true&public_id=hero-config.json&timestamp=${ts}${secret}`);
+    const form = new FormData();
+    form.append('file', new Blob([JSON.stringify(cfg)], {type:'application/json'}));
+    form.append('public_id', 'hero-config.json');
+    form.append('overwrite', 'true');
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:'POST', body:form});
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'save failed');
+    }
+    heroCfg = normHero(cfg);
+    renderHeroCard();
+  }
+}
+
+loadHeroConfig();
+
+// ===== Page switching: tabs + swipe =====
+let currentPage = 'upload';
+function switchPage(p){
+  currentPage = p;
+  document.getElementById('uploadView').style.display = p === 'upload' ? 'block' : 'none';
+  document.getElementById('manageView').style.display = p === 'manage' ? 'block' : 'none';
+  document.getElementById('tabUpload').classList.toggle('active', p === 'upload');
+  document.getElementById('tabManage').classList.toggle('active', p === 'manage');
+  if(p === 'manage'){ renderManage(); }
+}
+let swipeStartX = null, swipeStartY = null;
+document.addEventListener('touchstart', (e)=>{
+  if(e.target.closest('.dial, .thumbs, .names-list, .mng-list, input, .overlay, .hero-editor')){ swipeStartX = null; return; }
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+}, {passive:true});
+document.addEventListener('touchend', (e)=>{
+  if(swipeStartX === null) return;
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  swipeStartX = null;
+  if(Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5){
+    if(dx < 0 && currentPage === 'upload') switchPage('manage');
+    else if(dx > 0 && currentPage === 'manage') switchPage('upload');
+  }
+}, {passive:true});
+
+// ===== Manage page =====
+let mngCategory = null;
+let targetPhoto = null;
+
+function showMngStatus(kind, msg){
+  const el = document.getElementById('mngStatus');
+  el.className = 'status show ' + kind;
+  el.textContent = msg;
+}
+function hideMngStatus(){ document.getElementById('mngStatus').className = 'status'; }
+
+function renderManage(){
+  document.getElementById('keysNote').style.display = hasKeys() ? 'none' : 'block';
+  renderTextTiles();
+  const box = document.getElementById('mngCategories');
+  box.innerHTML = '';
+  visibleCats().forEach(cat=>{
+    const btn = document.createElement('div');
+    btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
+    btn.textContent = cat.label;
+    btn.onclick = () => { resetOrderEdit(); mngCategory = cat.folder; renderManage(); loadMngList(); };
+    if(!mngCategory) document.getElementById('ttBox').style.display = 'none';
+    box.appendChild(btn);
+  });
+  if(mngCategory && resCache[mngCategory]){ renderMngList(); }
+}
+
+async function loadMngList(){
+  document.getElementById('mngRefresh').style.display = mngCategory ? 'inline' : 'none';
+  const list = document.getElementById('mngList');
+  hideMngStatus();
+  list.innerHTML = '<div class="mng-empty">loading&hellip;</div>';
+  try{
+    await fetchFolder(mngCategory);
+  }catch(err){
+    list.innerHTML = '<div class="mng-empty">couldn\'t load — check connection</div>';
+    return;
+  }
+  renderMngList();
+}
+
+// Home-screen apps stay open for days — this refetches the folder fresh
+// from Cloudinary in case photos were added or changed from another device.
+async function refreshMng(){
+  if(!mngCategory) return;
+  resetOrderEdit();
+  delete resCache[mngCategory];
+  delete nameCache[mngCategory];
+  await loadMngList();
+  if(selectedCategory === mngCategory){ renderNames(); }
+}
+
+function renderMngList(){
+  const list = document.getElementById('mngList');
+  const items = resCache[mngCategory] || [];
+  if(items.length === 0){
+    list.innerHTML = '<div class="mng-empty">empty — no photos in this category</div>';
+    return;
+  }
+  list.innerHTML = '';
+  const unlocked = hasKeys();
+  items.forEach((r, i)=>{
+    const row = document.createElement('div');
+    row.className = 'mng-row';
+    row.dataset.idx = i;
+
+    const canDrag = unlocked && items.length > 1;
+
+    const im = document.createElement('img');
+    im.src = mngThumb(r);
+    im.loading = 'lazy';
+    if(canDrag){ attachThumbDrag(im, row); }
+    row.appendChild(im);
+
+    const body = document.createElement('div');
+    body.className = 'mng-body';
+    const nm = document.createElement('span');
+    nm.className = 'mng-name mono';
+    nm.textContent = r.name;
+    body.appendChild(nm);
+    body.appendChild(detailTags(r, unlocked));
+    const actions = document.createElement('div');
+    actions.className = 'mng-actions';
+    const rn = document.createElement('button');
+    rn.className = 'mng-btn';
+    rn.textContent = 'Rename';
+    rn.disabled = !unlocked;
+    rn.onclick = ()=> openRename(r);
+    const mv = document.createElement('button');
+    mv.className = 'mng-btn';
+    mv.textContent = 'Category\u2026';
+    mv.disabled = !unlocked;
+    mv.onclick = ()=> openMove(r);
+    const dl = document.createElement('button');
+    dl.className = 'mng-btn danger';
+    dl.textContent = 'Remove';
+    dl.disabled = !unlocked;
+    dl.onclick = ()=> openDelete(r);
+    actions.appendChild(rn);
+    actions.appendChild(mv);
+    actions.appendChild(dl);
+    body.appendChild(actions);
+    row.appendChild(body);
+    if(canDrag){
+      const grip = document.createElement('span');
+      grip.className = 'grip';
+      grip.innerHTML = '&#9776;';
+      attachDrag(grip, row);
+      row.appendChild(grip);
+    }
+    list.appendChild(row);
+  });
+}
+
+// Animate rows sliding into their new spots (skips the row being dragged)
+function slideRows(list, skipRow, mutate){
+  const rows = [...list.children];
+  const before = new Map(rows.map(r => [r, r.getBoundingClientRect().top]));
+  mutate();
+  rows.forEach(r => {
+    if(r === skipRow) return;
+    const delta = before.get(r) - r.getBoundingClientRect().top;
+    if(delta){
+      r.style.transition = 'none';
+      r.style.transform = `translateY(${delta}px)`;
+      requestAnimationFrame(()=>{
+        r.style.transition = 'transform .18s ease';
+        r.style.transform = '';
+      });
+    }
+  });
+}
+
+// ===== Drag to reorder (sortable-style) =====
+// The key to smoothness: nothing in the list actually reorders while you
+// drag. The lifted photo glides under your finger; the other rows simply
+// slide aside via transforms to open a gap. The real reorder happens once,
+// on drop. Two handles only: the ☰ grip (right) or the thumbnail (left).
+// The lifted row is clamped so it can never leave the list's bounds.
+let dragState = null;
+
+function beginDrag(row, clientX, clientY){
+  const list = document.getElementById('mngList');
+  const rows = [...list.children];
+  const fromIndex = rows.indexOf(row);
+  if(fromIndex < 0) return;
+  // Resting positions in PAGE coords so auto-scroll can't invalidate them
+  const slots = rows.map(r => r.getBoundingClientRect().top + window.scrollY);
+  const rowH = rows.length > 1 ? (slots[1] - slots[0]) : row.offsetHeight;
+  const rect = row.getBoundingClientRect();
+  dragState = {
+    row, rows, fromIndex, slots, rowH,
+    grabDY: clientY - rect.top,        // grip point within the row (viewport)
+    minTop: slots[0],
+    maxTop: slots[slots.length - 1],
+    targetIndex: fromIndex,
+    clientY, raf: 0, marked: false
+  };
+  row.classList.add('dragging');
+  row.style.transition = 'none';
+  row.style.transform = 'scale(1.03)';
+  if(navigator.vibrate){ navigator.vibrate(16); }
+  dragState.raf = requestAnimationFrame(autoScrollLoop);
+}
+
+// Paint the lifted row so its top sits at desiredTopPage (page coords).
+function paintLifted(desiredTopPage){
+  const st = dragState;
+  const ty = desiredTopPage - st.slots[st.fromIndex];
+  st.row.style.transition = 'none';
+  st.row.style.transform = `translateY(${ty}px) scale(1.03)`;
+}
+
+// Slide the OTHER rows to open a gap at targetIndex. Pure visual transforms.
+function applyShifts(){
+  const st = dragState;
+  st.rows.forEach((r, j)=>{
+    if(r === st.row) return;
+    let shift = 0;
+    if(st.fromIndex < st.targetIndex && j > st.fromIndex && j <= st.targetIndex) shift = -st.rowH;
+    else if(st.fromIndex > st.targetIndex && j >= st.targetIndex && j < st.fromIndex) shift = st.rowH;
+    r.style.transition = 'transform .18s cubic-bezier(.2,.8,.2,1)';
+    r.style.transform = shift ? `translateY(${shift}px)` : '';
+  });
+}
+
+function updateTarget(centerPage){
+  const st = dragState;
+  let t = st.fromIndex;
+  const n = st.slots.length;
+  // Moving down: pass a slot once our centre clears its centre. For the
+  // final slot, a lighter threshold (35% into it) so the last position is
+  // actually reachable — the clamp otherwise pins us just short of it.
+  while(t < n - 1){
+    const nextIsLast = (t + 1 === n - 1);
+    const line = st.slots[t + 1] + (nextIsLast ? st.rowH * 0.35 : st.rowH / 2);
+    if(centerPage > line) t++; else break;
+  }
+  while(t > 0){
+    const prevIsFirst = (t - 1 === 0);
+    const line = st.slots[t - 1] + (prevIsFirst ? st.rowH * 0.65 : st.rowH / 2);
+    if(centerPage < line) t--; else break;
+  }
+  if(t !== st.targetIndex){
+    st.targetIndex = t;
+    applyShifts();
+    if(!st.marked && t !== st.fromIndex){ markOrderDirty(); st.marked = true; }
+  }
+}
+
+function moveDrag(clientX, clientY){
+  const st = dragState;
+  if(!st) return;
+  st.clientX = clientX;
+  st.clientY = clientY;
+  let top = clientY + window.scrollY - st.grabDY;
+  top = Math.max(st.minTop, Math.min(st.maxTop, top)); // hard clamp to list
+  paintLifted(top);
+  updateTarget(top + st.rowH / 2);
+}
+
+// Glide the page when the finger nears an edge — mirrored both ways.
+// Up-scroll works whenever there's page above (scrollY>0); down-scroll
+// whenever there's page below. Row stays clamped, so it never leaves frame.
+function autoScrollLoop(){
+  const st = dragState;
+  if(!st) return;
+  const EDGE = 110, MAXV = 12;
+  const y = st.clientY;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  let v = 0;
+  if(y < EDGE && window.scrollY > 0){
+    v = -Math.ceil(((EDGE - y) / EDGE) * MAXV);
+  } else if(y > window.innerHeight - EDGE && window.scrollY < maxScroll){
+    v = Math.ceil(((y - (window.innerHeight - EDGE)) / EDGE) * MAXV);
+  }
+  if(v){
+    const before = window.scrollY;
+    window.scrollBy(0, v);
+    if(window.scrollY !== before){ moveDrag(st.clientX || 0, st.clientY); }
+  }
+  st.raf = requestAnimationFrame(autoScrollLoop);
+}
+
+function endDrag(row){
+  const st = dragState;
+  if(!st || st.row !== row){ if(row){ row.classList.remove('dragging'); row.style.transform=''; row.style.transition=''; } return; }
+  cancelAnimationFrame(st.raf);
+  dragState = null;
+  const {rows, fromIndex, targetIndex, slots, rowH} = st;
+
+  const finish = ()=>{
+    rows.forEach(r=>{ r.style.transition=''; r.style.transform=''; r.classList.remove('dragging'); });
+    if(targetIndex !== fromIndex){
+      const items = resCache[mngCategory];
+      const [m] = items.splice(fromIndex, 1);
+      items.splice(targetIndex, 0, m);
+      renderMngList();
+    }
+  };
+
+  if(targetIndex === fromIndex){
+    // settle back into place
+    row.style.transition = 'transform .2s cubic-bezier(.2,.9,.3,1.1)';
+    row.style.transform = '';
+    setTimeout(finish, 200);
+  } else {
+    // drop into the open gap, then commit the reorder
+    row.style.transition = 'transform .2s cubic-bezier(.2,.9,.3,1.1)';
+    row.style.transform = `translateY(${(targetIndex - fromIndex) * rowH}px) scale(1)`;
+    setTimeout(finish, 200);
+  }
+}
+
+// Grip (right): instant pointer drag — mouse or touch
+function attachDrag(grip, row){
+  grip.addEventListener('pointerdown', (e)=>{
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    beginDrag(row, e.clientX, e.clientY);
+  });
+  grip.addEventListener('pointermove', (e)=>{
+    if(dragState && dragState.row === row){ e.preventDefault(); moveDrag(e.clientX, e.clientY); }
+  });
+  const end = ()=> endDrag(row);
+  grip.addEventListener('pointerup', end);
+  grip.addEventListener('pointercancel', end);
+}
+
+// Thumbnail (left): touch = brief press-and-hold then drag (a flick still
+// scrolls); mouse = press and drag immediately.
+function attachThumbDrag(img, row){
+  let timer = null, active = false, sx = 0, sy = 0;
+  img.addEventListener('touchstart', (e)=>{
+    const t = e.touches[0];
+    sx = t.clientX; sy = t.clientY; active = false;
+    timer = setTimeout(()=>{ active = true; beginDrag(row, sx, sy); }, 170);
+  }, {passive:true});
+  img.addEventListener('touchmove', (e)=>{
+    const t = e.touches[0];
+    if(!active){
+      if(Math.abs(t.clientY - sy) > 8 || Math.abs(t.clientX - sx) > 8){ clearTimeout(timer); }
+      return;
+    }
+    e.preventDefault();
+    moveDrag(t.clientX, t.clientY);
+  }, {passive:false});
+  const end = ()=>{ clearTimeout(timer); if(active){ endDrag(row); } active = false; };
+  img.addEventListener('touchend', end);
+  img.addEventListener('touchcancel', end);
+  img.addEventListener('pointerdown', (e)=>{
+    if(e.pointerType === 'touch') return;
+    e.preventDefault(); img.setPointerCapture(e.pointerId);
+    beginDrag(row, e.clientX, e.clientY);
+  });
+  img.addEventListener('pointermove', (e)=>{
+    if(e.pointerType === 'touch') return;
+    if(dragState && dragState.row === row){ moveDrag(e.clientX, e.clientY); }
+  });
+  img.addEventListener('pointerup', (e)=>{ if(e.pointerType!=='touch') endDrag(row); });
+}
+
+// ===== Saving the order =====
+// Dragging marks the order as edited and shows Save order / Cancel above
+// the list. Nothing is written to Cloudinary until Save is tapped.
+// Cancel puts everything back the way it was last saved.
+let orderDirty = false;
+let orderSaving = false;
+let orderSnapshot = null;   // the order as last saved
+let orderCat = null;        // which category the snapshot belongs to
+
+function markOrderDirty(){
+  if(!orderDirty){
+    orderSnapshot = (resCache[mngCategory] || []).slice();
+    orderCat = mngCategory;
+    orderDirty = true;
+  }
+  updateSaveBar();
+}
+
+function updateSaveBar(){
+  document.getElementById('orderSaveBar').style.display = orderDirty ? 'flex' : 'none';
+}
+
+function cancelOrderEdit(){
+  if(orderDirty && orderSnapshot && orderCat && resCache[orderCat]){
+    resCache[orderCat] = orderSnapshot.slice();
+  }
+  orderDirty = false; orderSnapshot = null; orderCat = null;
+  updateSaveBar();
+  hideMngStatus();
+  renderMngList();
+}
+
+// Discard unsaved dragging when leaving the category (switch / refresh)
+function resetOrderEdit(){
+  if(orderDirty && orderSnapshot && orderCat && resCache[orderCat]){
+    resCache[orderCat] = orderSnapshot.slice();
+  }
+  orderDirty = false; orderSnapshot = null; orderCat = null;
+  updateSaveBar();
+}
+
+async function saveOrder(){
+  if(orderSaving || dragState) return;
+  const {key, secret} = getKeys();
+  const items = resCache[mngCategory] || [];
+  const changes = [];
+  items.forEach((r, i)=>{
+    const target = (i + 1) * 10;
+    if(r.order !== target){ changes.push({r, target}); }
+  });
+  if(changes.length === 0){
+    orderDirty = false; orderSnapshot = null; orderCat = null;
+    updateSaveBar();
+    return;
+  }
+  orderSaving = true;
+  document.getElementById('saveOrderBtn').disabled = true;
+  try{
+    for(let i = 0; i < changes.length; i++){
+      showMngStatus('busy', `SAVING ORDER ${i+1}/${changes.length}\u2026`);
+      const {r, target} = changes[i];
+      const ts = Math.floor(Date.now()/1000);
+      // keep the photo's title / caption / size — context is written as a whole
+      const ctx = ctxString(target, r.d);
+      const sig = await sha1hex(`context=${ctx}&public_id=${r.public_id}&timestamp=${ts}&type=upload${secret}`);
+      const form = new FormData();
+      form.append('public_id', r.public_id);
+      form.append('type', 'upload');
+      form.append('context', ctx);
+      form.append('timestamp', ts);
+      form.append('api_key', key);
+      form.append('signature', sig);
+      const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+      if(!res.ok){
+        const j = await res.json().catch(()=>({}));
+        throw new Error(j.error?.message || 'order save failed');
+      }
+      r.order = target;
+    }
+    orderDirty = false; orderSnapshot = null; orderCat = null;
+    updateSaveBar();
+    nameCache[mngCategory] = (resCache[mngCategory] || []).map(x=>x.name);
+    if(selectedCategory === mngCategory){ renderNames(); }
+    showMngStatus('ok', 'ORDER SAVED \u2014 live in a couple minutes');
+  }catch(err){
+    showMngStatus('err', 'ORDER NOT SAVED \u2014 tap Save order to retry');
+  }
+  orderSaving = false;
+  document.getElementById('saveOrderBtn').disabled = false;
+}
+
+// ===== v3: photo details (tile size, title, caption, blurb) =====
+// Stored in the photo's own Cloudinary context next to its order number, so
+// they travel with the photo through rename, reorder and category moves.
+// Text is URL-encoded so commas, = and | in a title can't break anything.
+const TILE_SIZES = [
+  {v:'', label:'Auto'}, {v:'big', label:'Big'}, {v:'tall', label:'Tall'}, {v:'wide', label:'Wide'}, {v:'sq', label:'Square'}
+];
+function parseDetails(c){
+  c = c || {};
+  const dec = v => { if(!v) return ''; try{ return decodeURIComponent(v); }catch(e){ return String(v); } };
+  return {
+    size: ['big','tall','wide','sq'].includes(c.size) ? c.size : '',
+    t: dec(c.t), c: dec(c.c), b: dec(c.b),
+    sh: String(c.sh || '').replace(/[^tcb]/g, '')
+  };
+}
+function hasDetails(d){ return !!(d && (d.size || d.t || d.c || d.b || d.sh)); }
+function ctxString(order, d){
+  const p = [];
+  if(isFinite(order)) p.push('order=' + order);
+  if(d){
+    if(d.size) p.push('size=' + d.size);
+    if(d.t) p.push('t=' + encodeURIComponent(d.t));
+    if(d.c) p.push('c=' + encodeURIComponent(d.c));
+    if(d.b) p.push('b=' + encodeURIComponent(d.b));
+    if(d.sh) p.push('sh=' + d.sh);
+  }
+  return p.length ? p.join('|') : 'sh=-';
+}
+function detailTags(r, unlocked){
+  const row = document.createElement('div');
+  row.className = 'mng-tags';
+  const d = r.d || {};
+  const btn = document.createElement('button');
+  btn.className = 'mng-btn';
+  btn.style.padding = '5px 10px';
+  btn.textContent = 'Details ✎';
+  btn.disabled = !unlocked;
+  btn.onclick = ()=> openDetails(r);
+  row.appendChild(btn);
+  const tag = (txt, on)=>{ const s = document.createElement('span'); s.className = 'mng-tag' + (on ? ' on' : ''); s.textContent = txt; row.appendChild(s); };
+  const sz = TILE_SIZES.find(s => s.v === (d.size || ''));
+  if(mngCategory !== 'fine-art' && d.size) tag(sz.label, true);
+  if(d.t) tag(mngCategory === 'fine-art' ? 'Print title' : 'Title' + ((d.sh || '').includes('t') ? '' : ' (off)'), (d.sh || '').includes('t') || mngCategory === 'fine-art');
+  if(d.c) tag('Caption' + ((d.sh || '').includes('c') ? '' : ' (off)'), (d.sh || '').includes('c'));
+  if(d.b) tag('Blurb' + ((d.sh || '').includes('b') ? '' : ' (off)'), (d.sh || '').includes('b'));
+  return row;
+}
+
+let detTarget = null, detSize = '';
+function openDetails(r){
+  detTarget = r;
+  const d = r.d || parseDetails(null);
+  const art = mngCategory === 'fine-art';
+  document.getElementById('detThumb').src = mngThumb(r);
+  document.getElementById('detName').textContent = r.name;
+  detSize = d.size || '';
+  renderSizeSeg();
+  ['detSizeLabel','detSize','detDemo','detShowTRow','detCapLabel','detCaption','detShowCRow','detBlurbLabel','detBlurb','detShowBRow']
+    .forEach(id => { document.getElementById(id).style.display = art ? 'none' : ''; });
+  document.getElementById('detTitle').placeholder = art ? 'e.g. Great Grey' : 'e.g. Quiet light';
+  document.getElementById('detTitle').value = d.t;
+  document.getElementById('detCaption').value = d.c;
+  document.getElementById('detBlurb').value = d.b;
+  document.getElementById('detShowT').checked = d.sh.includes('t');
+  document.getElementById('detShowC').checked = d.sh.includes('c');
+  document.getElementById('detShowB').checked = d.sh.includes('b');
+  document.getElementById('detNote').textContent = art
+    ? 'Fine Art prints are always shown whole, never cropped. The title appears under the frame and in print orders.'
+    : (mngCategory === 'showcase' ? 'On the homepage Speed & Motion is a swipeable strip; sizes and text show on its gallery page.' : 'The homepage preview always shows the first 5 photos in a fixed layout. Sizes and text show on the gallery page.');
+  ['detTitle','detCaption','detBlurb'].forEach(updCount);
+  document.getElementById('detailsOverlay').classList.add('show');
+}
+function closeDetails(){ document.getElementById('detailsOverlay').classList.remove('show'); }
+function updCount(id){
+  const f = document.getElementById(id);
+  const n = document.getElementById(id + 'N');
+  if(n) n.textContent = f.value.length ? `${f.value.length}/${f.maxLength}` : '';
+}
+['detTitle','detCaption','detBlurb'].forEach(id => document.getElementById(id).addEventListener('input', ()=>updCount(id)));
+// typing text switches its "show" on, the first time
+[['detTitle','detShowT'],['detCaption','detShowC'],['detBlurb','detShowB']].forEach(([f, s])=>{
+  const field = document.getElementById(f);
+  field.addEventListener('input', ()=>{ if(field.value && field.dataset.touched !== '1'){ field.dataset.touched = '1'; if(!field.dataset.was) document.getElementById(s).checked = true; } });
+  field.addEventListener('focus', ()=>{ field.dataset.was = field.value ? '1' : ''; field.dataset.touched = ''; });
+});
+function renderSizeSeg(){
+  const seg = document.getElementById('detSize');
+  seg.innerHTML = '';
+  TILE_SIZES.forEach(s=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = s.label;
+    b.className = detSize === s.v ? 'on' : '';
+    b.onclick = ()=>{ detSize = s.v; renderSizeSeg(); };
+    seg.appendChild(b);
+  });
+  // little picture of the tile shapes
+  const demo = document.getElementById('detDemo');
+  demo.innerHTML = '';
+  [['big',44,44],['tall',22,40],['wide',44,26],['sq',22,22]].forEach(([v, w, h])=>{
+    const s = document.createElement('span');
+    s.style.width = w + 'px'; s.style.height = h + 'px';
+    if(detSize === v) s.className = 'on';
+    demo.appendChild(s);
+  });
+}
+async function saveDetails(){
+  const r = detTarget;
+  if(!r) return;
+  if(!hasKeys()){ closeDetails(); showMngStatus('err', 'Add your API key & secret in Settings first'); return; }
+  const art = mngCategory === 'fine-art';
+  const t = document.getElementById('detTitle').value.trim();
+  const c = art ? (r.d ? r.d.c : '') : document.getElementById('detCaption').value.trim();
+  const b = art ? (r.d ? r.d.b : '') : document.getElementById('detBlurb').value.trim();
+  let sh = '';
+  if(art){ sh = t ? 't' : ''; }
+  else {
+    if(document.getElementById('detShowT').checked && t) sh += 't';
+    if(document.getElementById('detShowC').checked && (c || t)) sh += 'c';
+    if(document.getElementById('detShowB').checked && (b || t)) sh += 'b';
+  }
+  const d = {size: art ? (r.d ? r.d.size : '') : detSize, t, c, b, sh};
+  const btn = document.getElementById('detGo');
+  btn.disabled = true;
+  closeDetails();
+  showMngStatus('busy', 'SAVING DETAILS…');
+  try{
+    const {key, secret} = getKeys();
+    const ts = Math.floor(Date.now()/1000);
+    const ctx = ctxString(r.order, d);
+    const sig = await sha1hex(`context=${ctx}&public_id=${r.public_id}&timestamp=${ts}&type=upload${secret}`);
+    const form = new FormData();
+    form.append('public_id', r.public_id);
+    form.append('type', 'upload');
+    form.append('context', ctx);
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'save failed');
+    }
+    r.d = d;
+    renderMngList();
+    showMngStatus('ok', 'DETAILS SAVED — live in a couple minutes');
+  }catch(err){
+    showMngStatus('err', 'DETAILS NOT SAVED: ' + String(err.message || '').slice(0, 60));
+  }
+  btn.disabled = false;
+}
+
+// ===== v3: text tiles (per category, saved in portfolio-config.json) =====
+let ttIdx = -1, ttPos = 0;
+function catTexts(){ return Array.isArray(siteTexts[mngCategory]) ? siteTexts[mngCategory] : []; }
+function renderTextTiles(){
+  const box = document.getElementById('ttBox');
+  if(!mngCategory || mngCategory === 'fine-art'){ box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const list = document.getElementById('ttList');
+  list.innerHTML = '';
+  const items = catTexts();
+  if(!items.length){
+    const e = document.createElement('div');
+    e.className = 'mng-empty';
+    e.style.padding = '10px 0';
+    e.textContent = 'none yet';
+    list.appendChild(e);
+    return;
+  }
+  items.forEach((t, i)=>{
+    const row = document.createElement('div');
+    row.className = 'tt-row' + (t.on === false ? ' off' : '');
+    const body = document.createElement('div');
+    body.className = 'tt-body';
+    const tt = document.createElement('div'); tt.className = 'tt-t'; tt.textContent = t.title || t.blurb || '(empty)';
+    const tp = document.createElement('div'); tp.className = 'tt-p';
+    tp.textContent = posLabel(parseInt(t.after, 10) || 0) + (t.on === false ? ' · hidden' : '');
+    body.appendChild(tt); body.appendChild(tp);
+    const ed = document.createElement('button');
+    ed.className = 'mng-btn'; ed.textContent = 'Edit';
+    ed.disabled = !hasKeys();
+    ed.onclick = ()=> openTextTile(i);
+    row.appendChild(body); row.appendChild(ed);
+    list.appendChild(row);
+  });
+}
+function posLabel(n){ return n <= 0 ? 'before the first photo' : 'after photo ' + n; }
+function openTextTile(i){
+  if(!mngCategory) return;
+  if(!hasKeys()){ showMngStatus('err', 'Add your API key & secret in Settings first'); return; }
+  ttIdx = i;
+  const t = i >= 0 ? catTexts()[i] : {title:'', blurb:'', after: Math.min(2, (resCache[mngCategory] || []).length), on:true};
+  ttPos = parseInt(t.after, 10) || 0;
+  document.getElementById('ttHead').textContent = i >= 0 ? 'Edit text tile' : 'New text tile';
+  document.getElementById('ttTitle').value = t.title || '';
+  document.getElementById('ttBlurb').value = t.blurb || '';
+  document.getElementById('ttOn').checked = t.on !== false;
+  document.getElementById('ttDel').style.display = i >= 0 ? '' : 'none';
+  const del = document.getElementById('ttDel'); del.dataset.armed = ''; del.textContent = 'Delete this text tile';
+  ttNudge(0);
+  document.getElementById('ttOverlay').classList.add('show');
+}
+function closeTextTile(){ document.getElementById('ttOverlay').classList.remove('show'); }
+function ttNudge(d){
+  const max = (resCache[mngCategory] || []).length;
+  ttPos = Math.max(0, Math.min(max, ttPos + d));
+  document.getElementById('ttPos').textContent = posLabel(ttPos);
+}
+async function commitTexts(next, okMsg){
+  const prev = siteTexts;
+  siteTexts = Object.assign({}, siteTexts, {[mngCategory]: next});
+  closeTextTile();
+  showMngStatus('busy', 'SAVING TEXT TILE…');
+  const ok = await saveConfig();
+  if(ok){ showMngStatus('ok', okMsg); }
+  else { siteTexts = prev; showMngStatus('err', 'TEXT TILE NOT SAVED — check keys & connection'); }
+  renderTextTiles();
+}
+function saveTextTile(){
+  const title = document.getElementById('ttTitle').value.trim();
+  const blurb = document.getElementById('ttBlurb').value.trim();
+  if(!title && !blurb){ document.getElementById('ttTitle').focus(); return; }
+  const next = catTexts().slice();
+  const t = {id: ttIdx >= 0 ? (next[ttIdx].id || String(Date.now())) : String(Date.now()), title, blurb, after: ttPos, on: document.getElementById('ttOn').checked};
+  if(ttIdx >= 0) next[ttIdx] = t; else next.push(t);
+  next.sort((a, b) => (parseInt(a.after, 10) || 0) - (parseInt(b.after, 10) || 0));
+  commitTexts(next, 'TEXT TILE SAVED — live in a couple minutes');
+}
+function deleteTextTile(){
+  const del = document.getElementById('ttDel');
+  if(del.dataset.armed !== '1'){ del.dataset.armed = '1'; del.textContent = 'Tap again to delete'; return; }
+  const next = catTexts().filter((_, i) => i !== ttIdx);
+  commitTexts(next, 'TEXT TILE DELETED');
+}
+
+// ===== Signed Cloudinary calls (SHA-1 signature computed on-device) =====
+async function sha1hex(str){
+  const buf = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// Safari reports any network-level failure as the cryptic "Load failed".
+// Retry once automatically (covers Wi-Fi/VPN blips), and if it still can't
+// get through, say something a human can act on.
+async function cloudFetch(url, options){
+  try{
+    return await fetch(url, options);
+  }catch(err){
+    await new Promise(r => setTimeout(r, 700));
+    try{
+      return await fetch(url, options);
+    }catch(err2){
+      throw new Error("can't reach Cloudinary \u2014 check Wi-Fi, VPN or Safari content blockers");
+    }
+  }
+}
+
+// ===== Rename that survives a lost reply =====
+// Cloudinary often completes a rename but Safari never gets a readable
+// answer back, so it looks like a network failure. Re-sending would then fail
+// (the old name is already gone). So: send once, and if the reply is lost,
+// check whether the photo now answers at its new name.
+let probeN = 0;
+function imageAnswers(id, fmt){
+  return new Promise(done=>{
+    const im = new Image();
+    const t = setTimeout(()=>{ im.onload = im.onerror = null; done(false); }, 6000);
+    im.onload = ()=>{ clearTimeout(t); done(true); };
+    im.onerror = ()=>{ clearTimeout(t); done(false); };
+    // Same size/crop as the manage thumbnails (known to work on this account),
+    // with a fresh version number so a cached "not found" can never answer.
+    const v = Math.floor(Date.now()/1000) + (++probeN);
+    im.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_120,h_120,c_fill,g_auto,f_auto,q_auto/v${v}/${id}.${fmt}`;
+  });
+}
+// Second opinion: the same public list the Refresh button reads
+async function listHas(id){
+  const folder = (ALL_CATEGORIES.find(c => id.split('/').includes(c.folder)) || {}).folder;
+  if(!folder) return false;
+  try{
+    const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json?v=${Date.now()}`, {cache:'no-store'});
+    if(!res.ok) return false;
+    const data = await res.json();
+    return (data.resources || []).some(x => x.public_id === id);
+  }catch(e){ return false; }
+}
+async function assetExists(id, fmt){
+  return (await imageAnswers(id, fmt)) || (await listHas(id));
+}
+async function renameAsset(r, toId){
+  const {key, secret} = getKeys();
+  const ts = Math.floor(Date.now()/1000);
+  const sig = await sha1hex(`from_public_id=${r.public_id}&invalidate=true&timestamp=${ts}&to_public_id=${toId}${secret}`);
+  const form = new FormData();
+  form.append('from_public_id', r.public_id);
+  form.append('to_public_id', toId);
+  form.append('invalidate', 'true');
+  form.append('timestamp', ts);
+  form.append('api_key', key);
+  form.append('signature', sig);
+  const fresh = ()=>({public_id: toId, version: Math.floor(Date.now()/1000), format: r.format});
+  let res = null;
+  try{ res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/rename`, {method:'POST', body:form}); }
+  catch(e){ res = null; }
+  if(res){
+    const j = await res.json().catch(()=>({}));
+    if(res.ok) return {public_id: j.public_id || toId, version: j.version || fresh().version, format: j.format || r.format};
+    // An earlier attempt may already have done it
+    if(await assetExists(toId, r.format)) return fresh();
+    throw new Error(j.error?.message || 'rename failed');
+  }
+  // Reply lost: give Cloudinary a moment, then look for the new name
+  for(const wait of [600, 1200, 2000, 3000, 4000]){
+    await new Promise(ok => setTimeout(ok, wait));
+    if(await assetExists(toId, r.format)) return fresh();
+  }
+  throw new Error("can't reach Cloudinary \u2014 check connection and tap refresh");
+}
+
+function openRename(r){
+  targetPhoto = r;
+  document.getElementById('renameThumb').src = mngThumb(r);
+  document.getElementById('renameFrom').textContent = r.name;
+  document.getElementById('renameField').value = r.name;
+  document.getElementById('renameHint').textContent = 'a\u2013z, 0\u20139, dashes only';
+  document.getElementById('renameHint').classList.remove('warn');
+  document.getElementById('renameOverlay').classList.add('show');
+}
+function closeRename(){ document.getElementById('renameOverlay').classList.remove('show'); }
+
+async function doRename(){
+  const r = targetPhoto;
+  const newName = sanitizeName(document.getElementById('renameField').value);
+  const hint = document.getElementById('renameHint');
+  if(!newName){ hint.textContent = 'Enter a name'; hint.classList.add('warn'); return; }
+  if(newName === r.name){ closeRename(); return; }
+  if((nameCache[mngCategory] || []).includes(newName)){
+    hint.textContent = 'That name is already taken in this folder';
+    hint.classList.add('warn');
+    return;
+  }
+  closeRename();
+  showMngStatus('busy', 'RENAMING\u2026');
+  try{
+    const toId = r.public_id.split('/').slice(0,-1).concat(newName).join('/');
+    const j = await renameAsset(r, toId);
+    const oldName = r.name;
+    r.public_id = j.public_id;
+    r.version = j.version;
+    r.format = j.format || r.format;
+    r.name = newName;
+    sortRes(resCache[mngCategory]);
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    renderMngList();
+    if(selectedCategory === mngCategory){ renderNames(); }
+    showMngStatus('ok', `RENAMED: ${oldName} \u2192 ${newName}`);
+  }catch(err){
+    showMngStatus('err', 'RENAME FAILED: ' + String(err.message || '').slice(0,60));
+  }
+}
+
+// ===== Move photo between categories =====
+// A move is two signed calls: rename shifts it into the new folder, then
+// explicit swaps its category tag and gives it an order number one step past
+// the end of the destination gallery. Nothing is re-uploaded; the photo,
+// its name and its quality are untouched.
+let moveDest = null;
+
+function openMove(r){
+  const dests = visibleCats().filter(c => c.folder !== mngCategory);
+  if(dests.length === 0){ showMngStatus('err', 'No other categories are visible \u2014 turn one on in Settings first'); return; }
+  targetPhoto = r;
+  moveDest = null;
+  document.getElementById('moveThumb').src = mngThumb(r);
+  document.getElementById('moveName').textContent = r.name;
+  document.getElementById('moveHint').textContent = '';
+  const list = document.getElementById('moveDial');
+  list.innerHTML = '';
+  // Show every visible category. The one it's already in is greyed + disabled.
+  visibleCats().forEach(cat=>{
+    const isCurrent = cat.folder === mngCategory;
+    const row = document.createElement('div');
+    row.className = 'cat-row' + (isCurrent ? ' current' : '');
+    const radio = document.createElement('span');
+    radio.className = 'radio';
+    const lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = cat.label + (isCurrent ? '  (current)' : '');
+    row.appendChild(radio);
+    row.appendChild(lbl);
+    if(!isCurrent){
+      row.onclick = ()=>{
+        moveDest = cat.folder;
+        [...list.children].forEach(c=>c.classList.remove('sel'));
+        row.classList.add('sel');
+        document.getElementById('moveHint').textContent = '';
+      };
+    }
+    list.appendChild(row);
+  });
+  document.getElementById('moveOverlay').classList.add('show');
+}
+function closeMove(){ document.getElementById('moveOverlay').classList.remove('show'); }
+
+async function doMove(){
+  const r = targetPhoto;
+  if(!moveDest){ document.getElementById('moveHint').textContent = 'Pick a category first'; return; }
+  const destLabel = (ALL_CATEGORIES.find(c=>c.folder===moveDest) || {}).label || moveDest;
+  closeMove();
+  showMngStatus('busy', 'MOVING\u2026');
+  try{
+    const {key, secret} = getKeys();
+
+    // Know the destination before touching anything: name clashes and order
+    await fetchFolder(moveDest);
+    if((nameCache[moveDest] || []).includes(r.name)){
+      showMngStatus('err', `"${r.name}" already exists in ${destLabel} \u2014 rename it first`);
+      return;
+    }
+    const destOrders = (resCache[moveDest] || []).map(x=>x.order).filter(isFinite);
+    const hasOrders = destOrders.length > 0;
+    const endOrder = hasOrders ? Math.max(...destOrders) + 10 : null;
+
+    // 1) Rename into the destination folder.
+    // If a previous attempt half-completed (file re-filed but tag not yet
+    // swapped), the photo is already in the destination folder — skip the
+    // rename and just finish step 2. Makes retrying a failed move safe.
+    const parts = r.public_id.split('/');
+    const toId = (parts.length > 1 ? parts.slice(0,-2).concat(moveDest) : [moveDest]).concat(r.name).join('/');
+    let rj = {public_id: r.public_id, version: r.version, format: r.format};
+    if(toId !== r.public_id){
+      rj = await renameAsset(r, toId);
+    }
+
+    // 2) Swap the category tag (and set order, if the destination uses ordering)
+    const ts2 = Math.floor(Date.now()/1000);
+    const moveCtx = hasOrders ? ctxString(endOrder, r.d) : '';
+    const ctxPart = hasOrders ? `context=${moveCtx}&` : '';
+    const sig2 = await sha1hex(`${ctxPart}invalidate=true&public_id=${rj.public_id}&tags=${moveDest}&timestamp=${ts2}&type=upload${secret}`);
+    const form2 = new FormData();
+    if(hasOrders){ form2.append('context', moveCtx); }
+    form2.append('invalidate', 'true');
+    form2.append('public_id', rj.public_id);
+    form2.append('tags', moveDest);
+    form2.append('timestamp', ts2);
+    form2.append('type', 'upload');
+    form2.append('api_key', key);
+    form2.append('signature', sig2);
+    const ex = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form2});
+    if(!ex.ok){
+      const j = await ex.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'tag update failed');
+    }
+
+    // Update both caches so everything on screen matches Cloudinary
+    resCache[mngCategory] = (resCache[mngCategory] || []).filter(x => x.public_id !== r.public_id);
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    resCache[moveDest].push({public_id: rj.public_id, version: rj.version, format: rj.format || r.format, name: r.name, order: hasOrders ? endOrder : Infinity, d: r.d});
+    sortRes(resCache[moveDest]);
+    nameCache[moveDest] = resCache[moveDest].map(x=>x.name);
+    renderMngList();
+    if(selectedCategory === mngCategory || selectedCategory === moveDest){ renderNames(); }
+    showMngStatus('ok', `MOVED: ${r.name} \u2192 ${destLabel}`);
+  }catch(err){
+    showMngStatus('err', 'MOVE FAILED: ' + String(err.message || '').slice(0,60));
+  }
+}
+
+function openDelete(r){
+  targetPhoto = r;
+  document.getElementById('deleteName').textContent = r.name;
+  document.getElementById('deleteThumb').src = mngThumb(r);
+  document.getElementById('deleteOverlay').classList.add('show');
+}
+function closeDelete(){ document.getElementById('deleteOverlay').classList.remove('show'); }
+
+async function doDestroy(){
+  const r = targetPhoto;
+  closeDelete();
+  showMngStatus('busy', 'REMOVING\u2026');
+  try{
+    const {key, secret} = getKeys();
+    const ts = Math.floor(Date.now()/1000);
+    const sig = await sha1hex(`invalidate=true&public_id=${r.public_id}&timestamp=${ts}${secret}`);
+    const form = new FormData();
+    form.append('public_id', r.public_id);
+    form.append('invalidate', 'true');
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/destroy`, {method:'POST', body:form});
+    const j = await res.json();
+    if(!res.ok || j.result !== 'ok'){ throw new Error(j.error?.message || j.result || 'remove failed'); }
+    resCache[mngCategory] = resCache[mngCategory].filter(x => x.public_id !== r.public_id);
+    nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
+    renderMngList();
+    if(selectedCategory === mngCategory){ renderNames(); }
+    showMngStatus('ok', `REMOVED: ${r.name}`);
+  }catch(err){
+    showMngStatus('err', 'REMOVE FAILED: ' + String(err.message || '').slice(0,60));
+  }
+}
+
+function tickClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+tickClock();
+setInterval(tickClock, 30000);
+
+// ===== Site view counter (GoatCounter) =====
+// Reads the public total for liamdevine.ca — shown on the status line.
+async function loadSiteViews(){
+  try{
+    const res = await fetch('https://liamdevine.goatcounter.com/counter/TOTAL.json', {cache:'no-store'});
+    if(!res.ok) return;
+    const j = await res.json();
+    const n = parseInt(String(j.count).replace(/[^\d]/g,''), 10);
+    if(!isNaN(n)){
+      document.getElementById('siteViews').textContent = ' \u00b7 ' + n.toLocaleString() + ' views';
+    }
+  }catch(e){ /* offline or counter not public yet — just omit it */ }
+}
+loadSiteViews();
+setInterval(loadSiteViews, 300000);
+
+// Simple connectivity indicator
+function updateConnState(){
+  const el = document.getElementById('connState');
+  const line = document.getElementById('statusLine');
+  if(navigator.onLine){
+    el.textContent = 'online';
+    line.classList.remove('off');
+  } else {
+    el.textContent = 'offline';
+    line.classList.add('off');
+  }
+}
+updateConnState();
+window.addEventListener('online', updateConnState);
+window.addEventListener('offline', updateConnState);
+</script>
+</body>
+</html>
