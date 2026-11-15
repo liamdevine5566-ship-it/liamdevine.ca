@@ -1,4 +1,4 @@
-<!-- app build: portfolio-v2 (hero editor) -->
+<!-- app build: portfolio-v3 (tile sizes, titles/captions/blurbs, text tiles, multi-photo hero) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -189,9 +189,11 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 /* .hero-frame mirrors the website's hero exactly (cover + position/origin + scale), so the preview is what visitors see */
 .hero-frame{position:relative;overflow:hidden;background:var(--chassis-hi);container-type:inline-size;user-select:none;-webkit-user-select:none}
 .hero-frame .hf-img{position:absolute;inset:0;background-size:cover;background-repeat:no-repeat;will-change:transform}
-.hero-frame .hf-shade{position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.05) 45%);pointer-events:none}
-.hero-frame .hf-text{position:absolute;left:6%;top:30%;z-index:2;font-family:Georgia,'Times New Roman',serif;font-style:italic;color:#fff;font-size:5.4cqw;line-height:1.15;pointer-events:none}
-.hero-frame.phone .hf-text{top:42%;font-size:9cqw}
+.hero-frame .hf-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(11,11,12,1) 0%,rgba(11,11,12,.5) 34%,rgba(0,0,0,0) 62%),linear-gradient(90deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,0) 60%);pointer-events:none}
+.hero-frame .hf-text{position:absolute;left:5%;bottom:16%;z-index:2;font-family:Georgia,'Times New Roman',serif;color:#fff;font-size:6.4cqw;line-height:1;pointer-events:none}
+.hero-frame .hf-text i{color:#D9A441}
+.hero-frame.phone .hf-text{bottom:22%;font-size:11cqw}
+.hero-mini .hf-text{display:none}
 .hero-frame .hf-grid{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .2s ease;
   background:linear-gradient(to right,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px)),
              linear-gradient(to bottom,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% + .5px),transparent calc(33.33% + .5px),transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% + .5px),transparent calc(66.66% + .5px))}
@@ -231,6 +233,46 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 .he-msg.err{color:var(--bad)}
 .he-foot-row{display:flex;align-items:center;justify-content:center;gap:14px}
 .he-zoom{font-size:.8rem;color:var(--text-dim);min-width:3.5em}
+
+/* ===== v3: hero photos strip ===== */
+.hero-card{flex-direction:column;align-items:stretch}
+.hero-slides{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}
+.hero-slide.hero-mini{width:auto;min-width:0}
+.hero-slide{position:relative;aspect-ratio:16/10;border-radius:3px;cursor:pointer;border:1px solid var(--hairline);padding:0;background:var(--chassis-hi)}
+.hero-slide .hs-n{position:absolute;left:4px;top:4px;z-index:3;font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:1px 6px;border-radius:999px;background:rgba(0,0,0,.6);color:var(--text)}
+.hero-add{aspect-ratio:16/10;border:1px dashed rgba(232,135,58,.6);border-radius:3px;background:transparent;color:var(--tungsten);font-family:'Space Grotesk';font-size:.78rem;cursor:pointer}
+.he-foot-row .mng-btn.danger{margin-left:0}
+
+/* ===== v3: photo details ===== */
+.mng-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:-2px}
+.mng-tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;border:1px solid var(--hairline);color:var(--text-dim)}
+.mng-tag.on{border-color:rgba(232,135,58,.6);color:var(--tungsten)}
+.seg{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.seg button{flex:1 1 auto;border:1px solid var(--hairline);background:var(--panel);color:var(--text-dim);border-radius:999px;padding:10px 12px;font-family:'Space Grotesk';font-size:.8rem;cursor:pointer;min-height:42px}
+.seg button.on{border-color:var(--tungsten);color:var(--tungsten);background:var(--tungsten-dim)}
+.size-demo{display:flex;align-items:flex-end;gap:6px;height:46px;margin:2px 0 14px}
+.size-demo span{display:block;border:1px solid var(--hairline);border-radius:2px;background:var(--chassis-hi)}
+.size-demo span.on{border-color:var(--tungsten);background:var(--tungsten-dim)}
+.overlay textarea{width:100%;padding:11px;border:1px solid var(--hairline);border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;background:var(--panel);color:var(--text);margin-bottom:8px;resize:vertical;min-height:84px}
+.overlay textarea:focus,.overlay input.plain:focus{outline:none;border-color:var(--tungsten)}
+.overlay input.plain{font-family:'Space Grotesk',sans-serif;text-transform:none}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:0 0 18px;border:1px solid var(--hairline);border-radius:4px;background:var(--panel);font-size:.88rem;color:var(--text);cursor:pointer}
+.sw input{appearance:none;-webkit-appearance:none;flex:0 0 auto;width:46px;height:28px;border-radius:999px;background:rgba(245,243,239,.15);position:relative;cursor:pointer;transition:background .2s;margin:0}
+.sw input::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--text);transition:transform .2s}
+.sw input:checked{background:var(--tungsten)}
+.sw input:checked::after{transform:translateX(18px)}
+.count{float:right;font-family:'JetBrains Mono',monospace;letter-spacing:0;text-transform:none}
+
+/* ===== v3: text tiles ===== */
+.tt-box{margin-top:18px;border-top:1px solid var(--hairline);padding-top:14px}
+.tt-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--hairline);border-left:3px solid var(--tungsten);border-radius:4px;padding:9px 10px;margin-bottom:7px}
+.tt-row.off{opacity:.5}
+.tt-row .tt-body{flex:1;min-width:0}
+.tt-row .tt-t{font-size:.92rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt-row .tt-p{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-dim)}
+.num-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.num-row button{width:44px;height:44px;border-radius:4px;border:1px solid var(--hairline);background:var(--panel);color:var(--text);font-size:1.2rem;cursor:pointer}
+.num-row .num{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--text)}
 </style>
 </head>
 <body>
@@ -285,14 +327,11 @@ a.text-btn{text-decoration:none;width:fit-content;color:var(--good);border-color
 
 <div id="manageView" style="display:none">
 <div class="hero-card">
-<div class="hero-frame hero-mini" onclick="openHeroEditor()" title="Adjust hero framing"><div class="hf-img" id="heroMiniImg"></div><div class="hf-shade"></div></div>
 <div class="hero-card-body">
-<span class="hero-card-label">Hero shot</span>
+<span class="hero-card-label">Hero photos</span>
 <span class="hero-card-name mono" id="heroName">loading…</span>
-<div class="hero-card-actions">
-<button class="mng-btn" onclick="openHeroPicker()">Change photo</button>
-<button class="mng-btn" onclick="openHeroEditor()">Adjust</button>
-</div>
+<div class="hero-slides" id="heroSlidesBox"></div>
+<span class="hint mono" style="margin:6px 0 0;font-size:.74rem">Up to 4 · they slowly crossfade · tap one to frame, replace or remove</span>
 </div>
 </div>
 
@@ -312,6 +351,12 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 </div>
 
 <div class="mng-list" id="mngList"><div class="mng-empty">Pick a category above</div></div>
+
+<div class="tt-box" id="ttBox" style="display:none">
+<div class="section-label"><span>Text tiles</span><span class="names-toggle mono" style="color:var(--tungsten)" onclick="openTextTile(-1)">+ add</span></div>
+<p class="hint" style="margin-top:-2px;font-size:.8rem">A title or blurb that sits between photos on this gallery's page.</p>
+<div id="ttList"></div>
+</div>
 </div><!-- /manageView -->
 </div>
 
@@ -336,13 +381,15 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 <button id="heSegPhone" onclick="setHeroMode('phone')">Phone</button>
 </div>
 <div class="he-stage" id="heStage">
-<div class="hero-frame desktop" id="heFrame"><div class="hf-img" id="heImg"></div><div class="hf-shade"></div><div class="hf-text">Making the Ordinary<br/>Extraordinary</div><div class="hf-grid"></div></div>
+<div class="hero-frame desktop" id="heFrame"><div class="hf-img" id="heImg"></div><div class="hf-shade"></div><div class="hf-text">Making the ordinary<br/><i>extraordinary</i></div><div class="hf-grid"></div></div>
 </div>
 <div class="he-foot">
 <div class="he-msg" id="heMsg">Pinch to zoom · drag to reposition</div>
 <div class="he-foot-row">
 <span class="he-zoom mono" id="heZoom">1.0×</span>
 <button class="mng-btn" onclick="resetHeroPos()">Reset</button>
+<button class="mng-btn" id="heReplace" onclick="replaceHeroSlide()">Replace</button>
+<button class="mng-btn danger" id="heRemove" onclick="removeHeroSlide()">Remove</button>
 </div>
 </div>
 </div>
@@ -405,6 +452,49 @@ Tap the gear &#9881; and enter your API key &amp; secret (they're in your Notes 
 </div>
 </div>
 
+<div class="overlay" id="detailsOverlay">
+<h2>Photo details</h2>
+<div class="ov-photo"><img id="detThumb" alt=""/><span class="ov-name" id="detName"></span></div>
+
+<label class="field-label" id="detSizeLabel">Tile size on the website</label>
+<div class="seg" id="detSize"></div>
+<div class="size-demo" id="detDemo" aria-hidden="true"></div>
+
+<label class="field-label" for="detTitle">Title <span class="count" id="detTitleN"></span></label>
+<input type="text" class="plain" id="detTitle" maxlength="80" placeholder="e.g. Quiet light" autocomplete="off"/>
+<label class="sw" id="detShowTRow" for="detShowT"><span id="detShowTText">Show title above the photo</span><input type="checkbox" id="detShowT"/></label>
+
+<label class="field-label" for="detCaption" id="detCapLabel">Caption <span class="count" id="detCaptionN"></span></label>
+<input type="text" class="plain" id="detCaption" maxlength="140" placeholder="e.g. Natural light portrait · Springbank Park" autocomplete="off"/>
+<label class="sw" id="detShowCRow" for="detShowC"><span>Show caption under the photo</span><input type="checkbox" id="detShowC"/></label>
+
+<label class="field-label" for="detBlurb" id="detBlurbLabel">Blurb <span class="count" id="detBlurbN"></span></label>
+<textarea id="detBlurb" maxlength="240" rows="3" placeholder="A sentence or two about the shot"></textarea>
+<label class="sw" id="detShowBRow" for="detShowB"><span>Show blurb over the photo<br/><span style="font-size:.74rem;color:var(--text-dim)">appears on hover, and always on phones</span></span><input type="checkbox" id="detShowB"/></label>
+
+<p class="hint" id="detNote" style="font-size:.8rem"></p>
+<div class="overlay-actions">
+<button onclick="closeDetails()">Cancel</button>
+<button class="save" id="detGo" onclick="saveDetails()">Save</button>
+</div>
+</div>
+
+<div class="overlay" id="ttOverlay">
+<h2 id="ttHead">Text tile</h2>
+<label class="field-label" for="ttTitle">Title</label>
+<input type="text" class="plain" id="ttTitle" maxlength="80" placeholder="e.g. Baxter at the shore" autocomplete="off"/>
+<label class="field-label" for="ttBlurb">Blurb</label>
+<textarea id="ttBlurb" maxlength="240" rows="3" placeholder="A sentence or two"></textarea>
+<label class="field-label">Position</label>
+<div class="num-row"><button type="button" onclick="ttNudge(-1)" aria-label="Earlier">&minus;</button><span class="num" id="ttPos"></span><button type="button" onclick="ttNudge(1)" aria-label="Later">+</button></div>
+<label class="sw" for="ttOn"><span>Show on the website</span><input type="checkbox" id="ttOn"/></label>
+<div class="overlay-actions">
+<button onclick="closeTextTile()">Cancel</button>
+<button class="save" id="ttGo" onclick="saveTextTile()">Save</button>
+</div>
+<button class="text-btn armed" id="ttDel" onclick="deleteTextTile()" style="margin-top:16px">Delete this text tile</button>
+</div>
+
 <div class="overlay" id="deleteOverlay">
 <h2>Remove photo?</h2>
 <div class="ov-photo"><img id="deleteThumb"/><span class="ov-name" id="deleteName"></span></div>
@@ -439,6 +529,9 @@ const ALL_CATEGORIES = [
 const DEFAULT_VIS = {portraits:'site',family:'site',pets:'site','fine-art':'site',showcase:'site',wildlife:'hidden',landscapes:'hidden',street:'hidden',travel:'hidden'};
 const CONFIG_URL = `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/portfolio-config.json`;
 let catVis = Object.assign({}, DEFAULT_VIS);
+// Text tiles per category: {portraits:[{id,title,blurb,after,on}], …} — kept in the same config file
+let siteTexts = {};
+let configLoaded = false;
 
 function visibleCats(){
   return ALL_CATEGORIES.filter(c => catVis[c.folder] !== 'hidden');
@@ -450,7 +543,9 @@ async function loadConfig(){
     if(res.ok){
       const cfg = await res.json();
       (cfg.categories || []).forEach(c => { if(c.folder in catVis) catVis[c.folder] = c.visibility; });
+      if(cfg.texts && typeof cfg.texts === 'object') siteTexts = cfg.texts;
     }
+    if(res.ok || res.status === 404) configLoaded = true;
   }catch(e){ /* offline or no config yet — defaults stand */ }
   if(selectedCategory && catVis[selectedCategory] === 'hidden'){ selectedCategory = null; }
   if(mngCategory && catVis[mngCategory] === 'hidden'){ mngCategory = null; }
@@ -499,7 +594,7 @@ async function fetchFolder(folder){
       return isNaN(n) ? Infinity : n;
     };
     resCache[folder] = sortRes((data.resources || [])
-      .map(r => ({public_id: r.public_id, version: r.version, format: r.format, name: r.public_id.split('/').pop(), order: ordOf(r)})));
+      .map(r => ({public_id: r.public_id, version: r.version, format: r.format, name: r.public_id.split('/').pop(), order: ordOf(r), d: parseDetails(r.context && (r.context.custom || r.context))})));
   } else {
     throw new Error('list error');
   }
@@ -949,10 +1044,18 @@ async function saveConfig(){
   const {key, secret} = getKeys();
   const state = document.getElementById('visState');
   try{
+    // Never overwrite text tiles we haven't seen: if the config didn't load earlier, read it now
+    if(!configLoaded){
+      const r0 = await fetch(CONFIG_URL + '?v=' + Date.now(), {cache:'no-store'});
+      if(r0.ok){ const c0 = await r0.json(); if(c0.texts && typeof c0.texts === 'object') siteTexts = Object.assign({}, c0.texts, siteTexts); }
+      else if(r0.status !== 404){ throw new Error('config unreadable'); }
+      configLoaded = true;
+    }
     const json = JSON.stringify({
-      version: 1,
+      version: 2,
       updated: new Date().toISOString(),
-      categories: ALL_CATEGORIES.map(c => ({label:c.label, folder:c.folder, visibility:catVis[c.folder]}))
+      categories: ALL_CATEGORIES.map(c => ({label:c.label, folder:c.folder, visibility:catVis[c.folder]})),
+      texts: siteTexts
     });
     const ts = Math.floor(Date.now()/1000);
     const sig = await sha1hex(`invalidate=true&overwrite=true&public_id=portfolio-config.json&timestamp=${ts}${secret}`);
@@ -971,8 +1074,10 @@ async function saveConfig(){
     }
     state.textContent = 'saved \u2014 site updates in a couple minutes';
     setTimeout(()=>{ if(state.textContent.indexOf('saved') === 0) state.textContent = ''; }, 4000);
+    return true;
   }catch(err){
     state.textContent = 'SAVE FAILED \u2014 check keys & connection';
+    return false;
   }
 }
 
@@ -1047,7 +1152,7 @@ const HERO_DEFAULT = {url:'https://liamdevine.ca/images/portraits/hijab.jpg', ph
 const HERO_MAX_ZOOM = 3;
 let heroCfg = null;
 let heroPickCat = null;
-const he = {src:null, iw:0, ih:0, s:1, x:.5, y:.5, mode:'desktop', saving:false, token:0};
+const he = {src:null, iw:0, ih:0, s:1, x:.5, y:.5, mode:'desktop', saving:false, token:0, idx:0};
 const clampN = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 function heroPhotoUrl(r, w){
@@ -1059,14 +1164,22 @@ function paintHero(el, url, s, x, y){
   el.style.transformOrigin = `${x}% ${y}%`;
   el.style.transform = `scale(${s})`;
 }
-function normHero(cfg){
-  if(!cfg || !cfg.url) return Object.assign({}, HERO_DEFAULT);
+// One hero photo (a "slide"): which photo + its framing
+function normOne(s){
+  if(!s || !s.url) return Object.assign({}, HERO_DEFAULT);
   const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? v : d;
-  return Object.assign({}, cfg, {
-    scale: clampN(num(cfg.scale, 1), 1, HERO_MAX_ZOOM),
-    x: clampN(num(cfg.x, 50), 0, 100),
-    y: clampN(num(cfg.y, 50), 0, 100)
-  });
+  return {
+    public_id: s.public_id || null, photoName: s.photoName || '', url: s.url, editUrl: s.editUrl || s.url,
+    scale: clampN(num(s.scale, 1), 1, HERO_MAX_ZOOM),
+    x: clampN(num(s.x, 50), 0, 100),
+    y: clampN(num(s.y, 50), 0, 100)
+  };
+}
+// hero-config.json v3 holds up to 4 slides; older single-photo files still read fine
+function normHero(cfg){
+  let slides = (cfg && Array.isArray(cfg.slides)) ? cfg.slides.filter(s => s && s.url).map(normOne) : [];
+  if(!slides.length) slides = [normOne(cfg)];
+  return {slides: slides.slice(0, 4)};
 }
 
 async function loadHeroConfig(){
@@ -1077,9 +1190,31 @@ async function loadHeroConfig(){
   renderHeroCard();
 }
 function renderHeroCard(){
-  const c = heroCfg || normHero(null);
-  paintHero(document.getElementById('heroMiniImg'), c.editUrl || c.url, c.scale, c.x, c.y);
-  document.getElementById('heroName').textContent = c.photoName || '—';
+  const slides = (heroCfg || normHero(null)).slides;
+  const box = document.getElementById('heroSlidesBox');
+  box.innerHTML = '';
+  slides.forEach((s, i)=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'hero-slide hero-frame hero-mini';
+    b.setAttribute('aria-label', 'Hero photo ' + (i + 1) + ': ' + (s.photoName || ''));
+    const im = document.createElement('div'); im.className = 'hf-img';
+    const sh = document.createElement('div'); sh.className = 'hf-shade';
+    const n = document.createElement('span'); n.className = 'hs-n'; n.textContent = i + 1;
+    b.appendChild(im); b.appendChild(sh); b.appendChild(n);
+    paintHero(im, s.editUrl || s.url, s.scale, s.x, s.y);
+    b.onclick = ()=> openHeroEditor(null, i);
+    box.appendChild(b);
+  });
+  if(slides.length < 4){
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'hero-add';
+    add.textContent = '+ Add';
+    add.onclick = ()=>{ he.idx = slides.length; openHeroPicker(); };
+    box.appendChild(add);
+  }
+  document.getElementById('heroName').textContent = slides.map(s => s.photoName || '—').join(' · ');
 }
 
 // ---- Picker: only categories that are live on the site ----
@@ -1089,7 +1224,9 @@ function heroCats(){
 }
 function openHeroPicker(){
   const cats = heroCats();
-  const cur = heroCfg && heroCfg.public_id ? heroCfg.public_id.split('/').slice(-2, -1)[0] : null;
+  const sl = (heroCfg || normHero(null)).slides;
+  const ref = sl[he.idx] || sl[0];
+  const cur = ref && ref.public_id ? ref.public_id.split('/').slice(-2, -1)[0] : null;
   if(!heroPickCat || !cats.some(c => c.folder === heroPickCat)){
     heroPickCat = cats.some(c => c.folder === cur) ? cur : (cats[0] || {}).folder || null;
   }
@@ -1123,7 +1260,7 @@ async function loadHeroPickGrid(){
   items.forEach(r=>{
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'hero-pick' + (heroCfg && heroCfg.public_id === r.public_id ? ' current' : '');
+    b.className = 'hero-pick' + (heroCfg && heroCfg.slides.some(s => s.public_id === r.public_id) ? ' current' : '');
     const im = document.createElement('img');
     im.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_300,h_300,c_fill,g_auto,f_auto,q_auto/v${r.version}/${r.public_id}.${r.format}`;
     im.alt = r.name;
@@ -1143,9 +1280,16 @@ function setHeroMsg(msg, isErr){
   el.textContent = msg || 'Pinch to zoom · drag to reposition';
   el.classList.toggle('err', !!isErr);
 }
-function openHeroEditor(src){
-  const cur = heroCfg || normHero(null);
-  const same = !src || (src.public_id ? src.public_id === cur.public_id : src.url === cur.url);
+function openHeroEditor(src, idx){
+  if(typeof idx === 'number') he.idx = idx;
+  const slides = (heroCfg || normHero(null)).slides;
+  const exists = he.idx < slides.length;
+  const cur = slides[he.idx] || normOne(null);
+  const same = !src || (exists && (src.public_id ? src.public_id === cur.public_id : src.url === cur.url));
+  document.getElementById('heReplace').style.display = exists ? '' : 'none';
+  const rm = document.getElementById('heRemove');
+  rm.style.display = (exists && slides.length > 1) ? '' : 'none';
+  rm.textContent = 'Remove'; rm.dataset.armed = '';
   he.src = src || {public_id:cur.public_id || null, photoName:cur.photoName, url:cur.url, editUrl:cur.editUrl || cur.url};
   he.s = same ? cur.scale : 1;
   he.x = same ? cur.x / 100 : .5;
@@ -1337,18 +1481,52 @@ async function saveHero(){
   const btn = document.getElementById('heSave');
   he.saving = true; btn.disabled = true;
   setHeroMsg('Saving…');
-  const cfg = {
-    version: 2,
+  const slide = {
     public_id: he.src.public_id || null,
     photoName: he.src.photoName || '',
     url: he.src.url,
     editUrl: he.src.editUrl || he.src.url,
     scale: Math.round(he.s * 1000) / 1000,
     x: Math.round(he.x * 10000) / 100,
-    y: Math.round(he.y * 10000) / 100,
-    updated: new Date().toISOString()
+    y: Math.round(he.y * 10000) / 100
   };
+  const slides = (heroCfg || normHero(null)).slides.slice();
+  if(he.idx >= slides.length) slides.push(slide); else slides[he.idx] = slide;
   try{
+    await writeHero(slides);
+    closeHeroEditor();
+    showMngStatus('ok', 'HERO SAVED — live on the site in a couple minutes');
+    if(navigator.vibrate){ navigator.vibrate(30); }
+  }catch(err){
+    setHeroMsg('Save failed — ' + String(err.message || 'check connection').slice(0, 60), true);
+  }
+  he.saving = false; btn.disabled = false;
+}
+
+function replaceHeroSlide(){ closeHeroEditor(); openHeroPicker(); }
+async function removeHeroSlide(){
+  const rm = document.getElementById('heRemove');
+  if(he.saving) return;
+  if(!hasKeys()){ setHeroMsg('Add your API key & secret in Settings ⚙ first', true); return; }
+  if(rm.dataset.armed !== '1'){ rm.dataset.armed = '1'; rm.textContent = 'Tap again to remove'; return; }
+  const slides = (heroCfg || normHero(null)).slides.filter((_, i) => i !== he.idx);
+  if(!slides.length) return;
+  he.saving = true; setHeroMsg('Removing…');
+  try{
+    await writeHero(slides);
+    closeHeroEditor();
+    showMngStatus('ok', 'HERO PHOTO REMOVED — live in a couple minutes');
+  }catch(err){
+    setHeroMsg('Remove failed — ' + String(err.message || 'check connection').slice(0, 60), true);
+  }
+  he.saving = false; rm.dataset.armed = ''; rm.textContent = 'Remove';
+}
+
+// Writes every hero photo. The first one is also copied to the top level so an
+// older homepage (single hero) keeps working during the switch-over.
+async function writeHero(slides){
+  const cfg = Object.assign({}, slides[0], {version: 3, slides: slides.slice(0, 4), updated: new Date().toISOString()});
+  {
     const {key, secret} = getKeys();
     const ts = Math.floor(Date.now()/1000);
     const sig = await sha1hex(`invalidate=true&overwrite=true&public_id=hero-config.json&timestamp=${ts}${secret}`);
@@ -1367,13 +1545,7 @@ async function saveHero(){
     }
     heroCfg = normHero(cfg);
     renderHeroCard();
-    closeHeroEditor();
-    showMngStatus('ok', 'HERO SAVED — live on the site in a couple minutes');
-    if(navigator.vibrate){ navigator.vibrate(30); }
-  }catch(err){
-    setHeroMsg('Save failed — ' + String(err.message || 'check connection').slice(0, 60), true);
   }
-  he.saving = false; btn.disabled = false;
 }
 
 loadHeroConfig();
@@ -1418,6 +1590,7 @@ function hideMngStatus(){ document.getElementById('mngStatus').className = 'stat
 
 function renderManage(){
   document.getElementById('keysNote').style.display = hasKeys() ? 'none' : 'block';
+  renderTextTiles();
   const box = document.getElementById('mngCategories');
   box.innerHTML = '';
   visibleCats().forEach(cat=>{
@@ -1425,6 +1598,7 @@ function renderManage(){
     btn.className = 'dial-item' + (mngCategory === cat.folder ? ' selected' : '');
     btn.textContent = cat.label;
     btn.onclick = () => { resetOrderEdit(); mngCategory = cat.folder; renderManage(); loadMngList(); };
+    if(!mngCategory) document.getElementById('ttBox').style.display = 'none';
     box.appendChild(btn);
   });
   if(mngCategory && resCache[mngCategory]){ renderMngList(); }
@@ -1483,6 +1657,7 @@ function renderMngList(){
     nm.className = 'mng-name mono';
     nm.textContent = r.name;
     body.appendChild(nm);
+    body.appendChild(detailTags(r, unlocked));
     const actions = document.createElement('div');
     actions.className = 'mng-actions';
     const rn = document.createElement('button');
@@ -1786,7 +1961,8 @@ async function saveOrder(){
       showMngStatus('busy', `SAVING ORDER ${i+1}/${changes.length}\u2026`);
       const {r, target} = changes[i];
       const ts = Math.floor(Date.now()/1000);
-      const ctx = `order=${target}`;
+      // keep the photo's title / caption / size — context is written as a whole
+      const ctx = ctxString(target, r.d);
       const sig = await sha1hex(`context=${ctx}&public_id=${r.public_id}&timestamp=${ts}&type=upload${secret}`);
       const form = new FormData();
       form.append('public_id', r.public_id);
@@ -1812,6 +1988,243 @@ async function saveOrder(){
   }
   orderSaving = false;
   document.getElementById('saveOrderBtn').disabled = false;
+}
+
+// ===== v3: photo details (tile size, title, caption, blurb) =====
+// Stored in the photo's own Cloudinary context next to its order number, so
+// they travel with the photo through rename, reorder and category moves.
+// Text is URL-encoded so commas, = and | in a title can't break anything.
+const TILE_SIZES = [
+  {v:'', label:'Auto'}, {v:'big', label:'Big'}, {v:'tall', label:'Tall'}, {v:'wide', label:'Wide'}, {v:'sq', label:'Square'}
+];
+function parseDetails(c){
+  c = c || {};
+  const dec = v => { if(!v) return ''; try{ return decodeURIComponent(v); }catch(e){ return String(v); } };
+  return {
+    size: ['big','tall','wide','sq'].includes(c.size) ? c.size : '',
+    t: dec(c.t), c: dec(c.c), b: dec(c.b),
+    sh: String(c.sh || '').replace(/[^tcb]/g, '')
+  };
+}
+function hasDetails(d){ return !!(d && (d.size || d.t || d.c || d.b || d.sh)); }
+function ctxString(order, d){
+  const p = [];
+  if(isFinite(order)) p.push('order=' + order);
+  if(d){
+    if(d.size) p.push('size=' + d.size);
+    if(d.t) p.push('t=' + encodeURIComponent(d.t));
+    if(d.c) p.push('c=' + encodeURIComponent(d.c));
+    if(d.b) p.push('b=' + encodeURIComponent(d.b));
+    if(d.sh) p.push('sh=' + d.sh);
+  }
+  return p.length ? p.join('|') : 'sh=-';
+}
+function detailTags(r, unlocked){
+  const row = document.createElement('div');
+  row.className = 'mng-tags';
+  const d = r.d || {};
+  const btn = document.createElement('button');
+  btn.className = 'mng-btn';
+  btn.style.padding = '5px 10px';
+  btn.textContent = 'Details ✎';
+  btn.disabled = !unlocked;
+  btn.onclick = ()=> openDetails(r);
+  row.appendChild(btn);
+  const tag = (txt, on)=>{ const s = document.createElement('span'); s.className = 'mng-tag' + (on ? ' on' : ''); s.textContent = txt; row.appendChild(s); };
+  const sz = TILE_SIZES.find(s => s.v === (d.size || ''));
+  if(mngCategory !== 'fine-art' && d.size) tag(sz.label, true);
+  if(d.t) tag(mngCategory === 'fine-art' ? 'Print title' : 'Title' + ((d.sh || '').includes('t') ? '' : ' (off)'), (d.sh || '').includes('t') || mngCategory === 'fine-art');
+  if(d.c) tag('Caption' + ((d.sh || '').includes('c') ? '' : ' (off)'), (d.sh || '').includes('c'));
+  if(d.b) tag('Blurb' + ((d.sh || '').includes('b') ? '' : ' (off)'), (d.sh || '').includes('b'));
+  return row;
+}
+
+let detTarget = null, detSize = '';
+function openDetails(r){
+  detTarget = r;
+  const d = r.d || parseDetails(null);
+  const art = mngCategory === 'fine-art';
+  document.getElementById('detThumb').src = mngThumb(r);
+  document.getElementById('detName').textContent = r.name;
+  detSize = d.size || '';
+  renderSizeSeg();
+  ['detSizeLabel','detSize','detDemo','detShowTRow','detCapLabel','detCaption','detShowCRow','detBlurbLabel','detBlurb','detShowBRow']
+    .forEach(id => { document.getElementById(id).style.display = art ? 'none' : ''; });
+  document.getElementById('detTitle').placeholder = art ? 'e.g. Great Grey' : 'e.g. Quiet light';
+  document.getElementById('detTitle').value = d.t;
+  document.getElementById('detCaption').value = d.c;
+  document.getElementById('detBlurb').value = d.b;
+  document.getElementById('detShowT').checked = d.sh.includes('t');
+  document.getElementById('detShowC').checked = d.sh.includes('c');
+  document.getElementById('detShowB').checked = d.sh.includes('b');
+  document.getElementById('detNote').textContent = art
+    ? 'Fine Art prints are always shown whole, never cropped. The title appears under the frame and in print orders.'
+    : (mngCategory === 'showcase' ? 'On the homepage Speed & Motion is a swipeable strip; sizes and text show on its gallery page.' : 'The homepage preview always shows the first 5 photos in a fixed layout. Sizes and text show on the gallery page.');
+  ['detTitle','detCaption','detBlurb'].forEach(updCount);
+  document.getElementById('detailsOverlay').classList.add('show');
+}
+function closeDetails(){ document.getElementById('detailsOverlay').classList.remove('show'); }
+function updCount(id){
+  const f = document.getElementById(id);
+  const n = document.getElementById(id + 'N');
+  if(n) n.textContent = f.value.length ? `${f.value.length}/${f.maxLength}` : '';
+}
+['detTitle','detCaption','detBlurb'].forEach(id => document.getElementById(id).addEventListener('input', ()=>updCount(id)));
+// typing text switches its "show" on, the first time
+[['detTitle','detShowT'],['detCaption','detShowC'],['detBlurb','detShowB']].forEach(([f, s])=>{
+  const field = document.getElementById(f);
+  field.addEventListener('input', ()=>{ if(field.value && field.dataset.touched !== '1'){ field.dataset.touched = '1'; if(!field.dataset.was) document.getElementById(s).checked = true; } });
+  field.addEventListener('focus', ()=>{ field.dataset.was = field.value ? '1' : ''; field.dataset.touched = ''; });
+});
+function renderSizeSeg(){
+  const seg = document.getElementById('detSize');
+  seg.innerHTML = '';
+  TILE_SIZES.forEach(s=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = s.label;
+    b.className = detSize === s.v ? 'on' : '';
+    b.onclick = ()=>{ detSize = s.v; renderSizeSeg(); };
+    seg.appendChild(b);
+  });
+  // little picture of the tile shapes
+  const demo = document.getElementById('detDemo');
+  demo.innerHTML = '';
+  [['big',44,44],['tall',22,40],['wide',44,26],['sq',22,22]].forEach(([v, w, h])=>{
+    const s = document.createElement('span');
+    s.style.width = w + 'px'; s.style.height = h + 'px';
+    if(detSize === v) s.className = 'on';
+    demo.appendChild(s);
+  });
+}
+async function saveDetails(){
+  const r = detTarget;
+  if(!r) return;
+  if(!hasKeys()){ closeDetails(); showMngStatus('err', 'Add your API key & secret in Settings first'); return; }
+  const art = mngCategory === 'fine-art';
+  const t = document.getElementById('detTitle').value.trim();
+  const c = art ? (r.d ? r.d.c : '') : document.getElementById('detCaption').value.trim();
+  const b = art ? (r.d ? r.d.b : '') : document.getElementById('detBlurb').value.trim();
+  let sh = '';
+  if(art){ sh = t ? 't' : ''; }
+  else {
+    if(document.getElementById('detShowT').checked && t) sh += 't';
+    if(document.getElementById('detShowC').checked && (c || t)) sh += 'c';
+    if(document.getElementById('detShowB').checked && (b || t)) sh += 'b';
+  }
+  const d = {size: art ? (r.d ? r.d.size : '') : detSize, t, c, b, sh};
+  const btn = document.getElementById('detGo');
+  btn.disabled = true;
+  closeDetails();
+  showMngStatus('busy', 'SAVING DETAILS…');
+  try{
+    const {key, secret} = getKeys();
+    const ts = Math.floor(Date.now()/1000);
+    const ctx = ctxString(r.order, d);
+    const sig = await sha1hex(`context=${ctx}&public_id=${r.public_id}&timestamp=${ts}&type=upload${secret}`);
+    const form = new FormData();
+    form.append('public_id', r.public_id);
+    form.append('type', 'upload');
+    form.append('context', ctx);
+    form.append('timestamp', ts);
+    form.append('api_key', key);
+    form.append('signature', sig);
+    const res = await cloudFetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/explicit`, {method:'POST', body:form});
+    if(!res.ok){
+      const j = await res.json().catch(()=>({}));
+      throw new Error(j.error?.message || 'save failed');
+    }
+    r.d = d;
+    renderMngList();
+    showMngStatus('ok', 'DETAILS SAVED — live in a couple minutes');
+  }catch(err){
+    showMngStatus('err', 'DETAILS NOT SAVED: ' + String(err.message || '').slice(0, 60));
+  }
+  btn.disabled = false;
+}
+
+// ===== v3: text tiles (per category, saved in portfolio-config.json) =====
+let ttIdx = -1, ttPos = 0;
+function catTexts(){ return Array.isArray(siteTexts[mngCategory]) ? siteTexts[mngCategory] : []; }
+function renderTextTiles(){
+  const box = document.getElementById('ttBox');
+  if(!mngCategory || mngCategory === 'fine-art'){ box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const list = document.getElementById('ttList');
+  list.innerHTML = '';
+  const items = catTexts();
+  if(!items.length){
+    const e = document.createElement('div');
+    e.className = 'mng-empty';
+    e.style.padding = '10px 0';
+    e.textContent = 'none yet';
+    list.appendChild(e);
+    return;
+  }
+  items.forEach((t, i)=>{
+    const row = document.createElement('div');
+    row.className = 'tt-row' + (t.on === false ? ' off' : '');
+    const body = document.createElement('div');
+    body.className = 'tt-body';
+    const tt = document.createElement('div'); tt.className = 'tt-t'; tt.textContent = t.title || t.blurb || '(empty)';
+    const tp = document.createElement('div'); tp.className = 'tt-p';
+    tp.textContent = posLabel(parseInt(t.after, 10) || 0) + (t.on === false ? ' · hidden' : '');
+    body.appendChild(tt); body.appendChild(tp);
+    const ed = document.createElement('button');
+    ed.className = 'mng-btn'; ed.textContent = 'Edit';
+    ed.disabled = !hasKeys();
+    ed.onclick = ()=> openTextTile(i);
+    row.appendChild(body); row.appendChild(ed);
+    list.appendChild(row);
+  });
+}
+function posLabel(n){ return n <= 0 ? 'before the first photo' : 'after photo ' + n; }
+function openTextTile(i){
+  if(!mngCategory) return;
+  if(!hasKeys()){ showMngStatus('err', 'Add your API key & secret in Settings first'); return; }
+  ttIdx = i;
+  const t = i >= 0 ? catTexts()[i] : {title:'', blurb:'', after: Math.min(2, (resCache[mngCategory] || []).length), on:true};
+  ttPos = parseInt(t.after, 10) || 0;
+  document.getElementById('ttHead').textContent = i >= 0 ? 'Edit text tile' : 'New text tile';
+  document.getElementById('ttTitle').value = t.title || '';
+  document.getElementById('ttBlurb').value = t.blurb || '';
+  document.getElementById('ttOn').checked = t.on !== false;
+  document.getElementById('ttDel').style.display = i >= 0 ? '' : 'none';
+  const del = document.getElementById('ttDel'); del.dataset.armed = ''; del.textContent = 'Delete this text tile';
+  ttNudge(0);
+  document.getElementById('ttOverlay').classList.add('show');
+}
+function closeTextTile(){ document.getElementById('ttOverlay').classList.remove('show'); }
+function ttNudge(d){
+  const max = (resCache[mngCategory] || []).length;
+  ttPos = Math.max(0, Math.min(max, ttPos + d));
+  document.getElementById('ttPos').textContent = posLabel(ttPos);
+}
+async function commitTexts(next, okMsg){
+  const prev = siteTexts;
+  siteTexts = Object.assign({}, siteTexts, {[mngCategory]: next});
+  closeTextTile();
+  showMngStatus('busy', 'SAVING TEXT TILE…');
+  const ok = await saveConfig();
+  if(ok){ showMngStatus('ok', okMsg); }
+  else { siteTexts = prev; showMngStatus('err', 'TEXT TILE NOT SAVED — check keys & connection'); }
+  renderTextTiles();
+}
+function saveTextTile(){
+  const title = document.getElementById('ttTitle').value.trim();
+  const blurb = document.getElementById('ttBlurb').value.trim();
+  if(!title && !blurb){ document.getElementById('ttTitle').focus(); return; }
+  const next = catTexts().slice();
+  const t = {id: ttIdx >= 0 ? (next[ttIdx].id || String(Date.now())) : String(Date.now()), title, blurb, after: ttPos, on: document.getElementById('ttOn').checked};
+  if(ttIdx >= 0) next[ttIdx] = t; else next.push(t);
+  next.sort((a, b) => (parseInt(a.after, 10) || 0) - (parseInt(b.after, 10) || 0));
+  commitTexts(next, 'TEXT TILE SAVED — live in a couple minutes');
+}
+function deleteTextTile(){
+  const del = document.getElementById('ttDel');
+  if(del.dataset.armed !== '1'){ del.dataset.armed = '1'; del.textContent = 'Tap again to delete'; return; }
+  const next = catTexts().filter((_, i) => i !== ttIdx);
+  commitTexts(next, 'TEXT TILE DELETED');
 }
 
 // ===== Signed Cloudinary calls (SHA-1 signature computed on-device) =====
@@ -2015,10 +2428,11 @@ async function doMove(){
 
     // 2) Swap the category tag (and set order, if the destination uses ordering)
     const ts2 = Math.floor(Date.now()/1000);
-    const ctxPart = hasOrders ? `context=order=${endOrder}&` : '';
+    const moveCtx = hasOrders ? ctxString(endOrder, r.d) : '';
+    const ctxPart = hasOrders ? `context=${moveCtx}&` : '';
     const sig2 = await sha1hex(`${ctxPart}invalidate=true&public_id=${rj.public_id}&tags=${moveDest}&timestamp=${ts2}&type=upload${secret}`);
     const form2 = new FormData();
-    if(hasOrders){ form2.append('context', `order=${endOrder}`); }
+    if(hasOrders){ form2.append('context', moveCtx); }
     form2.append('invalidate', 'true');
     form2.append('public_id', rj.public_id);
     form2.append('tags', moveDest);
@@ -2035,7 +2449,7 @@ async function doMove(){
     // Update both caches so everything on screen matches Cloudinary
     resCache[mngCategory] = (resCache[mngCategory] || []).filter(x => x.public_id !== r.public_id);
     nameCache[mngCategory] = resCache[mngCategory].map(x=>x.name);
-    resCache[moveDest].push({public_id: rj.public_id, version: rj.version, format: rj.format || r.format, name: r.name, order: hasOrders ? endOrder : Infinity});
+    resCache[moveDest].push({public_id: rj.public_id, version: rj.version, format: rj.format || r.format, name: r.name, order: hasOrders ? endOrder : Infinity, d: r.d});
     sortRes(resCache[moveDest]);
     nameCache[moveDest] = resCache[moveDest].map(x=>x.name);
     renderMngList();
